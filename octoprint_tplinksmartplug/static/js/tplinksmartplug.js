@@ -36,6 +36,7 @@ $(function() {
 			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
 			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
 			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
+			self.checkStatus();
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {

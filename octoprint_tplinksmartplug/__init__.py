@@ -132,7 +132,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.info("Sending command %s" % cmd)
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
-			self._logger.info("Error sending command")
+			self._logger.info("Could not connect to ip %s." % self._settings.get(["ip"]))
+			return {"system":{"get_sysinfo":{"relay_state":3}}}
 
 	##~~ Softwareupdate hook
 
