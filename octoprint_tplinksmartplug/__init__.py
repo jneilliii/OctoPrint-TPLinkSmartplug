@@ -50,17 +50,19 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.sendCommand("on")["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
-		if self._settings.get(["connectOnPowerOnDelay"]):
+		if self._settings.get_boolean(["connectOnPowerOnDelay"]):
 			time.sleep(0.1 + self._settings.get(["connectOnPowerOnDelay"])
-			self._printer.connect()
+			self._logger.info("Connecting to printer.")
+			# self._printer.connect()
 	
 	def turn_off(self):
 		self._logger.info("Turning off.")
 		self.sendCommand("off")["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
-		if self._settings.get(["disconnectOnPowerOff"]):
-			self._printer.disconnect()
+		if self._settings.get_boolean(["disconnectOnPowerOff"]):
+			self._logger.info("Disconnecting from printer.")
+			# self._printer.disconnect()
 		
 	def check_status(self):
 		self._logger.info("Checking status.")
