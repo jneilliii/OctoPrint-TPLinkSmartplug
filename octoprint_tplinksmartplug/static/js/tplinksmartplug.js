@@ -27,19 +27,25 @@ $(function() {
             }
 
 			self.currentState(data.currentState);
-			alert(data.currentState);
-			if (self.currentState()) {
-				self.relayState("#00FF00");
-			} else {
-				self.relayState("#808080");
-			}            
+
+			switch(self.currentState()) {
+				case "on":
+					self.relayState("#00FF00");
+				case "off":
+					self.relayState("#808080");
+				default:
+					self.relayState("#FF0000");
+			}          
         };
 		
 		self.toggleRelay = function() {
-			if(self.currentState()) {
-				self.turnOn();
-			} else {
-				self.turnOff();
+			switch(self.currentState()){
+				case "on":
+					self.turnOff();
+				case "off":
+					self.turnOn();
+				default:
+					console.log(self.currentState());
 			}
 		}
 		
