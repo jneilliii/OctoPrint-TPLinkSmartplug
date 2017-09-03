@@ -27,8 +27,7 @@ $(function() {
                 return;
             }
 
-			console.log(self.currentState());
-			console.log(data);
+			self.currentState(data.relayState);
 			if (self.currentState()) {
 				self.relayState("#00FF00");
 			} else {
@@ -36,7 +35,7 @@ $(function() {
 			}            
         };
 		
-		self.toggleRelay =function() {
+		self.toggleRelay = function() {
 			if(self.currentState()) {
 				self.turnOn();
 			} else {
@@ -54,7 +53,6 @@ $(function() {
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
-			self.currentState(true);
         };
 
     	self.turnOff = function() {
@@ -67,7 +65,6 @@ $(function() {
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
-			self.currentState(false);
         }; 
     }
 
