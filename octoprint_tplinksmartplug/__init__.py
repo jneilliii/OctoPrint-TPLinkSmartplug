@@ -54,7 +54,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		
 	def check_status(self):
 		self._logger.info("Checking status.")
-		self._logger.info(self.sendCommand("info"))
+		self._logger.info(self.sendCommand("info")["system"]["get_sysinfo"]["relay_state"])
 		self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown"))
 	
 	def get_api_commands(self):
