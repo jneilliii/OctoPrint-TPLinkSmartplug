@@ -16,7 +16,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_settings_defaults(self):
 		return dict(
-			currentState = False,
+			currentState = "unknown",
             ip = '',
             postOnDelay = 0.0,
             disconnectOnPowerOff = False,
