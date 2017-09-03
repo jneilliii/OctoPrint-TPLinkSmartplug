@@ -46,11 +46,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def turn_on(self):
 		self._logger.info("Turning on.")
-		self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on"))
+		self.sendCommand("on")["system"]["set_relay_state"]["err_code"]
+		check_status()
 	
 	def turn_off(self):
 		self._logger.info("Turning off.")
-		self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off"))
+		self.sendCommand("on")["system"]["set_relay_state"]["err_code"]
+		check_status()
 		
 	def check_status(self):
 		self._logger.info("Checking status.")
