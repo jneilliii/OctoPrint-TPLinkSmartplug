@@ -52,7 +52,8 @@ $(function() {
                     command: "turnOn"
                 }),
                 contentType: "application/json; charset=UTF-8"
-            })
+            });
+			self.currentState(True)
         };
 
     	self.turnOff = function() {
@@ -64,7 +65,8 @@ $(function() {
                     command: "turnOff"
                 }),
                 contentType: "application/json; charset=UTF-8"
-            })
+            });
+			self.currentState(False);
         }; 
     }
 
