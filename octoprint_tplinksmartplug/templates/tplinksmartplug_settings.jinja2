@@ -3,20 +3,20 @@
     <div class="control-group">
         <label class="control-label">IP Address</label>
         <div class="controls">
-            <input type="text" class="input-block-level" data-bind="value: settings.plugins.tplinksmartplug.ip">
+            <input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.ip">
         </div>
     </div>
 	<div class="control-group">
         <div class="controls">
             <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.plugins.tplinksmartplug.connectOnPowerOn"> Automatically connect after power on.
+            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.connectOnPowerOn"> Automatically connect after power on.
             </label>
         </div>
     </div>
     <div class="control-group">
         <div class="controls">
             <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.plugins.tplinksmartplug.disconnectOnPowerOff"> Automatically disconnect on power off.
+            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff"> Automatically disconnect on power off.
             </label>
         </div>
     </div>
@@ -25,7 +25,7 @@
         <label class="control-label">Connection delay</label>
         <div class="controls">
             <div class="input-append">
-                <input type="number" min="0" step="0.1" class="input-mini text-right" data-bind="value: settings.plugins.tplinksmartplug.connectOnPowerOnDelay">
+                <input type="number" min="0" step="0.1" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay">
                 <span class="add-on">sec</span>
             </div>
 		</div>
@@ -35,7 +35,7 @@
         <label class="control-label">Post On Delay</label>
         <div class="controls">
             <div class="input-append">
-                <input type="number" min="0" step="0.1" class="input-mini text-right" data-bind="value: settings.plugins.tplinksmartplug.postOnDelay">
+                <input type="number" min="0" step="0.1" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.postOnDelay">
                 <span class="add-on">sec</span>
             </div>
         </div>
