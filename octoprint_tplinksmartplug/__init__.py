@@ -73,7 +73,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			
 	##~~ Utilities
 	
-	def encrypt(string):
+	def encrypt(self, string):
 		key = 171
 		result = "\0\0\0\0"
 		for i in string: 
@@ -82,7 +82,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			result += chr(a)
 		return result
 
-	def decrypt(string):
+	def decrypt(self, string):
 		key = 171 
 		result = ""
 		for i in string: 
