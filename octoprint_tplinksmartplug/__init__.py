@@ -108,7 +108,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		try:
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			sock_tcp.connect((self._settings.get(["ip"]), 9999))
-			sock_tcp.send(encrypt(commands[cmd]))
+			sock_tcp.send(self.encrypt(commands[cmd]))
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
 			
