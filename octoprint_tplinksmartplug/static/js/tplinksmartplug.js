@@ -11,7 +11,7 @@ $(function() {
         self.settings = parameters[0];
 		self.currentState = ko.observable("unknown");
 		self.ip = ko.observable();
-		self.relayState = ko.observable("#FF0000");
+		self.relayState = ko.observable("#808080");
 		
 		self.onBeforeBinding = function() {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
@@ -33,10 +33,10 @@ $(function() {
 					self.relayState("#00FF00");
 					break;
 				case "off":
-					self.relayState("#808080");
+					self.relayState("#FF0000");
 					break;
 				default:
-					self.relayState("#FF0000");
+					self.relayState("#808080");
 			}          
         };
 		
