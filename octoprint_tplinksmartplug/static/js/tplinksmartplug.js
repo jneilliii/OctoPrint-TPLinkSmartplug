@@ -22,7 +22,7 @@ $(function() {
         }
 
         self.onEventSettingsUpdated = function (payload) {
-			self.ip(self.settings.settings.plugins.tplinksmartplug.ip);
+			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
 		}
     }
 
