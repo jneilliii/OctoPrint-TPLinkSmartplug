@@ -21,8 +21,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		return dict(
 			currentState = "unknown",
             ip = '',
-            disconnectOnPowerOff = False,
-            connectOnPowerOn = False,
+            disconnectOnPowerOff = True,
+            connectOnPowerOn = True,
             connectOnPowerOnDelay = 0.0
 		)
 
@@ -59,6 +59,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.sendCommand("off")["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
+		self._logger.info(self._settings.get_boolean(["disconnectOnPowerOff"]))
 		if self._settings.get_boolean(["disconnectOnPowerOff"]):
 			self._logger.info("Disconnecting from printer.")
 			self._printer.disconnect()

@@ -12,9 +12,15 @@ $(function() {
 		self.currentState = ko.observable("unknown");
 		self.ip = ko.observable();
 		self.relayState = ko.observable("#808080");
+		self.disconnectOnPowerOff = ko.observable(),
+		self.connectOnPowerOn = ko.observable(),
+		self.connectOnPowerOnDelay = ko.observable()
 		
 		self.onBeforeBinding = function() {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
+			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
+			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
+			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
         }
 		
 		self.onAfterBinding = function() {
@@ -23,6 +29,9 @@ $(function() {
 
         self.onEventSettingsUpdated = function (payload) {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
+			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
+			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
+			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
