@@ -8,7 +8,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.TemplatePlugin):
 							
 	def on_after_startup(self):
-        self._logger.info("TPLinkSmartplug started.")
+		self._logger.info("TPLinkSmartplug started.")
 
 	##~~ SettingsPlugin mixin
 
