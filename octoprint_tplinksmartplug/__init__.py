@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 import octoprint.plugin
 from octoprint.server import user_permission
+import socket
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
@@ -52,6 +53,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		
 	def check_status(self):
 		self.logger.info("Checking status.")
+		self.logger.info(self.sendCommand('{"system":{"get_sysinfo":{}}}')["system"]["get_sysinfo"]["relay_state"])
 		self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown"))
 	
 	def get_api_commands(self):
@@ -67,6 +69,39 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.turn_off()
 		elif command == 'checkStatus':
 			self.check_status()
+			
+	##~~ Utilities
+	
+	def encrypt(string):
+		key = 171
+		result = "\0\0\0\0"
+		for i in string: 
+			a = key ^ ord(i)
+			key = a
+			result += chr(a)
+		return result
+
+	def decrypt(string):
+		key = 171 
+		result = ""
+		for i in string: 
+			a = key ^ ord(i)
+			key = ord(i) 
+			result += chr(a)
+		return result
+	
+	def sendCommand(cmd):
+		try:
+			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			sock_tcp.connect((self._settings.plugins.tplinksmartplug.ip, 9999))
+			sock_tcp.send(encrypt(cmd))
+			data = sock_tcp.recv(2048)
+			sock_tcp.close()
+			
+			self._logger.info("Sending command %s" % cmd)
+			return JSON.loads(decrypt(data[4:]))
+		except socket.error:
+			self._logger.info("Error sending command")
 
 	##~~ Softwareupdate hook
 
