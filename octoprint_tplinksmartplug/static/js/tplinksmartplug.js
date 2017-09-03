@@ -9,7 +9,7 @@ $(function() {
         var self = this;
 
         self.settings = parameters[0];
-		self.currentState = ko.observable();
+		self.currentState = ko.observable("unknown");
 		self.ip = ko.observable();
 		self.relayState = ko.observable("");
 		
