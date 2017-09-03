@@ -11,10 +11,7 @@ $(function() {
         self.settings = parameters[0];
 		self.currentState = ko.observable();
 		self.ip = ko.observable();
-		
-		self.debug = function() {
-			alert(self.ip());
-		}
+		self.relayState = ko.observable("");
 		
 		self.onBeforeBinding = function() {
             self.currentState(self.settings.settings.plugins.tplinksmartplug.currentState());
@@ -24,6 +21,50 @@ $(function() {
         self.onEventSettingsUpdated = function (payload) {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
 		}
+		
+		self.onDataUpdaterPluginMessage = function(plugin, data) {
+            if (plugin != "tplinksmartplug") {
+                return;
+            }
+
+			if (data.relayState) {
+				self.relayState("#00FF00");
+			} else {
+				self.relayState("#808080");
+			}            
+        };
+		
+		self.toggleRelay =function() {
+			if(self.currentState()) {
+				self.turnOn();
+			} else {
+				self.turnOff();
+			}
+		}
+		
+		self.turnOn = function() {
+            $.ajax({
+                url: API_BASEURL + "plugin/tplinksmartplug",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    command: "turnOn"
+                }),
+                contentType: "application/json; charset=UTF-8"
+            })
+        };
+
+    	self.turnOff = function() {
+            $.ajax({
+                url: API_BASEURL + "plugin/tplinksmartplug",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    command: "turnOff"
+                }),
+                contentType: "application/json; charset=UTF-8"
+            })
+        }; 
     }
 
     // view model class, parameters for constructor, container to bind to

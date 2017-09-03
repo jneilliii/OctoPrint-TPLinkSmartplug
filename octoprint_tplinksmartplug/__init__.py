@@ -2,10 +2,12 @@
 from __future__ import absolute_import
 
 import octoprint.plugin
+from octoprint.server import user_permission
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
-                            octoprint.plugin.TemplatePlugin):
+                            octoprint.plugin.TemplatePlugin,
+							octoprint.plugin.SimpleApiPlugin):
 							
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug started.")
@@ -37,6 +39,31 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			dict(type="navbar", custom_bindings=True),
 			dict(type="settings", custom_bindings=True)
 		]
+		
+	##~~ SimpleApiPlugin mixin
+	
+	def turn_on(self):
+		self._logger.info("Turning on.")
+		self._plugin_manager.send_plugin_message(self._identifier, dict(relayState=True))
+	
+	def turn_off(self):
+		self._logger.info("Turning off.")
+		self._plugin_manager.send_plugin_message(self._identifier, dict(relayState=False))
+	
+	def get_api_commands(self):
+        return dict(
+            turnOn=[],
+            turnOff=[]
+        )
+
+    def on_api_command(self, command, data):
+        if not user_permission.can():
+            return make_response("Insufficient rights", 403)
+        
+        if command == 'turnOn':
+            self.turn_on()
+        elif command == 'turnOff':
+            self.turn_off()
 
 	##~~ Softwareupdate hook
 
