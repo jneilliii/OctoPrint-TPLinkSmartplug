@@ -91,7 +91,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			result += chr(a)
 		return result
 	
-	def sendCommand(cmd):	
+	def sendCommand(self, cmd):	
 		commands = {'info'     : '{"system":{"get_sysinfo":{}}}',
 			'on'       : '{"system":{"set_relay_state":{"state":1}}}',
 			'off'      : '{"system":{"set_relay_state":{"state":0}}}',
