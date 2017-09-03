@@ -60,7 +60,7 @@ $(function() {
 		self.toggleRelay = function() {
 			switch(self.currentState()){
 				case "on":
-					if(self.settings.settings.enablePowerOffWarningDialog()){
+					if(self.enablePowerOffWarningDialog()){
 						self.poweroff_dialog.modal("show");
 					} else {
 						self.turnOff();
