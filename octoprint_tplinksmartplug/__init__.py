@@ -73,18 +73,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			
 	##~~ Utilities
 	
-	self.commands = {'info'     : '{"system":{"get_sysinfo":{}}}',
-					'on'       : '{"system":{"set_relay_state":{"state":1}}}',
-					'off'      : '{"system":{"set_relay_state":{"state":0}}}',
-					'cloudinfo': '{"cnCloud":{"get_info":{}}}',
-					'wlanscan' : '{"netif":{"get_scaninfo":{"refresh":0}}}',
-					'time'     : '{"time":{"get_time":{}}}',
-					'schedule' : '{"schedule":{"get_rules":{}}}',
-					'countdown': '{"count_down":{"get_rules":{}}}',
-					'antitheft': '{"anti_theft":{"get_rules":{}}}',
-					'reboot'   : '{"system":{"reboot":{"delay":1}}}',
-					'reset'    : '{"system":{"reset":{"delay":1}}}'
-	}
+	def commands(self):
+		return dict(info='{"system":{"get_sysinfo":{}}}',
+					on='{"system":{"set_relay_state":{"state":1}}}',
+					off='{"system":{"set_relay_state":{"state":0}}}',
+					cloudinfo='{"cnCloud":{"get_info":{}}}',
+					wlanscan='{"netif":{"get_scaninfo":{"refresh":0}}}',
+					time='{"time":{"get_time":{}}}',
+					schedule='{"schedule":{"get_rules":{}}}',
+					countdown='{"count_down":{"get_rules":{}}}',
+					antitheft='{"anti_theft":{"get_rules":{}}}',
+					reboot='{"system":{"reboot":{"delay":1}}}',
+					reset='{"system":{"reset":{"delay":1}}}')
 	
 	def encrypt(string):
 		key = 171
