@@ -49,9 +49,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def turn_off(self):
 		self._logger.info("Turning off.")
 		self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off"))
+		
+	def check_status(self):
+		self.logger.info("Checking status.")
+		self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown"))
 	
 	def get_api_commands(self):
-		return dict(turnOn=[],turnOff=[])
+		return dict(turnOn=[],turnOff=[],checkStatus=[])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -61,6 +65,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.turn_on()
 		elif command == 'turnOff':
 			self.turn_off()
+		elif command == 'checkStatus':
+			self.check_status()
 
 	##~~ Softwareupdate hook
 

@@ -15,6 +15,7 @@ $(function() {
 		
 		self.onBeforeBinding = function() {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
+			self.checkStatus();
         }
 
         self.onEventSettingsUpdated = function (payload) {
@@ -49,7 +50,6 @@ $(function() {
 					self.turnOn();
 					break;
 				default:
-					self.turnOn();
 					console.log(self.currentState());
 			}
 		}
@@ -73,6 +73,18 @@ $(function() {
                 dataType: "json",
                 data: JSON.stringify({
                     command: "turnOff"
+                }),
+                contentType: "application/json; charset=UTF-8"
+            });
+        }; 
+		
+		self.checkStatus = function() {
+            $.ajax({
+                url: API_BASEURL + "plugin/tplinksmartplug",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    command: "checkStatus"
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
