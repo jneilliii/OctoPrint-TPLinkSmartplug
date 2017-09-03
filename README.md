@@ -1,6 +1,12 @@
 # OctoPrint-TPLinkSmartplug
 
-**TODO:** Describe what your plugin does.
+Work inspired by [OctoPrint-PSUControl](https://github.com/kantlivelong/OctoPrint-PSUControl) and [TP-Link WiFi SmartPlug Client](https://github.com/softScheck/tplink-smartplug), this plugin controls a TP-Link Smartplug via OctoPrint's nav bar. 
+
+![screenshot](screenshot_on.png)
+
+![screenshot](screenshot_off.png)
+
+![screenshot](settings.png)
 
 ## Setup
 
@@ -9,9 +15,7 @@ or manually using this URL:
 
     https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/archive/master.zip
 
-**TODO:** Describe how to install your plugin, if more needs to be done than just installing it via pip or through
-the plugin manager.
 
 ## Configuration
 
-**TODO:** Describe your plugin's configuration options (if any).
+Once installed go into settings and enter the ip address for your TP-Link Smartplug device. Adjust additional settings as needed.
