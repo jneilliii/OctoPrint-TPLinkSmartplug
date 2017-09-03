@@ -12,12 +12,18 @@ $(function() {
 		self.currentState = ko.observable();
 		self.ip = ko.observable();
 		
+		self.debug = function() {
+			alert(self.ip());
+		}
+		
 		self.onBeforeBinding = function() {
             self.currentState(self.settings.settings.plugins.tplinksmartplug.currentState());
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip);
         }
 
-        // TODO: Implement your plugin's view model here.
+        self.onEventSettingsUpdated = function (payload) {
+			self.ip(self.settings.settings.plugins.tplinksmartplug.ip);
+		}
     }
 
     // view model class, parameters for constructor, container to bind to
