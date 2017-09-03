@@ -13,13 +13,6 @@
             </label>
         </div>
     </div>
-    <div class="control-group">
-        <div class="controls">
-            <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff"> Automatically disconnect on power off.
-            </label>
-        </div>
-    </div>
     <!-- ko if: settings.settings.plugins.tplinksmartplug.connectOnPowerOn() -->
     <div class="control-group">
         <label class="control-label">Connection delay</label>
@@ -31,6 +24,13 @@
 		</div>
     </div>
     <!-- /ko -->
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox">
+            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff"> Automatically disconnect on power off.
+            </label>
+        </div>
+    </div>
     <div class="control-group">
         <label class="control-label">Post On Delay</label>
         <div class="controls">

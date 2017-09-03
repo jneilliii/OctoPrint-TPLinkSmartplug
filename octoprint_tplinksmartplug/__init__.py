@@ -5,6 +5,7 @@ import octoprint.plugin
 from octoprint.server import user_permission
 import socket
 import json
+import time
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
@@ -48,11 +49,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._logger.info("Turning on.")
 		self.sendCommand("on")["system"]["set_relay_state"]["err_code"]
 		self.check_status()
+		
+		if self._settings.get(["connectOnPowerOnDelay"]:
+			time.sleep(0.1 + self._settings.get(["connectOnPowerOnDelay"])
+			self._printer.connect()
 	
 	def turn_off(self):
 		self._logger.info("Turning off.")
 		self.sendCommand("off")["system"]["set_relay_state"]["err_code"]
 		self.check_status()
+		
+		if self._settings.get(["disconnectOnPowerOff"]:
+			self._printer.disconnect()
 		
 	def check_status(self):
 		self._logger.info("Checking status.")
