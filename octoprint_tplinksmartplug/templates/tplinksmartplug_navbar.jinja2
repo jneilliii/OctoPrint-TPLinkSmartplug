@@ -1,3 +1,22 @@
 <a id="tplinksmartplug_indicator" class="pull-right" title="TPLink Smartplug" href=#" data-bind="click: toggleRelay,visible: (ip() !== ''),style: {color: relayState()}" style="display: none;">
     <i class="icon-bolt"></i>
 </a>
+
+<div id="tplinksmartplug_poweroff_confirmation_dialog" class="modal hide fade">
+    <div class="modal-header">
+        <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+        <h3>TPLink Smartplug</h3>
+    </div>
+    <div class="modal-body">
+        <p>
+            TPLink Smartplug is currently ON. 
+        </p>
+        <p>
+            {{ _('Are you sure you want to proceed?') }}
+        </p>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">{{ _('Cancel') }}</a>
+        <a href="#" class="btn btn-danger" data-bind="click: function() { loginState.isUser() && $root.turnOff(); }">{{ _('Proceed') }}</a>
+    </div>
+</div>

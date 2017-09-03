@@ -12,19 +12,22 @@ $(function() {
 		self.currentState = ko.observable("unknown");
 		self.ip = ko.observable();
 		self.relayState = ko.observable("#808080");
-		self.disconnectOnPowerOff = ko.observable(),
-		self.connectOnPowerOn = ko.observable(),
-		self.connectOnPowerOnDelay = ko.observable()
+		self.disconnectOnPowerOff = ko.observable();
+		self.connectOnPowerOn = ko.observable();
+		self.connectOnPowerOnDelay = ko.observable();
+		self.enablePowerOffWarningDialog = ko.observable();
 		
 		self.onBeforeBinding = function() {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
 			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
 			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
 			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
+			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
         }
 		
 		self.onAfterBinding = function() {
 			self.checkStatus();
+			self.poweroff_dialog = $("#tplinksmartplug_poweroff_confirmation_dialog");
 		}
 
         self.onEventSettingsUpdated = function (payload) {
@@ -32,6 +35,7 @@ $(function() {
 			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
 			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
 			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
+			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
@@ -56,7 +60,11 @@ $(function() {
 		self.toggleRelay = function() {
 			switch(self.currentState()){
 				case "on":
-					self.turnOff();
+					if(self.settings.settings.enablePowerOffWarningDialog()){
+						self.poweroff_dialog.modal("show");
+					} else {
+						self.turnOff();
+					}					
 					break;
 				case "off":
 					self.turnOn();

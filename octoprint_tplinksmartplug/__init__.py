@@ -23,7 +23,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
             ip = '',
             disconnectOnPowerOff = True,
             connectOnPowerOn = True,
-            connectOnPowerOnDelay = 10.0
+            connectOnPowerOnDelay = 10.0,
+			enablePowerOffWarningDialog = True
 		)
 
 	##~~ AssetPlugin mixin
