@@ -4,6 +4,7 @@ from __future__ import absolute_import
 import octoprint.plugin
 from octoprint.server import user_permission
 import socket
+import JSON
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
