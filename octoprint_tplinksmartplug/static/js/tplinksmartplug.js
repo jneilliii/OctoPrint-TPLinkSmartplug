@@ -31,8 +31,10 @@ $(function() {
 			switch(self.currentState()) {
 				case "on":
 					self.relayState("#00FF00");
+					break;
 				case "off":
 					self.relayState("#808080");
+					break;
 				default:
 					self.relayState("#FF0000");
 			}          
@@ -42,8 +44,10 @@ $(function() {
 			switch(self.currentState()){
 				case "on":
 					self.turnOff();
+					break;
 				case "off":
 					self.turnOn();
+					break;
 				default:
 					self.turnOn();
 					console.log(self.currentState());
