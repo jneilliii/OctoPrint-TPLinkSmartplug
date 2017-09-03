@@ -51,6 +51,7 @@ $(function() {
 					break;
 				case "off":
 					self.relayState("#FF0000");
+					self.poweroff_dialog.modal("hide");
 					break;
 				default:
 					self.relayState("#808080");
