@@ -10,7 +10,7 @@ $(function() {
 
         self.settings = parameters[0];
 		self.currentState = ko.observable();
-		self.validIP = ko.computed(function() {return self.settings.settings.plugins.tplinksmartplug.ip = '';}, self););
+		self.validIP = ko.computed(function() {return self.settings.settings.plugins.tplinksmartplug.ip = '';}, self);
 		
 		self.onBeforeBinding = function() {
             self.currentState(self.settings.settings.plugins.tplinksmartplug.currentState());
