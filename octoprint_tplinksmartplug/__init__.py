@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import octoprint.plugin
 from octoprint.server import user_permission
 import socket
-import JSON
+import json
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
@@ -100,7 +100,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			sock_tcp.close()
 			
 			self._logger.info("Sending command %s" % cmd)
-			return JSON.loads(decrypt(data[4:]))
+			return json.loads(decrypt(data[4:]))
 		except socket.error:
 			self._logger.info("Error sending command")
 
