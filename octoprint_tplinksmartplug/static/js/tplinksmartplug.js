@@ -14,7 +14,6 @@ $(function() {
 		self.relayState = ko.observable("");
 		
 		self.onBeforeBinding = function() {
-            self.currentState(self.settings.settings.plugins.tplinksmartplug.currentState());
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
         }
 
@@ -27,7 +26,7 @@ $(function() {
                 return;
             }
 
-			self.currentState(data.relayState);
+			alert(data.relayState + "|" + self.currentState());
 			if (self.currentState()) {
 				self.relayState("#00FF00");
 			} else {
@@ -53,6 +52,7 @@ $(function() {
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
+			self.currentState(true);
         };
 
     	self.turnOff = function() {
@@ -65,6 +65,7 @@ $(function() {
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
+			self.currentState(false);
         }; 
     }
 
