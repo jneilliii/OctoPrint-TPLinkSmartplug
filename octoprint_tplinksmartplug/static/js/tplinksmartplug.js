@@ -53,7 +53,7 @@ $(function() {
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
-			self.currentState(True)
+			self.currentState(true);
         };
 
     	self.turnOff = function() {
@@ -66,7 +66,7 @@ $(function() {
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
-			self.currentState(False);
+			self.currentState(false);
         }; 
     }
 
