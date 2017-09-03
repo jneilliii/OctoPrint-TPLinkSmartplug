@@ -27,7 +27,8 @@ $(function() {
                 return;
             }
 
-			console.log(data.relayState);
+			console.log(self.currentState());
+			console.log(data);
 			if (self.currentState()) {
 				self.relayState("#00FF00");
 			} else {
