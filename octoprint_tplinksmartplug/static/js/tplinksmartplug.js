@@ -10,11 +10,11 @@ $(function() {
 
         self.settings = parameters[0];
 		self.currentState = ko.observable();
-		self.validIP = ko.computed(function() {return self.settings.settings.plugins.tplinksmartplug.ip = '';}, self);
+		self.validIP = ko.observable();
 		
 		self.onBeforeBinding = function() {
             self.currentState(self.settings.settings.plugins.tplinksmartplug.currentState());
-			self.validIP(validIP())
+			self.validIP(self.settings.settings.plugins.tplinksmartplug.ip = '')
         }
 
         // TODO: Implement your plugin's view model here.
