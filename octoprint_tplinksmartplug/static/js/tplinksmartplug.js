@@ -27,7 +27,7 @@ $(function() {
         // e.g. loginStateViewModel, settingsViewModel, ...
         ["settingsViewModel"],
 
-        // e.g. #settings_plugin_tplinksmartplug, #tab_plugin_tplinksmartplug, ...
-        ["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug"]
+        // "#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug"
+        []
     ]);
 });
