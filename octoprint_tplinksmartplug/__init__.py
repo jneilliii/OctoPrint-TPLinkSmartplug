@@ -54,7 +54,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		
 	def check_status(self):
 		self._logger.info("Checking status.")
-		self._logger.info(self.sendCommand("info"))
+		self._logger.info(self.sendCommand(self.encrypt(self.commands[cmd])))
 		self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown"))
 	
 	def get_api_commands(self):
@@ -108,7 +108,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		try:
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			sock_tcp.connect((self._settings.plugins.tplinksmartplug.ip, 9999))
-			sock_tcp.send(self.encrypt(self.commands[cmd]))
+			sock_tcp.send(cmd)
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
 			
