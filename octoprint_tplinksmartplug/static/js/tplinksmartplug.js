@@ -26,7 +26,8 @@ $(function() {
                 return;
             }
 
-			alert(data.relayState + "|" + self.currentState());
+			self.currentState(data.currentState);
+			alert(data.currentState);
 			if (self.currentState()) {
 				self.relayState("#00FF00");
 			} else {
@@ -52,7 +53,6 @@ $(function() {
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
-			self.currentState(true);
         };
 
     	self.turnOff = function() {
@@ -65,7 +65,6 @@ $(function() {
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
-			self.currentState(false);
         }; 
     }
 

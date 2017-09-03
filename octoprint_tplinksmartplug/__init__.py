@@ -44,11 +44,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def turn_on(self):
 		self._logger.info("Turning on.")
-		self._plugin_manager.send_plugin_message(self._identifier, dict(relayState=True))
+		self._plugin_manager.send_plugin_message(self._identifier, dict(currentState=True))
 	
 	def turn_off(self):
 		self._logger.info("Turning off.")
-		self._plugin_manager.send_plugin_message(self._identifier, dict(relayState=False))
+		self._plugin_manager.send_plugin_message(self._identifier, dict(currentState=False))
 	
 	def get_api_commands(self):
 		return dict(turnOn=[],turnOff=[])
