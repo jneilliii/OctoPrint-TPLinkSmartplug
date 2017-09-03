@@ -15,8 +15,11 @@ $(function() {
 		
 		self.onBeforeBinding = function() {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
-			self.checkStatus();
         }
+		
+		self.onAfterBinding = function() {
+			self.checkStatus();
+		}
 
         self.onEventSettingsUpdated = function (payload) {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
