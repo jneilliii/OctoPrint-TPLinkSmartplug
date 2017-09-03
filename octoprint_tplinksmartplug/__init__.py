@@ -73,19 +73,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			
 	##~~ Utilities
 	
-	def commands(self):
-		return dict(info='{"system":{"get_sysinfo":{}}}',
-					on='{"system":{"set_relay_state":{"state":1}}}',
-					off='{"system":{"set_relay_state":{"state":0}}}',
-					cloudinfo='{"cnCloud":{"get_info":{}}}',
-					wlanscan='{"netif":{"get_scaninfo":{"refresh":0}}}',
-					time='{"time":{"get_time":{}}}',
-					schedule='{"schedule":{"get_rules":{}}}',
-					countdown='{"count_down":{"get_rules":{}}}',
-					antitheft='{"anti_theft":{"get_rules":{}}}',
-					reboot='{"system":{"reboot":{"delay":1}}}',
-					reset='{"system":{"reset":{"delay":1}}}')
-	
 	def encrypt(string):
 		key = 171
 		result = "\0\0\0\0"
@@ -104,11 +91,24 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			result += chr(a)
 		return result
 	
-	def sendCommand(cmd):
+	def sendCommand(cmd):	
+		commands = {'info'     : '{"system":{"get_sysinfo":{}}}',
+			'on'       : '{"system":{"set_relay_state":{"state":1}}}',
+			'off'      : '{"system":{"set_relay_state":{"state":0}}}',
+			'cloudinfo': '{"cnCloud":{"get_info":{}}}',
+			'wlanscan' : '{"netif":{"get_scaninfo":{"refresh":0}}}',
+			'time'     : '{"time":{"get_time":{}}}',
+			'schedule' : '{"schedule":{"get_rules":{}}}',
+			'countdown': '{"count_down":{"get_rules":{}}}',
+			'antitheft': '{"anti_theft":{"get_rules":{}}}',
+			'reboot'   : '{"system":{"reboot":{"delay":1}}}',
+			'reset'    : '{"system":{"reset":{"delay":1}}}'
+		}
+		
 		try:
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			sock_tcp.connect((self._settings.plugins.tplinksmartplug.ip, 9999))
-			sock_tcp.send(cmd)
+			sock_tcp.send(encrypt(commands[cmd]))
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
 			
