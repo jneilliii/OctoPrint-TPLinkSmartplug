@@ -54,7 +54,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		
 	def check_status(self):
 		self._logger.info("Checking status.")
-		self._logger.info(self.sendCommand('{"system":{"get_sysinfo":{}}}'))
+		self._logger.info(self.sendCommand("info"))
 		self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown"))
 	
 	def get_api_commands(self):
@@ -72,6 +72,19 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.check_status()
 			
 	##~~ Utilities
+	
+	self.commands = {'info'     : '{"system":{"get_sysinfo":{}}}',
+					'on'       : '{"system":{"set_relay_state":{"state":1}}}',
+					'off'      : '{"system":{"set_relay_state":{"state":0}}}',
+					'cloudinfo': '{"cnCloud":{"get_info":{}}}',
+					'wlanscan' : '{"netif":{"get_scaninfo":{"refresh":0}}}',
+					'time'     : '{"time":{"get_time":{}}}',
+					'schedule' : '{"schedule":{"get_rules":{}}}',
+					'countdown': '{"count_down":{"get_rules":{}}}',
+					'antitheft': '{"anti_theft":{"get_rules":{}}}',
+					'reboot'   : '{"system":{"reboot":{"delay":1}}}',
+					'reset'    : '{"system":{"reset":{"delay":1}}}'
+	}
 	
 	def encrypt(string):
 		key = 171
@@ -95,12 +108,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		try:
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			sock_tcp.connect((self._settings.plugins.tplinksmartplug.ip, 9999))
-			sock_tcp.send(encrypt(cmd))
+			sock_tcp.send(self.encrypt(self.commands[cmd]))
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
 			
 			self._logger.info("Sending command %s" % cmd)
-			return json.loads(decrypt(data[4:]))
+			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
 			self._logger.info("Error sending command")
 
