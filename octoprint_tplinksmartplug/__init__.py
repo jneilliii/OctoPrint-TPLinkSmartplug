@@ -51,19 +51,16 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._plugin_manager.send_plugin_message(self._identifier, dict(relayState=False))
 	
 	def get_api_commands(self):
-        return dict(
-            turnOn=[],
-            turnOff=[]
-        )
+		return dict(turnOn=[],turnOff=[])
 
-    def on_api_command(self, command, data):
-        if not user_permission.can():
-            return make_response("Insufficient rights", 403)
+	def on_api_command(self, command, data):
+		if not user_permission.can():
+			return make_response("Insufficient rights", 403)
         
-        if command == 'turnOn':
-            self.turn_on()
-        elif command == 'turnOff':
-            self.turn_off()
+		if command == 'turnOn':
+			self.turn_on()
+		elif command == 'turnOff':
+			self.turn_off()
 
 	##~~ Softwareupdate hook
 
