@@ -123,18 +123,30 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			'reset'    : '{"system":{"reset":{"delay":1}}}'
 		}
 		
+		# try to connect via ip address
+		try:
+			socket.inet_aton(self._settings.get(["ip"]))
+			ip = self._settings.get(["ip"])
+		except socket.error:
+		# try to convert hostname to ip
+			try:
+				ip = socket.gethostbyname(self._settings.get(["ip"]))
+			except.gaierror:
+				self._logger.info("invlid hostname %s" % self._settings.get(["ip"]))
+				return {"system":{"get_sysinfo":{"relay_state":3}}}
+				
 		try:
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			sock_tcp.connect((self._settings.get(["ip"]), 9999))
+			sock_tcp.connect((ip, 9999))
 			sock_tcp.send(self.encrypt(commands[cmd]))
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
 			
-			self._logger.info("Sending command %s to ip %s" % (cmd,self._settings.get(["ip"])))
+			self._logger.info("Sending command %s to %s" % (cmd,self._settings.get(["ip"])))
 			self._logger.info(self.decrypt(data))
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
-			self._logger.info("Could not connect to ip %s." % self._settings.get(["ip"]))
+			self._logger.info("Could not connect to %s." % self._settings.get(["ip"]))
 			return {"system":{"get_sysinfo":{"relay_state":3}}}
 
 	##~~ Softwareupdate hook
