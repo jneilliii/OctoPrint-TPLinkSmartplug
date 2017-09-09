@@ -31,8 +31,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_assets(self):
 		return dict(
-			js=["js/tplinksmartplug.js"],
-			css=["css/tplinksmartplug.css"]
+			js=["js/tplinksmartplug.js"]
 		)
 		
 	##~~ TemplatePlugin mixin
@@ -66,12 +65,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		
 	def check_status(self):
 		self._logger.info("Checking status.")
-		chk = self.sendCommand("info")["system"]["get_sysinfo"]["relay_state"]
+		response = self.sendCommand("info")
+		chk = response["system"]["get_sysinfo"]["relay_state"]
 		if chk == 1:
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on"))
 		elif chk == 0:
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off"))
 		else:
+			self._logger.debug(response)
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown"))
 	
 	def get_api_commands(self):
