@@ -131,7 +131,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		# try to convert hostname to ip
 			try:
 				ip = socket.gethostbyname(self._settings.get(["ip"]))
-			except.gaierror:
+			except socket.gaierror:
 				self._logger.info("invlid hostname %s" % self._settings.get(["ip"]))
 				return {"system":{"get_sysinfo":{"relay_state":3}}}
 				
