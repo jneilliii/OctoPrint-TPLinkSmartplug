@@ -131,7 +131,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			sock_tcp.close()
 			
 			self._logger.info("Sending command %s to ip %s" % (cmd,self._settings.get(["ip"])))
-			self._logger.info(data)
+			self._logger.info(self.decrypt(data))
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
 			self._logger.info("Could not connect to ip %s." % self._settings.get(["ip"]))
