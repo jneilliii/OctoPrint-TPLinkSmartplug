@@ -6,11 +6,15 @@ from octoprint.server import user_permission
 import socket
 import json
 import time
+import logging
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
                             octoprint.plugin.TemplatePlugin,
 							octoprint.plugin.SimpleApiPlugin):
+							
+	def __init__(self):
+		self._logger = logging.getLogger(__name__)
 							
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug started.")
