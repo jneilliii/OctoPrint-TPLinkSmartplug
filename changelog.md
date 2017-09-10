@@ -32,6 +32,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[Unreleased]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/hostname
+[Unreleased]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/gcodeprocessing
 [0.2.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.2.0
 [0.1.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.1.0
