@@ -67,7 +67,7 @@ $(function() {
 				default:
 					new PNotify({
 						title: 'TP-Link Smartplug Error',
-						text: 'Status ' + self.currentState() + '. Double check IP Address\Hostname in TPLinkSmartplug Settings.',
+						text: 'Status ' + self.currentState() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
 						type: 'error',
 						hide: true
 						});
