@@ -158,13 +158,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		try:
 			socket.inet_aton(self._settings.get(["ip"]))
 			ip = self._settings.get(["ip"])
+			self._tplinksmartplug_logger.debug("IP %s is valid." % self._settings.get(["ip"]))
 		except socket.error:
 		# try to convert hostname to ip
-			self._tplinksmartplug_logger.debug("Invlid ip %s trying hostname." % self._settings.get(["ip"]))
+			self._tplinksmartplug_logger.debug("Invalid ip %s trying hostname." % self._settings.get(["ip"]))
 			try:
 				ip = socket.gethostbyname(self._settings.get(["ip"]))
-			except socket.gaierror:
-				self._tplinksmartplug_logger.debug("Invlid hostname %s." % self._settings.get(["ip"]))
+				self._tplinksmartplug_logger.debug("Hostname %s is valid." % self._settings.get(["ip"]))
+			except socket.herror:
+				self._tplinksmartplug_logger.debug("Invalid hostname %s." % self._settings.get(["ip"]))
 				return {"system":{"get_sysinfo":{"relay_state":3}}}
 				
 		try:
