@@ -29,7 +29,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._logger.setLevel(logging.DEBUG if self._settings.get_boolean(["debug_logging"]) else logging.INFO)	
 	
 	def on_after_startup(self):
-		self._logger.info("TPLinkSmartplug started.")
+		self._logger.info("TPLinkSmartplug loaded.")
 
 	##~~ SettingsPlugin mixin
 
@@ -63,26 +63,26 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ SimpleApiPlugin mixin
 	
 	def turn_on(self):
-		self._logger.info("Turning on.")
+		self._logger.debug("Turning on.")
 		self.sendCommand("on")["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
 		if self._settings.get_boolean(["connectOnPowerOn"]):
 			time.sleep(0.1 + self._settings.get_float(["connectOnPowerOnDelay"]))
-			self._logger.info("Connecting to printer.")
+			self._logger.debug("Connecting to printer.")
 			self._printer.connect()
 	
 	def turn_off(self):
 		if self._settings.get_boolean(["disconnectOnPowerOff"]):
-			self._logger.info("Disconnecting from printer.")
+			self._logger.debug("Disconnecting from printer.")
 			self._printer.disconnect()
 
-		self._logger.info("Turning off.")
+		self._logger.debug("Turning off.")
 		self.sendCommand("off")["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
 	def check_status(self):
-		self._logger.info("Checking status.")
+		self._logger.debug("Checking status.")
 		response = self.sendCommand("info")
 		chk = response["system"]["get_sysinfo"]["relay_state"]
 		if chk == 1:
@@ -150,7 +150,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			try:
 				ip = socket.gethostbyname(self._settings.get(["ip"]))
 			except socket.gaierror:
-				self._logger.info("invlid hostname %s" % self._settings.get(["ip"]))
+				self._logger.debug("invlid hostname %s" % self._settings.get(["ip"]))
 				return {"system":{"get_sysinfo":{"relay_state":3}}}
 				
 		try:
@@ -160,21 +160,23 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
 			
-			self._logger.info("Sending command %s to %s" % (cmd,self._settings.get(["ip"])))
+			self._logger.debug("Sending command %s to %s" % (cmd,self._settings.get(["ip"])))
 			self._logger.debug(self.decrypt(data))
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
-			self._logger.info("Could not connect to %s." % self._settings.get(["ip"]))
+			self._logger.debug("Could not connect to %s." % self._settings.get(["ip"]))
 			return {"system":{"get_sysinfo":{"relay_state":3}}}
 			
 	##~~ Gcode processing hook
 	
 	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
 		if gcode:
-			if (cmd == "M80" and self._settings.get(["gcodeprocessing"]) == True):
+			if (cmd == "M80" and self._settings.get_boolean(["gcodeprocessing"])):
+				self._logger.debug("Received M80 command, attempting power on.")
 				self.turn_on()
 				return
-			elif (cmd == "M81" and self._settings.get(["gcodeprocessing"]) == True):
+			elif (cmd == "M81" and self._settings.get_boolean(["gcodeprocessing"])):			
+				self._logger.debug("Received M81 command, attempting power off.")
 				self.turn_off()
 				return
 			else:
