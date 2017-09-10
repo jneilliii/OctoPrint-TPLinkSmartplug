@@ -9,6 +9,8 @@ $(function() {
         var self = this;
 
         self.settings = parameters[0];
+		self.loginState = parameters[1];
+		
 		self.currentState = ko.observable("unknown");
 		self.ip = ko.observable();
 		self.relayState = ko.observable("#808080");
@@ -126,7 +128,7 @@ $(function() {
         tplinksmartplugViewModel,
 
         // e.g. loginStateViewModel, settingsViewModel, ...
-        ["settingsViewModel"],
+        ["settingsViewModel","loginStateViewModel"],
 
         // "#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug"
         ["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug"]

@@ -103,7 +103,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		elif chk == 0:
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off"))
 		else:
-			self._logger.debug(response)
+			self._tplinksmartplug_logger.debug(response)
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown"))
 	
 	def get_api_commands(self):
@@ -160,10 +160,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			ip = self._settings.get(["ip"])
 		except socket.error:
 		# try to convert hostname to ip
+			self._tplinksmartplug_logger.debug("Invlid ip %s trying hostname." % self._settings.get(["ip"]))
 			try:
 				ip = socket.gethostbyname(self._settings.get(["ip"]))
 			except socket.gaierror:
-				self._logger.debug("invlid hostname %s" % self._settings.get(["ip"]))
+				self._tplinksmartplug_logger.debug("Invlid hostname %s." % self._settings.get(["ip"]))
 				return {"system":{"get_sysinfo":{"relay_state":3}}}
 				
 		try:
