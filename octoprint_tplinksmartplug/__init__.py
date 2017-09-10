@@ -23,9 +23,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		from octoprint.logging.handlers import CleaningTimedRotatingFileHandler
 		tplinksmartplug_logging_handler = CleaningTimedRotatingFileHandler(self._settings.get_plugin_logfile_path(), when="D", backupCount=3)
 		tplinksmartplug_logging_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s"))
-		tplinksmartplug_logging_handler.setLevel(logging.DEBUG if self._settings.get_boolean(["debug_logging"]) else logging.INFO)
+		tplinksmartplug_logging_handler.setLevel(logging.DEBUG)
 
 		self._logger.addHandler(tplinksmartplug_logging_handler)
+		self._logger.setLevel(logging.DEBUG if self._settings.get_boolean(["debug_logging"]) else logging.INFO)
 	
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
