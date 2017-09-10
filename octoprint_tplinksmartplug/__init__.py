@@ -11,11 +11,23 @@ import logging
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
                             octoprint.plugin.TemplatePlugin,
-							octoprint.plugin.SimpleApiPlugin):
+							octoprint.plugin.SimpleApiPlugin,
+							octoprint.plugin.StartupPlugin):
 							
 	def __init__(self):
-		self._logger = logging.getLogger(__name__)
+		self._logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
 							
+	##~~ StartupPlugin mixin
+	def on_startup(self, host, port):
+		# setup customized logger
+		from octoprint.logging.handlers import CleaningTimedRotatingFileHandler
+		tplinksmartplug_logging_handler = CleaningTimedRotatingFileHandler(self._settings.get_plugin_logfile_path(), when="D", backupCount=3)
+		tplinksmartplug_logging_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s"))
+		tplinksmartplug_logging_handler.setLevel(logging.DEBUG)
+
+		self._logger.addHandler(tplinksmartplug_logging_handler)
+		self._logger.setLevel(logging.DEBUG if self._settings.get_boolean(["debug_logging"]) else logging.INFO)	
+	
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug started.")
 
@@ -29,7 +41,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
             connectOnPowerOn = True,
             connectOnPowerOnDelay = 10.0,
 			enablePowerOffWarningDialog = True,
-			gcodeprocessing = False
+			gcodeprocessing = False,
+			debug_logging = False
 		)
 
 	##~~ AssetPlugin mixin
