@@ -19,9 +19,11 @@ $(function() {
 		self.connectOnPowerOnDelay = ko.observable();
 		self.enablePowerOffWarningDialog = ko.observable();
 		self.gcodeprocessing = ko.observable();
+		self.validIP = ko.observable();
 		
 		self.onBeforeBinding = function() {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
+			self.validIP(self.settings.settings.plugins.tplinksmartplug.validIP());
 			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
 			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
 			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
@@ -35,7 +37,8 @@ $(function() {
 		}
 
         self.onEventSettingsUpdated = function (payload) {
-			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
+			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());			
+			self.validIP(self.settings.settings.plugins.tplinksmartplug.validIP());
 			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
 			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
 			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
@@ -54,13 +57,16 @@ $(function() {
 			switch(self.currentState()) {
 				case "on":
 					self.relayState("#00FF00");
+					self.validIP(true);
 					break;
 				case "off":
 					self.relayState("#FF0000");
+					self.validIP(true);
 					self.poweroff_dialog.modal("hide");
 					break;
 				default:
 					self.relayState("#808080");
+					self.validP(false);
 			}          
         };
 		

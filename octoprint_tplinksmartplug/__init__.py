@@ -44,7 +44,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
             connectOnPowerOnDelay = 10.0,
 			enablePowerOffWarningDialog = True,
 			gcodeprocessing = False,
-			debug_logging = False
+			debug_logging = False,
+			validIP = False
 		)
 	def on_settings_save(self, data):	
 		old_debug_logging = self._settings.get_boolean(["debug_logging"])
