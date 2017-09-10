@@ -16,6 +16,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 							
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
+		self._tplinksmartplug_logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
 							
 	##~~ StartupPlugin mixin
 	def on_startup(self, host, port):
@@ -25,8 +26,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		tplinksmartplug_logging_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s"))
 		tplinksmartplug_logging_handler.setLevel(logging.DEBUG)
 
-		self._logger.addHandler(tplinksmartplug_logging_handler)
-		self._logger.setLevel(logging.DEBUG if self._settings.get_boolean(["debug_logging"]) else logging.INFO)
+		self._tplinksmartplug_logger.addHandler(tplinksmartplug_logging_handler)
+		self._tplinksmartplug_logger.setLevel(logging.DEBUG if self._settings.get_boolean(["debug_logging"]) else logging.INFO)
+		self._tplinksmartplug_logger.propagate = False
 	
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
@@ -44,6 +46,17 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			gcodeprocessing = False,
 			debug_logging = False
 		)
+	def on_settings_save(self, data):	
+		old_debug_logging = self._settings.get_boolean(["debug_logging"])
+
+		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+
+		new_debug_logging = self._settings.get_boolean(["debug_logging"])
+		if old_debug_logging != new_debug_logging:
+			if new_debug_logging:
+				self._tplinksmartplug_logger.setLevel(logging.DEBUG)
+			else:
+				self._tplinksmartplug_logger.setLevel(logging.INFO)
 
 	##~~ AssetPlugin mixin
 
@@ -63,26 +76,26 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ SimpleApiPlugin mixin
 	
 	def turn_on(self):
-		self._logger.debug("Turning on.")
+		self._tplinksmartplug_logger.debug("Turning on.")
 		self.sendCommand("on")["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
 		if self._settings.get_boolean(["connectOnPowerOn"]):
 			time.sleep(0.1 + self._settings.get_float(["connectOnPowerOnDelay"]))
-			self._logger.debug("Connecting to printer.")
+			self._tplinksmartplug_logger.debug("Connecting to printer.")
 			self._printer.connect()
 	
 	def turn_off(self):
 		if self._settings.get_boolean(["disconnectOnPowerOff"]):
-			self._logger.debug("Disconnecting from printer.")
+			self._tplinksmartplug_logger.debug("Disconnecting from printer.")
 			self._printer.disconnect()
 
-		self._logger.debug("Turning off.")
+		self._tplinksmartplug_logger.debug("Turning off.")
 		self.sendCommand("off")["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
 	def check_status(self):
-		self._logger.debug("Checking status.")
+		self._tplinksmartplug_logger.debug("Checking status.")
 		response = self.sendCommand("info")
 		chk = response["system"]["get_sysinfo"]["relay_state"]
 		if chk == 1:
@@ -160,11 +173,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
 			
-			self._logger.debug("Sending command %s to %s" % (cmd,self._settings.get(["ip"])))
-			self._logger.debug(self.decrypt(data))
+			self._tplinksmartplug_logger.debug("Sending command %s to %s" % (cmd,self._settings.get(["ip"])))
+			self._tplinksmartplug_logger.debug(self.decrypt(data))
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
-			self._logger.debug("Could not connect to %s." % self._settings.get(["ip"]))
+			self._tplinksmartplug_logger.debug("Could not connect to %s." % self._settings.get(["ip"]))
 			return {"system":{"get_sysinfo":{"relay_state":3}}}
 			
 	##~~ Gcode processing hook
@@ -172,11 +185,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
 		if gcode:
 			if (cmd == "M80" and self._settings.get_boolean(["gcodeprocessing"])):
-				self._logger.debug("Received M80 command, attempting power on.")
+				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on.")
 				self.turn_on()
 				return
 			elif (cmd == "M81" and self._settings.get_boolean(["gcodeprocessing"])):			
-				self._logger.debug("Received M81 command, attempting power off.")
+				self._tplinksmartplug_logger.debug("Received M81 command, attempting power off.")
 				self.turn_off()
 				return
 			else:
