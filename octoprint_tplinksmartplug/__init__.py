@@ -165,7 +165,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			try:
 				ip = socket.gethostbyname(self._settings.get(["ip"]))
 				self._tplinksmartplug_logger.debug("Hostname %s is valid." % self._settings.get(["ip"]))
-			except socket.error:
+			except (socket.herror, socket.gaierror):
 				self._tplinksmartplug_logger.debug("Invalid hostname %s." % self._settings.get(["ip"]))
 				return {"system":{"get_sysinfo":{"relay_state":3}}}
 				
