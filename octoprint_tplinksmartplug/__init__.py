@@ -16,7 +16,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 							
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
-		self._tplinksmartplug_logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
+		self._tplinksmartplug_logger = logging.getLogger("octoprint.plugins.tplinksmartplug.debug")
 							
 	##~~ StartupPlugin mixin
 	def on_startup(self, host, port):
