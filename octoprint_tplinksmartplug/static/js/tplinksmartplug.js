@@ -65,6 +65,12 @@ $(function() {
 					self.poweroff_dialog.modal("hide");
 					break;
 				default:
+					new PNotify({
+						title: 'TP-Link Smartplug Error',
+						text: 'Status ' + self.currentState() + '. Double check IP Address\Hostname in TPLinkSmartplug Settings.',
+						type: 'error',
+						hide: true
+						});
 					self.relayState("#808080");
 					self.validP(false);
 			}          
@@ -83,12 +89,6 @@ $(function() {
 					self.turnOn();
 					break;
 				default:
-					new PNotify({
-						title: 'TP-Link Smartplug Error',
-						text: 'Status ' + self.currentState() + '. Double check IP Address\Hostname in TPLinkSmartplug Settings.',
-						type: 'error',
-						hide: false
-						});
 			}
 		}
 		
