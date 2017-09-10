@@ -24,7 +24,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
             disconnectOnPowerOff = True,
             connectOnPowerOn = True,
             connectOnPowerOnDelay = 10.0,
-			enablePowerOffWarningDialog = True
+			enablePowerOffWarningDialog = True,
+			gcodeprocessing = False
 		)
 
 	##~~ AssetPlugin mixin
@@ -148,6 +149,20 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		except socket.error:
 			self._logger.info("Could not connect to %s." % self._settings.get(["ip"]))
 			return {"system":{"get_sysinfo":{"relay_state":3}}}
+			
+	##~~ Gcode processing hook
+	
+	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
+		if gcode:
+			if (cmd == "M80" and self._settings.get(["gcodeprocessing"]) == True):
+				self.turn_on()
+				return
+			elif (cmd == "M81" and self._settings.get(["gcodeprocessing"]) == True):
+				self.turn_off()
+				return
+			else:
+				return
+			
 
 	##~~ Softwareupdate hook
 
@@ -183,6 +198,7 @@ def __plugin_load__():
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {
+		"octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.processGCODE,
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
 	}
 
