@@ -8,11 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Incorporated hostname support.  You can now use ip address or hostname.
 - Additional debugging logged to octoprint.log.
+- Added processing of M80 and M81 gcode commands.
 - Added changelog.md.
 
 ### Changed
-- Settings dialog changes for additional hostname support.
-- Settings screenshot updated for above changes.
+- Settings dialog updated for additional hostname support and M80/M81 gcode processing.
+- Settings screenshot updated for above additions and changes.
 - error notification reference on connection error to include hostname in description.
 - Increment version in setup.py.
 
