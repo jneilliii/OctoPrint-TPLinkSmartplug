@@ -9,6 +9,8 @@ $(function() {
         var self = this;
 
         self.settings = parameters[0];
+		self.loginState = parameters[1];
+		
 		self.currentState = ko.observable("unknown");
 		self.ip = ko.observable();
 		self.relayState = ko.observable("#808080");
@@ -17,9 +19,11 @@ $(function() {
 		self.connectOnPowerOnDelay = ko.observable();
 		self.enablePowerOffWarningDialog = ko.observable();
 		self.gcodeprocessing = ko.observable();
+		self.validIP = ko.observable();
 		
 		self.onBeforeBinding = function() {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
+			self.validIP(self.settings.settings.plugins.tplinksmartplug.validIP());
 			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
 			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
 			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
@@ -33,7 +37,8 @@ $(function() {
 		}
 
         self.onEventSettingsUpdated = function (payload) {
-			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
+			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());			
+			self.validIP(self.settings.settings.plugins.tplinksmartplug.validIP());
 			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
 			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
 			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
@@ -52,13 +57,22 @@ $(function() {
 			switch(self.currentState()) {
 				case "on":
 					self.relayState("#00FF00");
+					self.validIP(true);
 					break;
 				case "off":
 					self.relayState("#FF0000");
+					self.validIP(true);
 					self.poweroff_dialog.modal("hide");
 					break;
 				default:
+					new PNotify({
+						title: 'TP-Link Smartplug Error',
+						text: 'Status ' + self.currentState() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
+						type: 'error',
+						hide: true
+						});
 					self.relayState("#808080");
+					self.validP(false);
 			}          
         };
 		
@@ -75,12 +89,6 @@ $(function() {
 					self.turnOn();
 					break;
 				default:
-					new PNotify({
-						title: 'TP-Link Smartplug Error',
-						text: 'Status ' + self.currentState() + '. Double check IP Address\Hostname in TPLinkSmartplug Settings.',
-						type: 'error',
-						hide: false
-						});
 			}
 		}
 		
@@ -126,7 +134,7 @@ $(function() {
         tplinksmartplugViewModel,
 
         // e.g. loginStateViewModel, settingsViewModel, ...
-        ["settingsViewModel"],
+        ["settingsViewModel","loginStateViewModel"],
 
         // "#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug"
         ["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug"]
