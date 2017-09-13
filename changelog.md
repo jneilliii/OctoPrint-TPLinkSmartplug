@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.3.1] - 2017-09-13
 ### Added
-- Added missing import reference to flask.make_response in init.py
+- Added missing import reference to flask.make_response in __init__.py
 
 ## [0.3.0] - 2017-09-12
 ### Added
