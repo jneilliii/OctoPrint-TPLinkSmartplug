@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.3.0] - 2017-09-12
 ### Added
 - Incorporated hostname support.  You can now use ip address or hostname.
-- Additional debugging logged to octoprint.log.
+- Additional debugging logged to separate log file.
 - Added processing of M80 and M81 gcode commands.
 - Added changelog.md.
 
