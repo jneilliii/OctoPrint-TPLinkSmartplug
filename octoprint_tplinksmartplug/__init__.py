@@ -112,6 +112,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
+			from flask import make_response
 			return make_response("Insufficient rights", 403)
         
 		if command == 'turnOn':
