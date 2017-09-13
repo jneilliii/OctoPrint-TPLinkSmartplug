@@ -6,11 +6,15 @@ from octoprint.server import user_permission
 import socket
 import json
 import time
+import logging
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
                             octoprint.plugin.TemplatePlugin,
 							octoprint.plugin.SimpleApiPlugin):
+							
+	def __init__(self):
+		self._logger = logging.getLogger(__name__)
 							
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug started.")
@@ -24,15 +28,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
             disconnectOnPowerOff = True,
             connectOnPowerOn = True,
             connectOnPowerOnDelay = 10.0,
-			enablePowerOffWarningDialog = True
+			enablePowerOffWarningDialog = True,
+			gcodeprocessing = False
 		)
 
 	##~~ AssetPlugin mixin
 
 	def get_assets(self):
 		return dict(
-			js=["js/tplinksmartplug.js"],
-			css=["css/tplinksmartplug.css"]
+			js=["js/tplinksmartplug.js"]
 		)
 		
 	##~~ TemplatePlugin mixin
@@ -66,12 +70,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		
 	def check_status(self):
 		self._logger.info("Checking status.")
-		chk = self.sendCommand("info")["system"]["get_sysinfo"]["relay_state"]
+		response = self.sendCommand("info")
+		chk = response["system"]["get_sysinfo"]["relay_state"]
 		if chk == 1:
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on"))
 		elif chk == 0:
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off"))
 		else:
+			self._logger.debug(response)
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown"))
 	
 	def get_api_commands(self):
@@ -122,18 +128,45 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			'reset'    : '{"system":{"reset":{"delay":1}}}'
 		}
 		
+		# try to connect via ip address
+		try:
+			socket.inet_aton(self._settings.get(["ip"]))
+			ip = self._settings.get(["ip"])
+		except socket.error:
+		# try to convert hostname to ip
+			try:
+				ip = socket.gethostbyname(self._settings.get(["ip"]))
+			except socket.gaierror:
+				self._logger.info("invlid hostname %s" % self._settings.get(["ip"]))
+				return {"system":{"get_sysinfo":{"relay_state":3}}}
+				
 		try:
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			sock_tcp.connect((self._settings.get(["ip"]), 9999))
+			sock_tcp.connect((ip, 9999))
 			sock_tcp.send(self.encrypt(commands[cmd]))
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
 			
-			self._logger.info("Sending command %s" % cmd)
+			self._logger.info("Sending command %s to %s" % (cmd,self._settings.get(["ip"])))
+			self._logger.debug(self.decrypt(data))
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
-			self._logger.info("Could not connect to ip %s." % self._settings.get(["ip"]))
+			self._logger.info("Could not connect to %s." % self._settings.get(["ip"]))
 			return {"system":{"get_sysinfo":{"relay_state":3}}}
+			
+	##~~ Gcode processing hook
+	
+	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
+		if gcode:
+			if (cmd == "M80" and self._settings.get(["gcodeprocessing"]) == True):
+				self.turn_on()
+				return
+			elif (cmd == "M81" and self._settings.get(["gcodeprocessing"]) == True):
+				self.turn_off()
+				return
+			else:
+				return
+			
 
 	##~~ Softwareupdate hook
 
@@ -169,6 +202,7 @@ def __plugin_load__():
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {
+		"octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.processGCODE,
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
 	}
 

@@ -1,7 +1,7 @@
 <form class="form-horizontal">
     <h4>TPLink Smartplug Options</h4>
     <div class="control-group">
-        <label class="control-label">IP Address</label>
+        <label class="control-label">IP Address or Hostname</label>
         <div class="controls">
             <input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.ip">
         </div>
@@ -35,6 +35,13 @@
         <div class="controls">
             <label class="checkbox">
             <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog"> Show warning dialog when powering off via toggle button.
+            </label>
+        </div>
+    </div>
+	<div class="control-group">
+        <div class="controls">
+            <label class="checkbox">
+            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.gcodeprocessing"> Process M80 and M81 commands from gcode.
             </label>
         </div>
     </div>

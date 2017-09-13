@@ -16,6 +16,7 @@ $(function() {
 		self.connectOnPowerOn = ko.observable();
 		self.connectOnPowerOnDelay = ko.observable();
 		self.enablePowerOffWarningDialog = ko.observable();
+		self.gcodeprocessing = ko.observable();
 		
 		self.onBeforeBinding = function() {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
@@ -23,6 +24,7 @@ $(function() {
 			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
 			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
 			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
+			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
         }
 		
 		self.onAfterBinding = function() {
@@ -36,6 +38,7 @@ $(function() {
 			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
 			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
 			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
+			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
 			self.checkStatus();
 		}
 		
@@ -74,7 +77,7 @@ $(function() {
 				default:
 					new PNotify({
 						title: 'TP-Link Smartplug Error',
-						text: 'Status ' + self.currentState() + '. Double check ip address in TPLinkSmartplug Settings.',
+						text: 'Status ' + self.currentState() + '. Double check IP Address\Hostname in TPLinkSmartplug Settings.',
 						type: 'error',
 						hide: false
 						});
