@@ -91,7 +91,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._printer.connect()
 			
 		if self._settings.get_boolean(["cmdOnPowerOn"]):
-			self._logger("Running Power On Command.")
+			self._tplinksmartplug_logger.debug(self._settings.get(["cmdOnPowerOnCommand"]))
 	
 	def turn_off(self):
 		if self._settings.get_boolean(["disconnectOnPowerOff"]):
@@ -99,7 +99,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._printer.disconnect()
 			
 		if self._settings.get_boolean(["cmdOnPowerOff"]):
-			self._logger("Running Power Off Command.")
+			self._tplinksmartplug_logger.debug(self._settings.get(["cmdOnPowerOffCommand"]))
 
 		self._tplinksmartplug_logger.debug("Turning off.")
 		self.sendCommand("off")["system"]["set_relay_state"]["err_code"]
