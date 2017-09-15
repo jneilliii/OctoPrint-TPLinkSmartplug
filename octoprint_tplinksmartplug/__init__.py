@@ -42,6 +42,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
             disconnectOnPowerOff = True,
             connectOnPowerOn = True,
             connectOnPowerOnDelay = 10.0,
+			cmdOnPowerOn = False,
+			cmdOnPowerOnCommand = '',
+			cmdOnPowerOff = False,
+			cmdOnPowerOffCommand = '',
 			enablePowerOffWarningDialog = True,
 			gcodeprocessing = False,
 			debug_logging = False,
@@ -85,11 +89,17 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			time.sleep(0.1 + self._settings.get_float(["connectOnPowerOnDelay"]))
 			self._tplinksmartplug_logger.debug("Connecting to printer.")
 			self._printer.connect()
+			
+		if self._settings.get_boolean(["cmdOnPowerOn"]):
+			self._logger(self._settings.get(["cmdOnPowerOnCommand"]))
 	
 	def turn_off(self):
 		if self._settings.get_boolean(["disconnectOnPowerOff"]):
 			self._tplinksmartplug_logger.debug("Disconnecting from printer.")
 			self._printer.disconnect()
+			
+		if self._settings.get_boolean(["cmdOnPowerOff"]):
+			self._logger(self._settings.get(["cmdOnPowerOffCommand"]))
 
 		self._tplinksmartplug_logger.debug("Turning off.")
 		self.sendCommand("off")["system"]["set_relay_state"]["err_code"]

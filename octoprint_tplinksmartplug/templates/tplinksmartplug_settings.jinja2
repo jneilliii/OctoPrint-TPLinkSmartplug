@@ -48,6 +48,40 @@
 	<div class="control-group">
         <div class="controls">
             <label class="checkbox">
+            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.cmdOnPowerOn"> Run command on power on.
+            </label>
+        </div>
+    </div>
+    <!-- ko if: settings.settings.plugins.tplinksmartplug.cmdOnPowerOn() -->
+    <div class="control-group">
+        <label class="control-label">Command to run</label>
+        <div class="controls">
+            <div class="input-append">
+                <input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.cmdOnPowerOnCommand">
+            </div>
+		</div>
+    </div>
+    <!-- /ko -->
+	<div class="control-group">
+        <div class="controls">
+            <label class="checkbox">
+            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.cmdOnPowerOff"> Run command on power off.
+            </label>
+        </div>
+    </div>
+    <!-- ko if: settings.settings.plugins.tplinksmartplug.cmdOnPowerOff() -->
+    <div class="control-group">
+        <label class="control-label">Command to run</label>
+        <div class="controls">
+            <div class="input-append">
+                <input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.cmdOnPowerOffCommand">
+            </div>
+		</div>
+    </div>
+    <!-- /ko -->
+	<div class="control-group">
+        <div class="controls">
+            <label class="checkbox">
             <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> Enable debug logging.
             </label>
         </div>
