@@ -10,7 +10,11 @@ Work inspired by [OctoPrint-PSUControl](https://github.com/kantlivelong/OctoPrin
 
 ![screenshot](screenshot_off.png)
 
-![screenshot](settings.png)
+![screenshot](settings_general.png)
+
+![screenshot](settings_on.png)
+
+![screenshot](settings_off.png)
 
 ## Setup
 
