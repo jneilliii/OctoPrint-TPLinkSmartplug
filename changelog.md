@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2017-09-16
+### Added
+- Added system command options on power on and off.
+
+### Changed
+- Modified settings dialog for above additions.
+- Converted settings dialog to tabbed interface.
+- Updated screenshots.
+- Updated readme to add additional settings screenshots.
+
 ## [0.3.1] - 2017-09-13
 ### Added
 - Added missing import reference to flask.make_response.
@@ -36,6 +46,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
+[0.4.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.4.0
 [0.3.1]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.3.1
 [0.3.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.3.0
 [0.2.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.2.0
