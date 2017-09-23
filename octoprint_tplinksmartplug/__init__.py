@@ -175,7 +175,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		try:
 			socket.inet_aton(plugip)
 			ip = plugip
-			self._tplinksmartplug_logger.debug("IP %s is valid." % plugip))
+			self._tplinksmartplug_logger.debug("IP %s is valid." % plugip)
 		except socket.error:
 		# try to convert hostname to ip
 			self._tplinksmartplug_logger.debug("Invalid ip %s trying hostname." % plugip)
