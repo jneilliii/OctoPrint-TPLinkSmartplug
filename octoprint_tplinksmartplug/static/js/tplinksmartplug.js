@@ -83,11 +83,12 @@ $(function() {
             }
 
 			ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
-				return plug.ip() == data.ip;
-			}).currentState(data.currentState);
+				console.log(plug)
+				if (plug.ip() == data.ip) {
+					plug.currentState(data.currentState)
+				}});
 			
 			self.currentState(data.currentState);
-			console.log(data);
 
 			switch(self.currentState()) {
 				case "on":
