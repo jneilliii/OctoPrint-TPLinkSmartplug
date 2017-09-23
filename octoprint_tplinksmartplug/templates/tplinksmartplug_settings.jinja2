@@ -1,100 +1,28 @@
 <div class="tplinksettings">
     <h4>TP-Link Smartplug Settings</h4>
-	<div class="tabbable">
-		<ul class="nav nav-tabs" id="tplinksmartplugtabs">
-		  <li id="general_link" class="active"><a data-toggle="tab" href="#general">General Settings</a></li>
-		  <li id="on_link" class=" "><a data-toggle="tab" href="#on">On Options</a></li>
-		  <li id="off_link" class=" "><a data-toggle="tab" href="#off">Off Options</a></li>
-		</ul>
-		<div class="tab-content">
-		  <div id="general" class="tab-pane fade in active">
-			<div class="control-group">
-				<label class="control-label">IP Address or Hostname</label>
-				<div class="controls">
-					<input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.ip">
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="controls">
-					<label class="checkbox">
-					<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.gcodeprocessing"> Process M80 and M81 commands from gcode.
-					</label>
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="controls">
-					<label class="checkbox">
-					<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> Enable debug logging.
-					</label>
-				</div>
-			</div>
-		  </div>
-		  <div id="on" class="tab-pane fade">
-			<div class="control-group">
-				<div class="controls">
-					<label class="checkbox">
-					<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.connectOnPowerOn"> Automatically connect after power on.
-					</label>
-				</div>
-			</div>
-			<!-- ko if: settings.settings.plugins.tplinksmartplug.connectOnPowerOn() -->
-			<div class="control-group">
-				<label class="control-label">Connection delay</label>
-				<div class="controls">
-					<div class="input-append">
-						<input type="number" min="0" step="0.1" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay">
-						<span class="add-on">sec</span>
-					</div>
-				</div>
-			</div>
-			<!-- /ko -->
-			<div class="control-group">
-				<div class="controls">
-					<label class="checkbox">
-					<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.cmdOnPowerOn"> Run command on power on.
-					</label>
-				</div>
-			</div>
-			<!-- ko if: settings.settings.plugins.tplinksmartplug.cmdOnPowerOn() -->
-			<div class="control-group">
-				<label class="control-label">Command to run</label>
-				<div class="controls">
-					<input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.cmdOnPowerOnCommand">
-				</div>
-			</div>
-			<!-- /ko -->	
-		  </div>
-		  <div id="off" class="tab-pane fade">
-			<div class="control-group">
-				<div class="controls">
-					<label class="checkbox">
-					<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff"> Automatically disconnect before power off.
-					</label>
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="controls">
-					<label class="checkbox">
-					<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog"> Show warning dialog when powering off via toggle button.
-					</label>
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="controls">
-					<label class="checkbox">
-					<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.cmdOnPowerOff"> Run command on power off.
-					</label>
-				</div>
-			</div>
-			<!-- ko if: settings.settings.plugins.tplinksmartplug.cmdOnPowerOff() -->
-			<div class="control-group">
-				<label class="control-label">Command to run</label>
-				<div class="controls">
-					<input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.cmdOnPowerOffCommand">
-				</div>
-			</div>
-			<!-- /ko -->
-		  </div>
-		</div>
-	</div>
+	<table data-bind='visible: arrSmartPlugs().length > 0'>
+		<thead>
+			<tr>
+				<th>IP/Hostname</th>
+				<th>Process GCODE</th>
+				<th>Auto Connect On</th>
+				<th>Auto Connect Off</th>
+				<th>Connect On Cmd</th>
+				<th>Connect Off Cmd</th>
+				<th />
+			</tr>
+		</thead>
+		<tbody data-bind='foreach: arrSmartPlugs'>
+			<tr>
+				<td><input data-bind='value: ip, uniqueName: true' /></td>
+				<td><input type="checkbox" data-bind="checked: gcodeEnabled"/></td>
+				<td><input type="checkbox" data-bind="checked: autoConnect"/></td>
+				<td><input type="checkbox" data-bind="checked: autoDisconnect"/></td>
+				<td><input data-bind="value: sysCmdOn" /></td>
+				<td><input data-bind="value: sysCmdOff" /></td>
+				<td><a href='#' data-bind='click: $root.removePlug'>Delete</a></td>
+			</tr>
+		</tbody>
+	</table>
+	<button data-bind='click: addPlug'>Add Plug</button>
 </div>

@@ -24,6 +24,7 @@ $(function() {
 		self.cmdOnPowerOnCommand = ko.observable();
 		self.cmdOnPowerOff = ko.observable();
 		self.cmdOnPowerOffCommand = ko.observable();
+		self.arrSmartplugs = ko.observableArray();
 		
 		self.onBeforeBinding = function() {
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
@@ -37,6 +38,7 @@ $(function() {
 			self.cmdOnPowerOffCommand(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOffCommand());
 			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
 			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
+			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
         }
 		
 		self.onAfterBinding = function() {
@@ -56,7 +58,23 @@ $(function() {
 			self.cmdOnPowerOffCommand(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOffCommand());
 			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
 			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
+			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 			self.checkStatus();
+		}
+		
+		self.addPlug = function() {
+			self.arrSmartplugs.push({
+				ip: "",
+				gcodeEnabled: "",
+				autoConnect: true,
+				autoDisconnect: true,
+				sysCmdOn: "",
+				sysCmdOff: ""
+			});
+		}
+		
+		self.removePlug = function(plug) {
+			self.arrSmartplugs.remove(plug);
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
