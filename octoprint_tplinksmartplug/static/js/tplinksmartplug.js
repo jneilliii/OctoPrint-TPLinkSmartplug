@@ -63,14 +63,17 @@ $(function() {
 		}
 		
 		self.addPlug = function() {
-			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({
-				ip: "",
-				gcodeEnabled: false,
-				autoConnect: true,
-				autoDisconnect: true,
-				sysCmdOn: "",
-				sysCmdOff: ""
-			});
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':'',
+																				'gcodeEnabled':False,
+																				'autoConnect':True,
+																				'autoConnectDelay':10.0,
+																				'autoDisconnect':True,
+																				'autoDisconnectDelay':0,
+																				'sysCmdOn':'',
+																				'sysCmdOnDelay':0,
+																				'sysCmdOff':'',
+																				'sysCmdOffDelay':0,
+																				'currentState':'unknown'});
 		}
 		
 		self.removePlug = function(row) {
