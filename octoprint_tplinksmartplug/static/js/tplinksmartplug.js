@@ -63,7 +63,7 @@ $(function() {
 		}
 		
 		self.addPlug = function(data) {
-			self.arrSmartplugs.push({
+			data.arrSmartplugs.push({
 				ip: "",
 				gcodeEnabled: false,
 				autoConnect: true,
