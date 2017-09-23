@@ -74,8 +74,10 @@ $(function() {
 			console.log(data)
 		}
 		
-		self.removePlug = function(plug) {
-			console.log(plug);
+		self.removePlug = function(viewmodel,row,idx) {
+			console.log(viewmodel);
+			console.log(row);
+			console.log(idx);
 			// self.arrSmartplugs.remove(plug);
 		}
 		
