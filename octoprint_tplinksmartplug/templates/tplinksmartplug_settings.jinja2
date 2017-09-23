@@ -20,7 +20,7 @@
 				<td><input type="checkbox" data-bind="checked: autoDisconnect"/></td>
 				<td><input data-bind="value: sysCmdOn" /></td>
 				<td><input data-bind="value: sysCmdOff" /></td>
-				<td><a href="#" class="icon-trash" data-bind="click: function() { if ($root.loginState.isUser()) { $root.removePlug; } else { return; } }, css: {disabled: !$root.loginState.isUser()}"></a></td>
+				<td><a href="#" class="icon-trash" data-bind="click: function() { if ($root.loginState.isUser()) { removePlug; } else { return; } }, css: {disabled: !$root.loginState.isUser()}"></a></td>
 			</tr>
 		</tbody>
 	</table>
