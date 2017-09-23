@@ -107,7 +107,7 @@ $(function() {
         };
 		
 		self.toggleRelay = function(data) {
-			console.log(data.ip);
+			console.log(data.ip());
 			switch(self.currentState()){
 				case "on":
 					if(self.enablePowerOffWarningDialog()){
@@ -129,8 +129,7 @@ $(function() {
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify({
-                    command: "turnOn",
-					ip: "test"
+                    command: "turnOn"
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
@@ -142,7 +141,8 @@ $(function() {
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify({
-                    command: "turnOff"
+                    command: "turnOff",
+					ip: "test"
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
