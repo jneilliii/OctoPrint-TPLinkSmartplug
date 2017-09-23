@@ -83,9 +83,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		
 	##~~ SimpleApiPlugin mixin
 	
-	def turn_on(self):
+	def turn_on(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning on.")
-		self.sendCommand("on",self._settings.get(["ip"]))["system"]["set_relay_state"]["err_code"]
+		self.sendCommand("on",plugip)["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
 		if self._settings.get_boolean(["connectOnPowerOn"]):
@@ -110,20 +110,20 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.sendCommand("off",plugip)["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
-	def check_status(self):
+	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status.")
-		response = self.sendCommand("info",self._settings.get(["ip"]))
+		response = self.sendCommand("info",plugip)
 		chk = response["system"]["get_sysinfo"]["relay_state"]
 		if chk == 1:
-			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on"))
+			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",ip=plugip))
 		elif chk == 0:
-			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off"))
+			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off",ip=plugip))
 		else:
 			self._tplinksmartplug_logger.debug(response)
-			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown"))
+			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",ip=plugip))
 	
 	def get_api_commands(self):
-		return dict(turnOn=[],turnOff=["ip"],checkStatus=[])
+		return dict(turnOn=["ip"],turnOff=["ip"],checkStatus=["ip"])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -131,11 +131,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			return make_response("Insufficient rights", 403)
         
 		if command == 'turnOn':
-			self.turn_on()
+			self.turn_on("{ip}".format(**data))
 		elif command == 'turnOff':
 			self.turn_off("{ip}".format(**data))
 		elif command == 'checkStatus':
-			self.check_status()
+			self.check_status("{ip}".format(**data))
 			
 	##~~ Utilities
 	

@@ -116,19 +116,20 @@ $(function() {
 					// }					
 					break;
 				case "off":
-					self.turnOn();
+					self.turnOn(data.ip());
 					break;
 				default:
 			}
 		}
 		
-		self.turnOn = function() {
+		self.turnOn = function(plugIP) {
             $.ajax({
                 url: API_BASEURL + "plugin/tplinksmartplug",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify({
-                    command: "turnOn"
+                    command: "turnOn",
+					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
@@ -147,13 +148,14 @@ $(function() {
             });
         }; 
 		
-		self.checkStatus = function() {
+		self.checkStatus = function(plugIP) {
             $.ajax({
                 url: API_BASEURL + "plugin/tplinksmartplug",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify({
-                    command: "checkStatus"
+                    command: "checkStatus",
+					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
