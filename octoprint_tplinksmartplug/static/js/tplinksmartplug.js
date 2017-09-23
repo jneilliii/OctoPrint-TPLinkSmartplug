@@ -109,11 +109,11 @@ $(function() {
 		self.toggleRelay = function(data) {
 			switch(self.currentState()){
 				case "on":
-					if(self.enablePowerOffWarningDialog()){
-						self.poweroff_dialog.modal("show");
-					} else {
+					// if(self.enablePowerOffWarningDialog()){
+						// self.poweroff_dialog.modal("show");
+					// } else {
 						self.turnOff(data.ip());
-					}					
+					// }					
 					break;
 				case "off":
 					self.turnOn();

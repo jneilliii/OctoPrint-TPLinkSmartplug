@@ -134,7 +134,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.turn_on()
 		elif command == 'turnOff':
 			self._logger.info("{ip}".format(**data))
-			self.turn_off()
+			# self.turn_off()
 		elif command == 'checkStatus':
 			self.check_status()
 			
