@@ -63,7 +63,7 @@ $(function() {
 		}
 		
 		self.addPlug = function() {
-			self.arrSmartplugs().push({
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({
 				ip: "",
 				gcodeEnabled: false,
 				autoConnect: true,
@@ -74,7 +74,6 @@ $(function() {
 			for (i = 0; i < arguments.length; i++) {
 				console.log(arguments[i]);
 			}
-			console.log(self.arrSmartplugs());
 		}
 		
 		self.removePlug = function() {
