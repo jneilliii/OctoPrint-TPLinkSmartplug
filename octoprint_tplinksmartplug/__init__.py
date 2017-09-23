@@ -51,8 +51,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			gcodeprocessing = False,
 			debug_logging = False,
 			validIP = False,
-			arrSmartplugs = dict(ip = '',gcodeEnabled = False,autoConnect = True, autoDisconnect = True, sysCmdOn = '', sysCmdOff = '')
+			arrSmartplugs = {{'ip' : '','gcodeEnabled' : False,'autoConnect' : True, 'autoDisconnect' : True, 'sysCmdOn' : '', 'sysCmdOff' : ''}}
 		)
+		
 	def on_settings_save(self, data):	
 		old_debug_logging = self._settings.get_boolean(["debug_logging"])
 
