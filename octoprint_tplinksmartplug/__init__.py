@@ -86,7 +86,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def turn_on(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning on.")
 		self.sendCommand("on",plugip)["system"]["set_relay_state"]["err_code"]
-		self.check_status()
+		self.check_status(plugip)
 		
 		if self._settings.get_boolean(["connectOnPowerOn"]):
 			time.sleep(0.1 + self._settings.get_float(["connectOnPowerOnDelay"]))
@@ -108,7 +108,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		self._tplinksmartplug_logger.debug("Turning off.")
 		self.sendCommand("off",plugip)["system"]["set_relay_state"]["err_code"]
-		self.check_status()
+		self.check_status(plugip)
 		
 	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status.")
