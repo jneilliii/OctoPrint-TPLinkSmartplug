@@ -12,7 +12,7 @@
 				<th />
 			</tr>
 		</thead>
-		<tbody data-bind='foreach: arrSmartPlugs'>
+		<tbody data-bind='foreach: settings.settings.plugins.tplinksmartplug.arrSmartPlugs'>
 			<tr>
 				<td><input data-bind='value: ip, uniqueName: true' /></td>
 				<td><input type="checkbox" data-bind="checked: gcodeEnabled"/></td>

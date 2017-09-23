@@ -65,7 +65,7 @@ $(function() {
 		self.addPlug = function() {
 			self.arrSmartplugs.push({
 				ip: "",
-				gcodeEnabled: "",
+				gcodeEnabled: false,
 				autoConnect: true,
 				autoDisconnect: true,
 				sysCmdOn: "",
