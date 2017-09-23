@@ -82,6 +82,10 @@ $(function() {
                 return;
             }
 
+			ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
+				return plug.ip() == data.ip;
+			}).currentState(data.currentState);
+			
 			self.currentState(data.currentState);
 			console.log(data);
 
@@ -163,16 +167,18 @@ $(function() {
         }; 
 		
 		self.checkStatuses = function() {
-            $.ajax({
-                url: API_BASEURL + "plugin/tplinksmartplug",
-                type: "POST",
-                dataType: "json",
-                data: JSON.stringify({
-                    command: "checkStatus",
-					ip: self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(0).ip()
-                }),
-                contentType: "application/json; charset=UTF-8"
-            });
+			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
+				$.ajax({
+					url: API_BASEURL + "plugin/tplinksmartplug",
+					type: "POST",
+					dataType: "json",
+					data: JSON.stringify({
+						command: "checkStatus",
+						ip: plug.ip()
+					}),
+					contentType: "application/json; charset=UTF-8"
+				});
+			});
         };
     }
 
