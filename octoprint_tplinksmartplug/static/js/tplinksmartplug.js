@@ -74,11 +74,11 @@ $(function() {
 			console.log(data)
 		}
 		
-		self.removePlug = function(viewmodel,row,idx) {
+		self.removePlug = function(viewmodel,row,row_index) {
 			console.log(viewmodel);
 			console.log(row);
 			console.log(idx);
-			// self.arrSmartplugs.remove(plug);
+			viewmodel.arrSmartplugs.remove(row);
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
