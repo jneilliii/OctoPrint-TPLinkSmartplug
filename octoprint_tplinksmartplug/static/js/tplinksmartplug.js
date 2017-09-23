@@ -71,9 +71,11 @@ $(function() {
 				sysCmdOn: "",
 				sysCmdOff: ""
 			});
+			console.log("add plug pressed.")
 		}
 		
 		self.removePlug = function(plug) {
+			console.log(plug);
 			self.arrSmartplugs.remove(plug);
 		}
 		
