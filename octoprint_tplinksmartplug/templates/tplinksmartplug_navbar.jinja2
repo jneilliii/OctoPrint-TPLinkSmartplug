@@ -1,5 +1,5 @@
 <!-- ko foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs -->
-<a id="tplinksmartplug_indicator" class="pull-right" title="TPLink Smartplug" href=#" data-bind="click: $root.toggleRelay,visible: ($root.validIP() && loginState.loggedIn),style: {color: $root.relayState()}, attrib: {title: $data.ip}" style="display: none;">
+<a id="tplinksmartplug_indicator" class="pull-right" title="TPLink Smartplug" href=#" data-bind="click: $root.toggleRelay,visible: ($root.validIP() && $root.loginState.loggedIn),style: {color: $root.relayState()}, attrib: {title: $data.ip}" style="display: none;">
     <i class="icon-bolt"></i>
 </a>
 <!-- /ko -->
