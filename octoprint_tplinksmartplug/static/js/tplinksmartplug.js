@@ -62,7 +62,7 @@ $(function() {
 			self.checkStatus();
 		}
 		
-		self.addPlug = function() {
+		self.addPlug = function(self) {
 			self.arrSmartplugs.push({
 				ip: "",
 				gcodeEnabled: false,
@@ -74,7 +74,7 @@ $(function() {
 			console.log("add plug pressed.")
 		}
 		
-		self.removePlug = function(plug) {
+		self.removePlug = function(self,plug) {
 			console.log(plug);
 			self.arrSmartplugs.remove(plug);
 		}
