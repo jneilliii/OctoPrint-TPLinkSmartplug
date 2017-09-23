@@ -135,6 +135,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		elif command == 'turnOff':
 			self.turn_off()
 		elif command == 'checkStatus':
+			if "ip" in data:
+				self._tplinksmartplug_logger.info("{ip}".format(**data))
 			self.check_status()
 			
 	##~~ Utilities
