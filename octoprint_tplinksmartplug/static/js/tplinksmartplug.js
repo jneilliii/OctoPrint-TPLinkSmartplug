@@ -62,8 +62,8 @@ $(function() {
 			self.checkStatus();
 		}
 		
-		self.addPlug = function() {
-			self.arrSmartplugs.push({
+		self.addPlug = function(viewmodel) {
+			viewmodel.arrSmartplugs.push({
 				ip: "",
 				gcodeEnabled: false,
 				autoConnect: true,
@@ -76,8 +76,8 @@ $(function() {
 			}
 		}
 		
-		self.removePlug = function(row) {
-			self.arrSmartplugs.remove(row);
+		self.removePlug = function() {
+			//self.arrSmartplugs.remove(row);
 			for (i = 0; i < arguments.length; i++) {
 				console.log(arguments[i]);
 			}
