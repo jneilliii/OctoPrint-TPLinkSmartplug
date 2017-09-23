@@ -1,7 +1,8 @@
-<a id="tplinksmartplug_indicator" class="pull-right" title="TPLink Smartplug" href=#" data-bind="click: toggleRelay,visible: (validIP() && loginState.loggedIn),style: {color: relayState()}" style="display: none;">
+<!-- ko foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs -->
+<a id="tplinksmartplug_indicator" class="pull-right" title="TPLink Smartplug" href=#" data-bind="click: toggleRelay,visible: (validIP() && loginState.loggedIn),style: {color: relayState()}, attrib: {title: $data.ip}" style="display: none;">
     <i class="icon-bolt"></i>
 </a>
-
+<!-- /ko -->
 <div id="tplinksmartplug_poweroff_confirmation_dialog" class="modal hide fade">
     <div class="modal-header">
         <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>

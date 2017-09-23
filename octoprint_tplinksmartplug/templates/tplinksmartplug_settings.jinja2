@@ -20,7 +20,7 @@
 				<td><input type="checkbox" data-bind="checked: autoDisconnect, uniqueName: true"/></td>
 				<td><input data-bind="value: sysCmdOn, uniqueName: true" /></td>
 				<td><input data-bind="value: sysCmdOff, uniqueName: true" /></td>
-				<td><a href="#" class="icon-trash" data-bind="click: $root.removePlug, css: {disabled: !$root.loginState.isUser()}"></a></td>
+				<td><a href="#" class="icon-trash" data-bind="click: $root.removePlug, css: {disabled: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length == 1}"></a></td>
 			</tr>
 		</tbody>
 	</table>
