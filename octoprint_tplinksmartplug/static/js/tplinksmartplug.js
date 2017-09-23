@@ -71,16 +71,10 @@ $(function() {
 				sysCmdOn: "",
 				sysCmdOff: ""
 			});
-			for (i = 0; i < arguments.length; i++) {
-				console.log(arguments[i]);
-			}
 		}
 		
 		self.removePlug = function(row) {
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.remove(row);
-			for (i = 0; i < arguments.length; i++) {
-				console.log(arguments[i]);
-			}
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
@@ -113,6 +107,9 @@ $(function() {
         };
 		
 		self.toggleRelay = function() {
+			for (i = 0; i < arguments.length; i++) {
+				console.log(arguments[i]);
+			}
 			switch(self.currentState()){
 				case "on":
 					if(self.enablePowerOffWarningDialog()){
