@@ -1,10 +1,11 @@
-<div class="nav">
+<span>
 <!-- ko foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs -->
 <a id="tplinksmartplug_indicator" class="nav pull-right" href=#" data-bind="click: $root.toggleRelay,visible: ($root.validIP() && $root.loginState.loggedIn),style: {color: $root.relayState()}, attrib: {title: $data.ip}" style="display: none;">
     <i class="icon-bolt"></i>
 </a>
 <!-- /ko -->
-</div>
+</span>
+
 <div id="tplinksmartplug_poweroff_confirmation_dialog" class="modal hide fade">
     <div class="modal-header">
         <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
