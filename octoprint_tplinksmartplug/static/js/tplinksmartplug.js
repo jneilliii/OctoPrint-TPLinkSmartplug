@@ -62,8 +62,8 @@ $(function() {
 			self.checkStatus();
 		}
 		
-		self.addPlug = function(data) {
-			data.arrSmartplugs.push({
+		self.addPlug = function() {
+			self.arrSmartplugs.push({
 				ip: "",
 				gcodeEnabled: false,
 				autoConnect: true,
@@ -71,14 +71,16 @@ $(function() {
 				sysCmdOn: "",
 				sysCmdOff: ""
 			});
-			console.log(data)
+			for (i = 0; i < arguments.length; i++) {
+				console.log(arguments[i]);
+			}
 		}
 		
-		self.removePlug = function(viewmodel,row,row_index) {
-			console.log(viewmodel);
-			console.log(row);
-			console.log(row_index);
+		self.removePlug = function(row) {
 			self.arrSmartplugs.remove(row);
+			for (i = 0; i < arguments.length; i++) {
+				console.log(arguments[i]);
+			}
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
