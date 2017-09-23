@@ -85,7 +85,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def turn_on(self):
 		self._tplinksmartplug_logger.debug("Turning on.")
-		self.sendCommand("on")["system"]["set_relay_state"]["err_code"]
+		self.sendCommand("on",self._settings.get(["ip"]))["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
 		if self._settings.get_boolean(["connectOnPowerOn"]):
@@ -97,7 +97,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug("Running power on system command %s." % self._settings.get(["cmdOnPowerOnCommand"]))
 			os.system(self._settings.get(["cmdOnPowerOnCommand"]))
 	
-	def turn_off(self):
+	def turn_off(self, plugip):
 		if self._settings.get_boolean(["disconnectOnPowerOff"]):
 			self._tplinksmartplug_logger.debug("Disconnecting from printer.")
 			self._printer.disconnect()
@@ -107,12 +107,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			os.system(self._settings.get(["cmdOnPowerOffCommand"]))
 
 		self._tplinksmartplug_logger.debug("Turning off.")
-		self.sendCommand("off")["system"]["set_relay_state"]["err_code"]
+		self.sendCommand("off",plugip)["system"]["set_relay_state"]["err_code"]
 		self.check_status()
 		
 	def check_status(self):
 		self._tplinksmartplug_logger.debug("Checking status.")
-		response = self.sendCommand("info")
+		response = self.sendCommand("info",self._settings.get(["ip"]))
 		chk = response["system"]["get_sysinfo"]["relay_state"]
 		if chk == 1:
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on"))
@@ -133,8 +133,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if command == 'turnOn':
 			self.turn_on()
 		elif command == 'turnOff':
-			self._logger.info("{ip}".format(**data))
-			# self.turn_off()
+			self.turn_off("{ip}".format(**data))
 		elif command == 'checkStatus':
 			self.check_status()
 			
@@ -158,7 +157,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			result += chr(a)
 		return result
 	
-	def sendCommand(self, cmd):	
+	def sendCommand(self, cmd, plugip):	
 		commands = {'info'     : '{"system":{"get_sysinfo":{}}}',
 			'on'       : '{"system":{"set_relay_state":{"state":1}}}',
 			'off'      : '{"system":{"set_relay_state":{"state":0}}}',
@@ -174,17 +173,17 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		
 		# try to connect via ip address
 		try:
-			socket.inet_aton(self._settings.get(["ip"]))
-			ip = self._settings.get(["ip"])
-			self._tplinksmartplug_logger.debug("IP %s is valid." % self._settings.get(["ip"]))
+			socket.inet_aton(plugip)
+			ip = plugip
+			self._tplinksmartplug_logger.debug("IP %s is valid." % plugip))
 		except socket.error:
 		# try to convert hostname to ip
-			self._tplinksmartplug_logger.debug("Invalid ip %s trying hostname." % self._settings.get(["ip"]))
+			self._tplinksmartplug_logger.debug("Invalid ip %s trying hostname." % plugip)
 			try:
-				ip = socket.gethostbyname(self._settings.get(["ip"]))
-				self._tplinksmartplug_logger.debug("Hostname %s is valid." % self._settings.get(["ip"]))
+				ip = socket.gethostbyname(plugip)
+				self._tplinksmartplug_logger.debug("Hostname %s is valid." % plugip)
 			except (socket.herror, socket.gaierror):
-				self._tplinksmartplug_logger.debug("Invalid hostname %s." % self._settings.get(["ip"]))
+				self._tplinksmartplug_logger.debug("Invalid hostname %s." % plugip)
 				return {"system":{"get_sysinfo":{"relay_state":3}}}
 				
 		try:
