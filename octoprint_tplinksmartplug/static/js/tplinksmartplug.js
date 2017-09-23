@@ -62,7 +62,7 @@ $(function() {
 			self.checkStatus();
 		}
 		
-		self.addPlug = function(self) {
+		self.addPlug = function(data) {
 			self.arrSmartplugs.push({
 				ip: "",
 				gcodeEnabled: false,
@@ -71,12 +71,12 @@ $(function() {
 				sysCmdOn: "",
 				sysCmdOff: ""
 			});
-			console.log(self.arrSmartplugs)
+			console.log(data)
 		}
 		
-		self.removePlug = function(self,plug) {
+		self.removePlug = function(plug) {
 			console.log(plug);
-			self.arrSmartplugs.remove(plug);
+			// self.arrSmartplugs.remove(plug);
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
