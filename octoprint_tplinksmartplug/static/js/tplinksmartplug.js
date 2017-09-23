@@ -77,7 +77,7 @@ $(function() {
 		self.removePlug = function(viewmodel,row,row_index) {
 			console.log(viewmodel);
 			console.log(row);
-			console.log(idx);
+			console.log(row_index);
 			viewmodel.arrSmartplugs.remove(row);
 		}
 		
