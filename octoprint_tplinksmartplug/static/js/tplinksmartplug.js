@@ -74,7 +74,7 @@ $(function() {
 			for (i = 0; i < arguments.length; i++) {
 				console.log(arguments[i]);
 			}
-			console.log(self.arrSmartplugs);
+			console.log(self.arrSmartplugs());
 		}
 		
 		self.removePlug = function() {
