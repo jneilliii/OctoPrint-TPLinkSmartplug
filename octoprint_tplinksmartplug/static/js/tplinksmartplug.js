@@ -76,8 +76,8 @@ $(function() {
 			}
 		}
 		
-		self.removePlug = function() {
-			//self.arrSmartplugs.remove(row);
+		self.removePlug = function(row) {
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.remove(row);
 			for (i = 0; i < arguments.length; i++) {
 				console.log(arguments[i]);
 			}
