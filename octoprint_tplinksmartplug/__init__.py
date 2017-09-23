@@ -193,11 +193,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
 			
-			self._tplinksmartplug_logger.debug("Sending command %s to %s" % (cmd,self._settings.get(["ip"])))
+			self._tplinksmartplug_logger.debug("Sending command %s to %s" % (cmd,plugip))
 			self._tplinksmartplug_logger.debug(self.decrypt(data))
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
-			self._tplinksmartplug_logger.debug("Could not connect to %s." % self._settings.get(["ip"]))
+			self._tplinksmartplug_logger.debug("Could not connect to %s." % plugip)
 			return {"system":{"get_sysinfo":{"relay_state":3}}}
 			
 	##~~ Gcode processing hook

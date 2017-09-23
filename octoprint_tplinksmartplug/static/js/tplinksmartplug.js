@@ -42,7 +42,7 @@ $(function() {
         }
 		
 		self.onAfterBinding = function() {
-			self.checkStatus();
+			self.checkStatuses();
 			self.poweroff_dialog = $("#tplinksmartplug_poweroff_confirmation_dialog");
 		}
 
@@ -59,7 +59,7 @@ $(function() {
 			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
 			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
-			self.checkStatus();
+			self.checkStatuses();
 		}
 		
 		self.addPlug = function() {
@@ -83,6 +83,7 @@ $(function() {
             }
 
 			self.currentState(data.currentState);
+			console.log(data);
 
 			switch(self.currentState()) {
 				case "on":
@@ -160,6 +161,19 @@ $(function() {
                 contentType: "application/json; charset=UTF-8"
             });
         }; 
+		
+		self.checkStatuses = function() {
+            $.ajax({
+                url: API_BASEURL + "plugin/tplinksmartplug",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    command: "checkStatus",
+					ip: self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(0).ip()
+                }),
+                contentType: "application/json; charset=UTF-8"
+            });
+        };
     }
 
     // view model class, parameters for constructor, container to bind to
