@@ -107,13 +107,12 @@ $(function() {
         };
 		
 		self.toggleRelay = function(data) {
-			console.log(data.ip());
 			switch(self.currentState()){
 				case "on":
 					if(self.enablePowerOffWarningDialog()){
 						self.poweroff_dialog.modal("show");
 					} else {
-						self.turnOff();
+						self.turnOff(data.ip());
 					}					
 					break;
 				case "off":
@@ -135,14 +134,14 @@ $(function() {
             });
         };
 
-    	self.turnOff = function() {
+    	self.turnOff = function(plugIP) {
             $.ajax({
                 url: API_BASEURL + "plugin/tplinksmartplug",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify({
                     command: "turnOff",
-					ip: "test"
+					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
             });

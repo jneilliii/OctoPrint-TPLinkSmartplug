@@ -123,7 +123,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown"))
 	
 	def get_api_commands(self):
-		return dict(turnOn=[],turnOff=[],checkStatus=[])
+		return dict(turnOn=[],turnOff=["ip"],checkStatus=[])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -133,8 +133,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if command == 'turnOn':
 			self.turn_on()
 		elif command == 'turnOff':
-			if "ip" in data:
-				self._tplinksmartplug_logger.info("{ip}".format(**data))
+			self._logger.info("{ip}".format(**data))
 			self.turn_off()
 		elif command == 'checkStatus':
 			self.check_status()
