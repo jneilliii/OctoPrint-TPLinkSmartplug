@@ -78,7 +78,7 @@ $(function() {
 			console.log(viewmodel);
 			console.log(row);
 			console.log(row_index);
-			viewmodel.arrSmartplugs.remove(row);
+			self.arrSmartplugs.remove(row);
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
