@@ -178,7 +178,7 @@ $(function() {
 					dataType: "json",
 					data: JSON.stringify({
 						command: "checkStatus",
-						ip: plug.ip()
+						ip: plug.ip
 					}),
 					contentType: "application/json; charset=UTF-8"
 				});
