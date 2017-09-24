@@ -39,10 +39,10 @@ $(function() {
 			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
 			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
+			self.checkStatuses();
         }
 		
-		self.onAfterBinding = function() {
-			self.checkStatuses();
+		self.onAfterBinding = function() {			
 			self.poweroff_dialog = $("#tplinksmartplug_poweroff_confirmation_dialog");
 		}
 
