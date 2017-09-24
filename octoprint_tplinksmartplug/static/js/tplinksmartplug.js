@@ -173,13 +173,14 @@ $(function() {
 		self.checkStatuses = function() {
 			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
 				console.log(plug);
+				plugip = plug.ip();
 				$.ajax({
 					url: API_BASEURL + "plugin/tplinksmartplug",
 					type: "POST",
 					dataType: "json",
 					data: JSON.stringify({
 						command: "checkStatus",
-						ip: plug.ip
+						ip: plugip
 					}),
 					contentType: "application/json; charset=UTF-8"
 				});
