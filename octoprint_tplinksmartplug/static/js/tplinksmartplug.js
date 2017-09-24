@@ -85,7 +85,7 @@ $(function() {
             if (plugin != "tplinksmartplug") {
                 return;
             }
-			console.log("onDataUpdaterPluginMessage|" + data);
+			console.log("onDataUpdaterPluginMessage|" + ko.toJSON(data));
 			ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
 				if (plug.ip() == data.ip) {
 					plug.currentState(data.currentState)
