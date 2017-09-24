@@ -89,7 +89,7 @@ $(function() {
 			ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
 				if (plug.ip() == data.ip) {
 					plug.currentState(data.currentState)
-					switch(plug.currentState()) {
+					switch(data.currentState) {
 						case "on":
 							plug.btnColor("#00FF00");
 							break;
@@ -133,9 +133,8 @@ $(function() {
                     command: "turnOn",
 					ip: plugIP
                 }),
-                contentType: "application/json; charset=UTF-8",
-				success: self.checkStatus
-            });
+                contentType: "application/json; charset=UTF-8"
+            }).done(function(data){self.checkStatus(data);});;
         };
 
     	self.turnOff = function(plugIP) {
@@ -148,7 +147,7 @@ $(function() {
 					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
-            }).done(self.checkStatus);
+            }).done(function(data){self.checkStatus(data);});
         }; 
 		
 		self.checkStatus = function(plugIP) {
