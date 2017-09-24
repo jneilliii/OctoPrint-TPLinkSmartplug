@@ -85,7 +85,7 @@ $(function() {
             if (plugin != "tplinksmartplug") {
                 return;
             }
-
+			console.log("onDataUpdaterPluginMessage|" + data);
 			ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
 				if (plug.ip() == data.ip) {
 					plug.currentState(data.currentState)
@@ -134,7 +134,7 @@ $(function() {
 					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
-            }).done(function(data){self.checkStatus(data);});;
+            }).done(function(data){self.checkStatus(plugIP);});;
         };
 
     	self.turnOff = function(plugIP) {
@@ -147,7 +147,7 @@ $(function() {
 					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
-            }).done(function(data){self.checkStatus(data);});
+            }).done(function(data){self.checkStatus(plugIP);});
         }; 
 		
 		self.checkStatus = function(plugIP) {
