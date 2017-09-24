@@ -153,16 +153,16 @@ $(function() {
 		
 		self.checkStatus = function(plugIP) {
 			console.log(plugIP);
-            // $.ajax({
-                // url: API_BASEURL + "plugin/tplinksmartplug",
-                // type: "POST",
-                // dataType: "json",
-                // data: JSON.stringify({
-                    // command: "checkStatus",
-					// ip: plugIP
-                // }),
-                // contentType: "application/json; charset=UTF-8"
-            // });
+            $.ajax({
+                url: API_BASEURL + "plugin/tplinksmartplug",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    command: "checkStatus",
+					ip: plugIP
+                }),
+                contentType: "application/json; charset=UTF-8"
+            });
         }; 
 		
 		self.checkStatuses = function() {
