@@ -73,7 +73,8 @@ $(function() {
 																				'sysCmdOnDelay':0,
 																				'sysCmdOff':'',
 																				'sysCmdOffDelay':0,
-																				'currentState':'unknown'});
+																				'currentState':'unknown',
+																				'btnColor':'#808080'});
 		}
 		
 		self.removePlug = function(row) {
