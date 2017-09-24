@@ -135,7 +135,7 @@ $(function() {
 					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
-            }).done(function(data){self.checkStatus(plugIP);});;
+            });
         };
 
     	self.turnOff = function(plugIP) {
@@ -148,7 +148,7 @@ $(function() {
 					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
-            }).done(function(data){self.checkStatus(plugIP);});
+            });
         }; 
 		
 		self.checkStatus = function(plugIP) {

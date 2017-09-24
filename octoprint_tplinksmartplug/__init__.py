@@ -85,17 +85,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def turn_on(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning on.")
-		self.sendCommand("on",plugip)["system"]["set_relay_state"]["err_code"]
-		# self.check_status(plugip)
+		chk = self.sendCommand("on",plugip)["system"]["set_relay_state"]["err_code"]
+		if chk == 0:
+			self.check_status(plugip)
 		
-		if self._settings.get_boolean(["connectOnPowerOn"]):
-			time.sleep(0.1 + self._settings.get_float(["connectOnPowerOnDelay"]))
-			self._tplinksmartplug_logger.debug("Connecting to printer.")
-			self._printer.connect()
-			
-		if self._settings.get_boolean(["cmdOnPowerOn"]):
-			self._tplinksmartplug_logger.debug("Running power on system command %s." % self._settings.get(["cmdOnPowerOnCommand"]))
-			os.system(self._settings.get(["cmdOnPowerOnCommand"]))
+			if self._settings.get_boolean(["connectOnPowerOn"]):
+				time.sleep(0.1 + self._settings.get_float(["connectOnPowerOnDelay"]))
+				self._tplinksmartplug_logger.debug("Connecting to printer.")
+				self._printer.connect()
+				
+			if self._settings.get_boolean(["cmdOnPowerOn"]):
+				self._tplinksmartplug_logger.debug("Running power on system command %s." % self._settings.get(["cmdOnPowerOnCommand"]))
+				os.system(self._settings.get(["cmdOnPowerOnCommand"]))
 	
 	def turn_off(self, plugip):
 		if self._settings.get_boolean(["disconnectOnPowerOff"]):
@@ -107,8 +108,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			os.system(self._settings.get(["cmdOnPowerOffCommand"]))
 
 		self._tplinksmartplug_logger.debug("Turning off.")
-		self.sendCommand("off",plugip)["system"]["set_relay_state"]["err_code"]
-		# self.check_status(plugip)
+		chk = self.sendCommand("off",plugip)["system"]["set_relay_state"]["err_code"]
+		if chk == 0:
+			self.check_status(plugip)
 		
 	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status.")
