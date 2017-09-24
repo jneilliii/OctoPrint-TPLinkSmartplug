@@ -159,7 +159,8 @@ $(function() {
                     command: "checkStatus",
 					ip: plugIP
                 }),
-                contentType: "application/json; charset=UTF-8"
+                contentType: "application/json; charset=UTF-8",
+				success: function() {console.log(data);}
             });
         }; 
 		
