@@ -172,6 +172,7 @@ $(function() {
 		
 		self.checkStatuses = function() {
 			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
+				console.log(plug);
 				$.ajax({
 					url: API_BASEURL + "plugin/tplinksmartplug",
 					type: "POST",
