@@ -86,33 +86,25 @@ $(function() {
             }
 
 			ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
-				console.log(plug)
 				if (plug.ip() == data.ip) {
 					plug.currentState(data.currentState)
-				}});
-			
-			self.currentState(data.currentState);
-
-			switch(self.currentState()) {
-				case "on":
-					self.relayState("#00FF00");
-					self.validIP(true);
-					break;
-				case "off":
-					self.relayState("#FF0000");
-					self.validIP(true);
-					self.poweroff_dialog.modal("hide");
-					break;
-				default:
-					new PNotify({
-						title: 'TP-Link Smartplug Error',
-						text: 'Status ' + self.currentState() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
-						type: 'error',
-						hide: true
-						});
-					self.relayState("#808080");
-					self.validP(false);
-			}          
+					switch(plug.currentState()) {
+						case "on":
+							plug.btnColor("#00FF00");
+							break;
+						case "off":
+							plug.btnColor("#FF0000");
+							break;
+						default:
+							new PNotify({
+								title: 'TP-Link Smartplug Error',
+								text: 'Status ' + plug.currentState + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
+								type: 'error',
+								hide: true
+								});
+							plug.btnColor("#808080");
+					}
+				}});         
         };
 		
 		self.toggleRelay = function(data) {
@@ -172,7 +164,6 @@ $(function() {
 		
 		self.checkStatuses = function() {
 			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
-				console.log(plug);
 				plugip = plug.ip();
 				$.ajax({
 					url: API_BASEURL + "plugin/tplinksmartplug",

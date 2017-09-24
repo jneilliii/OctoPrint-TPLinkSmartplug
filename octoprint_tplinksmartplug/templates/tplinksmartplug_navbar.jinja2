@@ -1,7 +1,7 @@
 <ul class="nav nav-tabs">
 <!-- ko foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs -->
 <li>
-<a id="tplinksmartplug_indicator" class="pull-right" href=#" data-bind="click: $root.toggleRelay,visible: ($root.validIP() && $root.loginState.loggedIn),style: {color: $root.relayState()}, attr: {title: $data.ip}" style="display: none;">
+<a id="tplinksmartplug_indicator" class="pull-right" href=#" data-bind="click: $root.toggleRelay,visible: ($root.loginState.loggedIn),style: {color: $data.btnColor}, attr: {title: $data.ip}" style="display: none;">
     <i class="icon-bolt"></i>
 </a>
 </li>
