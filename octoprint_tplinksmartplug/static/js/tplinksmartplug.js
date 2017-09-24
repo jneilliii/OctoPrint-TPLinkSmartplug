@@ -38,8 +38,6 @@ $(function() {
 			self.cmdOnPowerOffCommand(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOffCommand());
 			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
 			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
-			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
-			self.checkStatuses();
         }
 		
 		self.onAfterBinding = function() {			
