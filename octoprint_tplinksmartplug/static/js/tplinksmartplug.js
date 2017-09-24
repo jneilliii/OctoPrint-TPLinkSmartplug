@@ -98,7 +98,7 @@ $(function() {
 						default:
 							new PNotify({
 								title: 'TP-Link Smartplug Error',
-								text: 'Status ' + plug.currentState + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
+								text: 'Status ' + plug.currentState() + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
 								type: 'error',
 								hide: true
 								});
@@ -108,7 +108,7 @@ $(function() {
         };
 		
 		self.toggleRelay = function(data) {
-			switch(self.currentState()){
+			switch(data.currentState()){
 				case "on":
 					// if(self.enablePowerOffWarningDialog()){
 						// self.poweroff_dialog.modal("show");
