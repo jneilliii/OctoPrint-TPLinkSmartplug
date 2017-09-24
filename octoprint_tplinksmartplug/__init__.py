@@ -84,7 +84,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ SimpleApiPlugin mixin
 	
 	def turn_on(self, plugip):
-		self._tplinksmartplug_logger.debug("Turning on.")
+		self._tplinksmartplug_logger.debug("Turning on %s." % plugip)
 		self.sendCommand("on",plugip)["system"]["set_relay_state"]["err_code"]
 		self.check_status(plugip)
 		
@@ -106,12 +106,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug("Running power off system command %s." % self._settings.get(["cmdOnPowerOffCommand"]))
 			os.system(self._settings.get(["cmdOnPowerOffCommand"]))
 
-		self._tplinksmartplug_logger.debug("Turning off.")
+		self._tplinksmartplug_logger.debug("Turning off $s." % plugip)
 		self.sendCommand("off",plugip)["system"]["set_relay_state"]["err_code"]
 		self.check_status(plugip)
 		
 	def check_status(self, plugip):
-		self._tplinksmartplug_logger.debug("Checking status.")
+		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
 		response = self.sendCommand("info",plugip)
 		chk = response["system"]["get_sysinfo"]["relay_state"]
 		if chk == 1:

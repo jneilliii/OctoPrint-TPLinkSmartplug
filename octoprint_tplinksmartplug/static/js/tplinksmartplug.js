@@ -133,7 +133,8 @@ $(function() {
                     command: "turnOn",
 					ip: plugIP
                 }),
-                contentType: "application/json; charset=UTF-8"
+                contentType: "application/json; charset=UTF-8",
+				success: self.checkStatus
             });
         };
 
@@ -146,11 +147,13 @@ $(function() {
                     command: "turnOff",
 					ip: plugIP
                 }),
-                contentType: "application/json; charset=UTF-8"
+                contentType: "application/json; charset=UTF-8",
+				success: self.checkStatus
             });
         }; 
 		
 		self.checkStatus = function(plugIP) {
+			console.log(plugIP);
             $.ajax({
                 url: API_BASEURL + "plugin/tplinksmartplug",
                 type: "POST",
@@ -159,8 +162,7 @@ $(function() {
                     command: "checkStatus",
 					ip: plugIP
                 }),
-                contentType: "application/json; charset=UTF-8",
-				success: function(data) {console.log(data);}
+                contentType: "application/json; charset=UTF-8"
             });
         }; 
 		
