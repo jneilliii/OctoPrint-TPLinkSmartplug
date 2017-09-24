@@ -64,10 +64,10 @@ $(function() {
 		
 		self.addPlug = function() {
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':'',
-																				'gcodeEnabled':False,
-																				'autoConnect':True,
+																				'gcodeEnabled':false,
+																				'autoConnect':true,
 																				'autoConnectDelay':10.0,
-																				'autoDisconnect':True,
+																				'autoDisconnect':true,
 																				'autoDisconnectDelay':0,
 																				'sysCmdOn':'',
 																				'sysCmdOnDelay':0,
