@@ -81,32 +81,37 @@ $(function() {
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.remove(row);
 		}
 		
+		self.getByIP = function(ip) {
+			ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
+				return plug.ip === ip;
+				});
+		}
+		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
             if (plugin != "tplinksmartplug") {
                 return;
             }
 			
-			ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
-				console.log("onDataUpdaterPluginMessage|" + ko.toJSON(plug));
-				if (plug.ip() == data.ip) {
-					plug.currentState(data.currentState)
-					switch(data.currentState) {
-						case "on":
-							plug.btnColor("#00FF00");
-							break;
-						case "off":
-							plug.btnColor("#FF0000");
-							break;
-						default:
-							new PNotify({
-								title: 'TP-Link Smartplug Error',
-								text: 'Status ' + plug.currentState() + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
-								type: 'error',
-								hide: true
-								});
-							plug.btnColor("#808080");
-					}
-				}});         
+			plug = self.getByIP(data.ip)
+			console.log("onDataUpdaterPluginMessage|" + ko.toJSON(plug));
+			
+			plug.currentState(data.currentState)
+			switch(data.currentState) {
+				case "on":
+					plug.btnColor("#00FF00");
+					break;
+				case "off":
+					plug.btnColor("#FF0000");
+					break;
+				default:
+					new PNotify({
+						title: 'TP-Link Smartplug Error',
+						text: 'Status ' + plug.currentState() + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
+						type: 'error',
+						hide: true
+						});
+					plug.btnColor("#808080");
+			}        
         };
 		
 		self.toggleRelay = function(data) {
