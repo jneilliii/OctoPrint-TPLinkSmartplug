@@ -37,12 +37,12 @@ $(function() {
 			self.cmdOnPowerOff(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOff());
 			self.cmdOnPowerOffCommand(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOffCommand());
 			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
-			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
+			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());			
+			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
         }
 		
 		self.onAfterBinding = function() {			
 			self.poweroff_dialog = $("#tplinksmartplug_poweroff_confirmation_dialog");
-			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 			self.checkStatuses();
 		}
 
@@ -152,7 +152,6 @@ $(function() {
         }; 
 		
 		self.checkStatus = function(plugIP) {
-			console.log(plugIP);
             $.ajax({
                 url: API_BASEURL + "plugin/tplinksmartplug",
                 type: "POST",
