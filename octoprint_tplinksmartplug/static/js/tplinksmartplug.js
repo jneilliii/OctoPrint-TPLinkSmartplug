@@ -160,7 +160,7 @@ $(function() {
 					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8",
-				success: function() {console.log(data);}
+				success: function(data) {console.log(data);}
             });
         }; 
 		
