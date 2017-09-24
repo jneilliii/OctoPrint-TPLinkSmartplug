@@ -81,18 +81,15 @@ $(function() {
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.remove(row);
 		}
 		
-		self.getByIP = function(ip) {
-			ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
-				return plug.ip === ip;
-				});
-		}
-		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
             if (plugin != "tplinksmartplug") {
                 return;
             }
 			
-			plug = self.getByIP(data.ip)
+			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
+				return plug.ip() === data.ip;
+				}) || 'none';
+				
 			console.log("onDataUpdaterPluginMessage|" + ko.toJSON(plug));
 			
 			plug.currentState(data.currentState)
