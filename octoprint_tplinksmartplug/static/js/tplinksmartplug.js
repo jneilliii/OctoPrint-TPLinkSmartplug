@@ -47,6 +47,7 @@ $(function() {
 		}
 
         self.onEventSettingsUpdated = function (payload) {
+			self.checkStatuses();
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());			
 			self.validIP(self.settings.settings.plugins.tplinksmartplug.validIP());
 			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
@@ -59,7 +60,6 @@ $(function() {
 			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
 			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
-			self.checkStatuses();
 		}
 		
 		self.addPlug = function() {
@@ -86,8 +86,8 @@ $(function() {
                 return;
             }
 			
-			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
-				return plug.ip() === data.ip;
+			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
+				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
 				
 			console.log("onDataUpdaterPluginMessage|" + ko.toJSON(plug));
@@ -101,13 +101,13 @@ $(function() {
 					plug.btnColor("#FF0000");
 					break;
 				default:
+					plug.btnColor("#808080");
 					new PNotify({
 						title: 'TP-Link Smartplug Error',
 						text: 'Status ' + plug.currentState() + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
 						type: 'error',
 						hide: true
 						});
-					plug.btnColor("#808080");
 			}        
         };
 		
@@ -167,8 +167,8 @@ $(function() {
         }; 
 		
 		self.checkStatuses = function() {
-			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(plug){
-				self.checkStatus(plug.ip());
+			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
+				self.checkStatus(item.ip());
 			});
         };
     }
