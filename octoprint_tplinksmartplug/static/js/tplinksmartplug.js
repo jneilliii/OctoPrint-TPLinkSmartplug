@@ -47,7 +47,6 @@ $(function() {
 		}
 
         self.onEventSettingsUpdated = function (payload) {
-			self.checkStatuses();
 			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());			
 			self.validIP(self.settings.settings.plugins.tplinksmartplug.validIP());
 			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
