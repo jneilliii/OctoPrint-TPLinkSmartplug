@@ -86,6 +86,8 @@ $(function() {
                 return;
             }
 			
+			console.log("onDataUpdaterPluginMessage|" + ko.toJSON(data))
+			
 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
 				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
@@ -168,6 +170,7 @@ $(function() {
 		
 		self.checkStatuses = function() {
 			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
+				console.log("checking " + item.ip())
 				self.checkStatus(item.ip());
 			});
         };
