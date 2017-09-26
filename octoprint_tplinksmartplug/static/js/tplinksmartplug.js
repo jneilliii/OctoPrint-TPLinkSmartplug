@@ -94,23 +94,26 @@ $(function() {
 				
 			console.log("onDataUpdaterPluginMessage|" + ko.toJSON(plug));
 			
-			plug.currentState(data.currentState)
-			switch(data.currentState) {
-				case "on":
-					plug.btnColor("#00FF00");
-					break;
-				case "off":
-					plug.btnColor("#FF0000");
-					break;
-				default:
-					plug.btnColor("#808080");
-					new PNotify({
-						title: 'TP-Link Smartplug Error',
-						text: 'Status ' + plug.currentState() + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
-						type: 'error',
-						hide: true
-						});
-			}        
+			if (plug.currentState != data.currentState) {
+				plug.currentState(data.currentState)
+				switch(data.currentState) {
+					case "on":
+						plug.btnColor("#00FF00");
+						break;
+					case "off":
+						plug.btnColor("#FF0000");
+						break;
+					default:
+						plug.btnColor("#808080");
+						new PNotify({
+							title: 'TP-Link Smartplug Error',
+							text: 'Status ' + plug.currentState() + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
+							type: 'error',
+							hide: true
+							});
+				}
+				self.settings.saveData();
+			}
         };
 		
 		self.toggleRelay = function(data) {
