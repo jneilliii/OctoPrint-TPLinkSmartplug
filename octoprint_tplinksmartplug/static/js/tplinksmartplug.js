@@ -118,7 +118,7 @@ $(function() {
 		self.toggleRelay = function(data) {
 			switch(data.currentState()){
 				case "on":
-					if(data.enablePowerOffWarningDialog()){
+					if(self.enablePowerOffWarningDialog()){
 						$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("show");
 					} else {
 						self.turnOff(data.ip());
