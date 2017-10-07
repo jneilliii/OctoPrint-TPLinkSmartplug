@@ -150,38 +150,28 @@ $(function() {
 			if(data.displayWarning()  && !$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).is(':visible')){
 				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("show");
 			} else {
+				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("hide");
 				if(data.autoDisconnect()){
 					self.disconnectPrinter();
-					setTimeout(function(){
-						            $.ajax({
-									url: API_BASEURL + "plugin/tplinksmartplug",
-									type: "POST",
-									dataType: "json",
-									data: JSON.stringify({
-										command: "turnOff",
-										ip: data.ip()
-									}),
-									contentType: "application/json; charset=UTF-8"
-									}).done(function(){
-												$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("hide");
-												});
-								},data.autoDisconnectDelay()*1000);
+					setTimeout(function(){self.sendTurnOff(data);},data.autoDisconnectDelay()*1000);
 				} else {
-					$.ajax({
-					url: API_BASEURL + "plugin/tplinksmartplug",
-					type: "POST",
-					dataType: "json",
-					data: JSON.stringify({
-						command: "turnOff",
-						ip: data.ip()
-					}),
-					contentType: "application/json; charset=UTF-8"
-					}).done(function(){
-								$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("hide");
-								});
+					self.sendTurnOff(data);
 				}
 			}
         }; 
+		
+		self.sendTurnOff = function(data) {
+			$.ajax({
+			url: API_BASEURL + "plugin/tplinksmartplug",
+			type: "POST",
+			dataType: "json",
+			data: JSON.stringify({
+				command: "turnOff",
+				ip: data.ip()
+			}),
+			contentType: "application/json; charset=UTF-8"
+			});		
+		}
 		
 		self.checkStatus = function(plugIP) {
             $.ajax({
