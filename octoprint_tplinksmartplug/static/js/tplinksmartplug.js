@@ -124,7 +124,7 @@ $(function() {
 					} else {
 						if(data.autoDisconnect()){
 							self.disconnectPrinter();
-							setTimeout(self.turnOff(data.ip()),data.autoDisconnectDelay()*1000)
+							setTimeout(function(){self.turnOff(data.ip())},data.autoDisconnectDelay()*1000)
 						} else {
 							self.turnOff(data.ip());
 						}
@@ -133,7 +133,7 @@ $(function() {
 				case "off":
 					if(data.autoConnect()){
 						self.turnOn(data.ip());
-						setTimeout(self.connectPrinter(),data.autoConnectDelay()*1000);
+						setTimeout(function(){self.connectPrinter()},data.autoConnectDelay()*1000);
 					} else {
 					self.turnOn(data.ip());
 					}
