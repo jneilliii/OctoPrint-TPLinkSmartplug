@@ -53,13 +53,17 @@ $(function() {
                 return;
             }
 			
-			//console.log("onDataUpdaterPluginMessage|" + ko.toJSON(data))
-			
 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
 				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
 				
-			//console.log("onDataUpdaterPluginMessage|" + ko.toJSON(plug));
+			if (data.gcodeon && plug.gcodeEnabled){
+				self.turnOn(plug);
+			}
+			
+			if (data.gcodeoff && plug.gcodeEnabled){
+				self.turnOff(plug);
+			}
 			
 			if (plug.currentState != data.currentState) {
 				plug.currentState(data.currentState)

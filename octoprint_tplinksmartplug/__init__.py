@@ -8,6 +8,7 @@ import json
 import time
 import logging
 import os
+import re
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
@@ -187,13 +188,17 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
 		if gcode:
-			if (cmd == "M80" and self._settings.get_boolean(["gcodeprocessing"])):
+			if cmd.startswith("M80"):
+				plugip = re.sub(r'^M80\s?', '', cmd)
+				self._plugin_manager.send_plugin_message(self._identifier, dict(gcodeon=True,ip=plugip))
 				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on.")
-				self.turn_on()
+				self.turn_on(plugip)
 				return
-			elif (cmd == "M81" and self._settings.get_boolean(["gcodeprocessing"])):			
+			elif cmd.startswith("M81"):
+				plugip = re.sub(r'^M81\s?', '', cmd)
+				self._plugin_manager.send_plugin_message(self._identifier, dict(gcodeon=True,ip=plugip))
 				self._tplinksmartplug_logger.debug("Received M81 command, attempting power off.")
-				self.turn_off()
+				self.turn_off(plugip)
 				return
 			else:
 				return
