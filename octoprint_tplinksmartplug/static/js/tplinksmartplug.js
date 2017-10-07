@@ -53,9 +53,13 @@ $(function() {
                 return;
             }
 			
+			console.log(data);
+			
 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
 				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
+				
+			console.log(plug);
 			
 			if (plug.currentState != data.currentState) {
 				plug.currentState(data.currentState)
@@ -81,7 +85,6 @@ $(function() {
         };
 		
 		self.toggleRelay = function(data) {
-			console.log(data);
 			switch(data.currentState()){
 				case "on":
 					self.turnOff(data);
