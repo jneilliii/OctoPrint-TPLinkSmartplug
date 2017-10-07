@@ -11,33 +11,9 @@ $(function() {
         self.settings = parameters[0];
 		self.loginState = parameters[1];
 		
-		self.currentState = ko.observable("unknown");
-		self.ip = ko.observable();
-		self.relayState = ko.observable("#808080");
-		self.disconnectOnPowerOff = ko.observable();
-		self.connectOnPowerOn = ko.observable();
-		self.connectOnPowerOnDelay = ko.observable();
-		self.enablePowerOffWarningDialog = ko.observable();
-		self.gcodeprocessing = ko.observable();
-		self.validIP = ko.observable();
-		self.cmdOnPowerOn = ko.observable();
-		self.cmdOnPowerOnCommand = ko.observable();
-		self.cmdOnPowerOff = ko.observable();
-		self.cmdOnPowerOffCommand = ko.observable();
 		self.arrSmartplugs = ko.observableArray();
 		
-		self.onBeforeBinding = function() {
-			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
-			self.validIP(self.settings.settings.plugins.tplinksmartplug.validIP());
-			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
-			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
-			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
-			self.cmdOnPowerOn(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOn());
-			self.cmdOnPowerOnCommand(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOnCommand());
-			self.cmdOnPowerOff(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOff());
-			self.cmdOnPowerOffCommand(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOffCommand());
-			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
-			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());			
+		self.onBeforeBinding = function() {		
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
         }
 		
@@ -46,17 +22,6 @@ $(function() {
 		}
 
         self.onEventSettingsUpdated = function (payload) {
-			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());			
-			self.validIP(self.settings.settings.plugins.tplinksmartplug.validIP());
-			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
-			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
-			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());			
-			self.cmdOnPowerOn(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOn());
-			self.cmdOnPowerOnCommand(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOnCommand());
-			self.cmdOnPowerOff(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOff());
-			self.cmdOnPowerOffCommand(self.settings.settings.plugins.tplinksmartplug.cmdOnPowerOffCommand());
-			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
-			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 		}
 		
