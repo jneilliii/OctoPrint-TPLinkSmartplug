@@ -132,7 +132,7 @@ $(function() {
 		
 		self.turnOn = function(data) {
 			if(data.sysCmdOn()){
-				setTimeout(function(){self.sysCmd(data.sysRunCmdOn())},data.sysCmdOnDelay()*1000);
+				setTimeout(function(){self.sysCommand(data.sysRunCmdOn())},data.sysCmdOnDelay()*1000);
 			}
 			if(data.autoConnect()){
 				self.sendTurnOn(data);
@@ -161,7 +161,7 @@ $(function() {
 			} else {
 				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("hide");
 				if(data.sysCmdOff()){
-					setTimeout(function(){self.sysCmd(data.sysRunCmdOff())},data.sysCmdOffDelay()*1000);
+					setTimeout(function(){self.sysCommand(data.sysRunCmdOff())},data.sysCmdOffDelay()*1000);
 				}
 				if(data.autoDisconnect()){
 					self.disconnectPrinter();
