@@ -76,6 +76,7 @@ $(function() {
 																				'sysCmdOffDelay':0,
 																				'currentState':'unknown',
 																				'btnColor':'#808080'});
+			self.settings.saveData();
 		}
 		
 		self.removePlug = function(row) {
