@@ -4,25 +4,25 @@
 		<tbody data-bind='foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs'>
 			<tr data-bind='attr: {title: ip}' class="info">
 				<td colspan="6"><strong>IP or Hostname</strong> <input data-bind='value: ip, uniqueName: true' /></td>
-				<td><a href="#" class="icon-trash" data-bind="click: $root.removePlug, visible: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1"></a></td>
+				<td style="text-align:center"><a href="#" class="icon-trash" data-bind="click: $root.removePlug, visible: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1"></a></td>
 			</tr>
 			<tr data-bind='visible: ip().length > 0, attr: {title: ip}' class="info">
-				<td>Warn</td>
-				<td>GCODE</td>
-				<td>postConnect</td>
-				<td>preDisconnect</td>
-				<td>Cmd On</td>
-				<td>Cmd Off</td>
+				<td style="text-align:center">Warn</td>
+				<td style="text-align:center">GCODE</td>
+				<td style="text-align:center">postConnect</td>
+				<td style="text-align:center">preDisconnect</td>
+				<td style="text-align:center">Cmd On</td>
+				<td style="text-align:center">Cmd Off</td>
 				<td></td>
 			</tr>
 			<tr data-bind='visible: ip().length > 0, attr: {title: ip}'>
-				<td><input type="checkbox" data-bind="checked: displayWarning, uniqueName: true"/></td>
-				<td><input type="checkbox" data-bind="checked: gcodeEnabled, uniqueName: true"/></td>
-				<td nowrap><input type="checkbox" data-bind="checked: autoConnect, uniqueName: true"/></td>
-				<td nowrap><input type="checkbox" data-bind="checked: autoDisconnect, uniqueName: true"/></td>
-				<td><input type="checkbox" data-bind="checked: sysCmdOn, uniqueName: true"/></td>
-				<td><input type="checkbox" data-bind="checked: sysCmdOff, uniqueName: true"/></td>
-				<td></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: displayWarning, uniqueName: true"/></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: gcodeEnabled, uniqueName: true"/></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: autoConnect, uniqueName: true"/></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: autoDisconnect, uniqueName: true"/></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: sysCmdOn, uniqueName: true"/></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: sysCmdOff, uniqueName: true"/></td>
+				<td style="text-align:center"></td>
 			</tr>
 			<tr data-bind='visible: autoConnect() && ip().length > 0, attr: {title: ip}'>
 				<td colspan="2">Auto Connect Delay</td>
