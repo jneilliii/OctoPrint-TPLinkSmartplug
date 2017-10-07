@@ -26,7 +26,7 @@ $(function() {
 		}
 		
 		self.addPlug = function() {
-			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':'',
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':'ip',
 									'displayWarning':true,
 									'gcodeEnabled':false,
 									'autoConnect':true,
