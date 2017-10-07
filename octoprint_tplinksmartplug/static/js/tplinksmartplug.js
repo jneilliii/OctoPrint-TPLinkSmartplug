@@ -56,16 +56,6 @@ $(function() {
 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
 				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
-				
-			if (data.gcodeon && plug.gcodeEnabled){
-				self.turnOn(plug);
-				return;
-			}
-			
-			if (data.gcodeoff && plug.gcodeEnabled){
-				self.turnOff(plug);
-				return;
-			}
 			
 			if (plug.currentState != data.currentState) {
 				plug.currentState(data.currentState)
