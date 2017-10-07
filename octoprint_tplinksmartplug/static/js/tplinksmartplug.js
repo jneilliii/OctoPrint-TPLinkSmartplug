@@ -53,13 +53,17 @@ $(function() {
                 return;
             }
 			
-			console.log(data);
+			//console.log(data);
 			
 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
 				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
 				
-			console.log(plug);
+			//console.log(plug);
+			
+			if (data.gcodeon && plug.gcodeEnabled) {
+				console.log(plug);
+			}
 			
 			if (plug.currentState != data.currentState) {
 				plug.currentState(data.currentState)
