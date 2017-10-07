@@ -63,6 +63,7 @@ $(function() {
 			
 			if (data.gcodeon && plug.gcodeEnabled) {
 				console.log(plug);
+				self.turnOn(plug);
 			}
 			
 			if (plug.currentState != data.currentState) {
