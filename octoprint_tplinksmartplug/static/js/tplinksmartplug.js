@@ -118,11 +118,11 @@ $(function() {
 		self.toggleRelay = function(data) {
 			switch(data.currentState()){
 				case "on":
-					// if(self.enablePowerOffWarningDialog()){
-						// self.poweroff_dialog.modal("show");
-					// } else {
+					if(data.enablePowerOffWarningDialog()){
+						$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("show");
+					} else {
 						self.turnOff(data.ip());
-					// }					
+					}					
 					break;
 				case "off":
 					self.turnOn(data.ip());

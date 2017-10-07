@@ -4,11 +4,7 @@
 <a id="tplinksmartplug_indicator" class="pull-right" href=#" data-bind="click: $root.toggleRelay,visible: ($root.loginState.loggedIn),style: {color: $data.btnColor}, attr: {title: $data.ip}" style="display: none;">
     <i class="icon-bolt"></i>
 </a>
-</li>
-<!-- /ko -->
-</ul>
-
-<div id="tplinksmartplug_poweroff_confirmation_dialog" class="modal hide fade">
+<div data-bind="attr: {id: 'tplinksmartplug_poweroff_confirmation_dialog_' + $data.ip}" class="modal hide fade">
     <div class="modal-header">
         <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
         <h3>TPLink Smartplug</h3>
@@ -26,3 +22,6 @@
         <a href="#" class="btn btn-danger" data-bind="click: function() { $root.turnOff(); }">{{ _('Proceed') }}</a>
     </div>
 </div>
+</li>
+<!-- /ko -->
+</ul>
