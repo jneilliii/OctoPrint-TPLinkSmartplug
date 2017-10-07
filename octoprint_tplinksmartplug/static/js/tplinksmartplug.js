@@ -63,6 +63,7 @@ $(function() {
 		
 		self.addPlug = function() {
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':'',
+																				'displayWarning':true,
 																				'gcodeEnabled':false,
 																				'autoConnect':true,
 																				'autoConnectDelay':10.0,
@@ -118,7 +119,7 @@ $(function() {
 		self.toggleRelay = function(data) {
 			switch(data.currentState()){
 				case "on":
-					if(self.enablePowerOffWarningDialog()){
+					if(data.displayWarning()){
 						$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("show");
 					} else {
 						self.turnOff(data.ip());

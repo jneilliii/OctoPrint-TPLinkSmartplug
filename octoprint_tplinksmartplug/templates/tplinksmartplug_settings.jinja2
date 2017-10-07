@@ -4,6 +4,7 @@
 		<thead>
 			<tr>
 				<th>IP/Hostname</th>
+				<th>Warn</th>
 				<th>Process GCODE</th>
 				<th>Auto Connect</th>
 				<th>Auto Disconnect</th>
@@ -15,6 +16,7 @@
 		<tbody data-bind='foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs'>
 			<tr data-bind='attr: {title: ip}'>
 				<td><input data-bind='value: ip, uniqueName: true' /></td>
+				<td><input type="checkbox" data-bind="checked: displayWarning, uniqueName: true"/></td>
 				<td><input type="checkbox" data-bind="checked: gcodeEnabled, uniqueName: true"/></td>
 				<td><input type="checkbox" data-bind="checked: autoConnect, uniqueName: true"/></td>
 				<td><input type="checkbox" data-bind="checked: autoDisconnect, uniqueName: true"/></td>
