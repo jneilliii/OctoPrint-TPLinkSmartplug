@@ -3,7 +3,7 @@
 	<table class="table table-striped table-hover table-condensed table-hover" data-bind='visible: settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 0'>
 		<thead>
 			<tr>
-				<th>IP/Hostname</th>
+				<th>IP/Host</th>
 				<th>Warn</th>
 				<th>GCODE</th>
 				<th>Auto Connect</th>
@@ -25,26 +25,34 @@
 				<td><a href="#" class="icon-trash" data-bind="click: $root.removePlug, visible: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1"></a></td>
 			</tr>
 			<tr data-bind='visible: autoConnect, attr: {title: ip}'>
-				<td colspan="2"></td>
+				<td colspan="1"></td>
 				<td colspan="2">Auto Connect Delay</td>
-				<td colspan="4"><input data-bind="value: autoConnectDelay, uniqueName: true" size="3" /></td>
+				<td colspan="5"><input data-bind="value: autoConnectDelay, uniqueName: true" size="3" /></td>
 			</tr>
 			<tr data-bind='visible: autoDisconnect, attr: {title: ip}'>
-				<td colspan="2"></td>
+				<td colspan="1"></td>
 				<td colspan="2">Auto Disconnect Delay</td>
-				<td colspan="4"><input data-bind="value: autoDisconnectDelay, uniqueName: true" size="3" /></td>
+				<td colspan="5"><input data-bind="value: autoDisconnectDelay, uniqueName: true" size="3" /></td>
 			</tr>
 			<tr data-bind='visible: sysCmdOn, attr: {title: ip}'>
+				<td colspan="1"></td>
 				<td colspan="2">System Command On</td>
-				<td colspan="2"><input data-bind="value: sysRunCmdOn, uniqueName: true" /></td>
+				<td colspan="5"><input data-bind="value: sysRunCmdOn, uniqueName: true" /></td>
+			</tr>
+			<tr data-bind='visible: sysCmdOn, attr: {title: ip}'>
+				<td colspan="1"></td>				
 				<td colspan="2">System Command On Delay</td>
-				<td colspan="2"><input data-bind="value: sysCmdOnDelay, uniqueName: true" size="3" /></td>
+				<td colspan="5"><input data-bind="value: sysCmdOnDelay, uniqueName: true" size="3" /></td>
 			</tr>
 			<tr data-bind='visible: sysCmdOff, attr: {title: ip}'>
+				<td colspan="1"></td>				
 				<td colspan="2">System Command Off</td>
-				<td colspan="2"><input data-bind="value: sysRunCmdOff, uniqueName: true" /></td>
+				<td colspan="5"><input data-bind="value: sysRunCmdOff, uniqueName: true" /></td>
+			</tr>
+			<tr data-bind='visible: sysCmdOff, attr: {title: ip}'>
+				<td colspan="1"></td>				
 				<td colspan="2">System Command Off Delay</td>
-				<td colspan="2"><input data-bind="value: sysCmdOffDelay, uniqueName: true" size="3" /></td>
+				<td colspan="5"><input data-bind="value: sysCmdOffDelay, uniqueName: true" size="3" /></td>
 			</tr>
 		</tbody>
 	</table>
