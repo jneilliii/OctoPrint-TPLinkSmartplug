@@ -2,9 +2,6 @@
     <h4>TP-Link Smartplug Settings</h4>
 	<table class="table table-condensed" data-bind='visible: settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 0'>
 		<thead>
-			<tr class="info">
-				<th colspan="6">IP or Hostname</th>
-			</tr>
 			<tr>
 				<th>Warn</th>
 				<th>GCODE</th>
@@ -16,7 +13,8 @@
 		</thead>
 		<tbody data-bind='foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs'>
 			<tr data-bind='attr: {title: ip}' class="info">
-				<td colspan="5"><input data-bind='value: ip, uniqueName: true' /></td>
+				<td><strong>IP or Hostname</strong></td>
+				<td colspan="4"><input data-bind='value: ip, uniqueName: true' /></td>
 				<td><a href="#" class="icon-trash" data-bind="click: $root.removePlug, visible: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1"></a></td>
 			</tr>
 			<tr data-bind='visible: ip().length > 0, attr: {title: ip}'>
