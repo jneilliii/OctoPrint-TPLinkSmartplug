@@ -84,36 +84,19 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ SimpleApiPlugin mixin
 	
 	def turn_on(self, plugip):
-		self._tplinksmartplug_logger.debug("Turning on.")
+		self._tplinksmartplug_logger.debug("Turning on %s." % plugip)
 		chk = self.sendCommand("on",plugip)["system"]["set_relay_state"]["err_code"]
 		if chk == 0:
 			self.check_status(plugip)
-		
-			if self._settings.get_boolean(["connectOnPowerOn"]):
-				time.sleep(0.1 + self._settings.get_float(["connectOnPowerOnDelay"]))
-				self._tplinksmartplug_logger.debug("Connecting to printer.")
-				self._printer.connect()
-				
-			if self._settings.get_boolean(["cmdOnPowerOn"]):
-				self._tplinksmartplug_logger.debug("Running power on system command %s." % self._settings.get(["cmdOnPowerOnCommand"]))
-				os.system(self._settings.get(["cmdOnPowerOnCommand"]))
 	
 	def turn_off(self, plugip):
-		if self._settings.get_boolean(["disconnectOnPowerOff"]):
-			self._tplinksmartplug_logger.debug("Disconnecting from printer.")
-			self._printer.disconnect()
-			
-		if self._settings.get_boolean(["cmdOnPowerOff"]):
-			self._tplinksmartplug_logger.debug("Running power off system command %s." % self._settings.get(["cmdOnPowerOffCommand"]))
-			os.system(self._settings.get(["cmdOnPowerOffCommand"]))
-
-		self._tplinksmartplug_logger.debug("Turning off.")
+		self._tplinksmartplug_logger.debug("Turning off %s." % plugip)
 		chk = self.sendCommand("off",plugip)["system"]["set_relay_state"]["err_code"]
 		if chk == 0:
 			self.check_status(plugip)
 		
 	def check_status(self, plugip):
-		self._tplinksmartplug_logger.debug("Checking status.")
+		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
 		response = self.sendCommand("info",plugip)
 		chk = response["system"]["get_sysinfo"]["relay_state"]
 		if chk == 1:
@@ -122,10 +105,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off",ip=plugip))
 		else:
 			self._tplinksmartplug_logger.debug(response)
-			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",ip=plugip))
+			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",ip=plugip))		
 	
 	def get_api_commands(self):
-		return dict(turnOn=["ip"],turnOff=["ip"],checkStatus=["ip"])
+		return dict(turnOn=["ip"],turnOff=["ip"],checkStatus=["ip"],connectPrinter=[],disconnectPrinter=[],sysCommand=["cmd"])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -138,6 +121,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.turn_off("{ip}".format(**data))
 		elif command == 'checkStatus':
 			self.check_status("{ip}".format(**data))
+		elif command == 'connectPrinter':
+			self._tplinksmartplug_logger.debug("Connecting printer.")
+			self._printer.connect()
+		elif command == 'disconnectPrinter':
+			self._tplinksmartplug_logger.debug("Disconnecting printer.")
+			self._printer.disconnect()
+		elif command == 'sysCommand':
+			self._tplinksmartplug_logger.debug("Running system command %s." % "{cmd}".format(**data))
+			os.system("{cmd}".format(**data))
 			
 	##~~ Utilities
 	

@@ -41,8 +41,7 @@ $(function() {
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
         }
 		
-		self.onAfterBinding = function() {			
-			self.poweroff_dialog = $("#tplinksmartplug_poweroff_confirmation_dialog");
+		self.onAfterBinding = function() {
 			self.checkStatuses();
 		}
 
@@ -122,11 +121,21 @@ $(function() {
 					if(data.displayWarning()){
 						$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("show");
 					} else {
-						self.turnOff(data.ip());
-					}					
+						if(data.disconnectOnPowerOff()){
+							self.disconnectPrinter();
+							setTimeout(self.turnOff(data.ip()),(data.autoDisconnectDelay()*1000))
+						} else {
+							self.turnOff(data.ip());
+						}
+					}				
 					break;
 				case "off":
+					if(data.connectOnPowerOn()){
+						self.turnOn(data.ip());
+						setTimeout(self.connectPrinter(),(data.autoConnectDelay()*1000));
+					} else {
 					self.turnOn(data.ip());
+					}
 					break;
 				default:
 			}
@@ -170,6 +179,30 @@ $(function() {
                 contentType: "application/json; charset=UTF-8"
             });
         }; 
+		
+		self.disconnectPrinter = function() {
+            $.ajax({
+                url: API_BASEURL + "plugin/tplinksmartplug",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    command: "disconnectPrinter"
+                }),
+                contentType: "application/json; charset=UTF-8"
+            });			
+		}
+		
+		self.connectPrinter = function() {
+            $.ajax({
+                url: API_BASEURL + "plugin/tplinksmartplug",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    command: "connectPrinter"
+                }),
+                contentType: "application/json; charset=UTF-8"
+            });			
+		}
 		
 		self.checkStatuses = function() {
 			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
