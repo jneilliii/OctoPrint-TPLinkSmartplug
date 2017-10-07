@@ -59,10 +59,12 @@ $(function() {
 				
 			if (data.gcodeon && plug.gcodeEnabled){
 				self.turnOn(plug);
+				return;
 			}
 			
 			if (data.gcodeoff && plug.gcodeEnabled){
 				self.turnOff(plug);
+				return;
 			}
 			
 			if (plug.currentState != data.currentState) {
