@@ -100,6 +100,7 @@ $(function() {
 					self.turnOn(data);
 					break;
 				default:
+					self.checkStatus(data.ip());
 			}
 		}
 		
