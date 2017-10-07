@@ -85,13 +85,13 @@ $(function() {
                 return;
             }
 			
-			console.log("onDataUpdaterPluginMessage|" + ko.toJSON(data))
+			//console.log("onDataUpdaterPluginMessage|" + ko.toJSON(data))
 			
 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
 				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
 				
-			console.log("onDataUpdaterPluginMessage|" + ko.toJSON(plug));
+			//console.log("onDataUpdaterPluginMessage|" + ko.toJSON(plug));
 			
 			if (plug.currentState != data.currentState) {
 				plug.currentState(data.currentState)
@@ -154,7 +154,7 @@ $(function() {
 					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
-            });
+            }).done(function(){$("#tplinksmartplug_poweroff_confirmation_dialog_" + plugIP).modal("hide");});
         }; 
 		
 		self.checkStatus = function(plugIP) {
