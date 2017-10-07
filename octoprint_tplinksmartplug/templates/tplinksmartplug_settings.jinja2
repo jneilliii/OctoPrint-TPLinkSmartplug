@@ -24,6 +24,14 @@
 				<td style="text-align:center"><input type="checkbox" data-bind="checked: sysCmdOff, uniqueName: true"/></td>
 				<td style="text-align:center"></td>
 			</tr>
+			<tr data-bind='visible: gcodeEnabled() && ip().length > 0, attr: {title: ip}'>
+				<td colspan="2">GCODE On Delay</td>
+				<td colspan="5"><input data-bind="value: gcodeOnDelay, uniqueName: true" size="3" /></td>
+			</tr>
+			<tr data-bind='visible: gcodeEnabled() && ip().length > 0, attr: {title: ip}'>
+				<td colspan="2">GCODE Off Delay</td>
+				<td colspan="5"><input data-bind="value: gcodeOffDelay, uniqueName: true" size="3" /></td>
+			</tr>
 			<tr data-bind='visible: autoConnect() && ip().length > 0, attr: {title: ip}'>
 				<td colspan="2">Auto Connect Delay</td>
 				<td colspan="5"><input data-bind="value: autoConnectDelay, uniqueName: true" size="3" /></td>

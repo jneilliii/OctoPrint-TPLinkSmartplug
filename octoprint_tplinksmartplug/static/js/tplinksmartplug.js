@@ -30,6 +30,8 @@ $(function() {
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':ko.observable(''),
 									'displayWarning':ko.observable(true),
 									'gcodeEnabled':ko.observable(false),
+									'gcodeOnDelay':ko.observable(0),
+									'gcodeOffDelay':ko.observable(0),
 									'autoConnect':ko.observable(true),
 									'autoConnectDelay':ko.observable(10.0),
 									'autoDisconnect':ko.observable(true),
@@ -58,12 +60,12 @@ $(function() {
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
 			
 			if (data.gcodeon && plug.gcodeEnabled()) {
-				self.turnOn(plug);
+				setTimeout(function(){self.turnOn(plug)},plug.gcodeOnDelay()*1000);
 				return false;
 			}
 			
 			if (data.gcodeoff && plug.gcodeEnabled()) {
-				self.turnOff(plug);
+				setTimeout(function(){self.turnOff(plug)},plug.gcodeOffDelay()*1000);
 				return false;
 			}
 			
