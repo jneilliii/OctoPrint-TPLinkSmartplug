@@ -18,8 +18,8 @@
 				<td><input data-bind='value: ip, uniqueName: true' /></td>
 				<td><input type="checkbox" data-bind="checked: displayWarning, uniqueName: true"/></td>
 				<td><input type="checkbox" data-bind="checked: gcodeEnabled, uniqueName: true"/></td>
-				<td><input type="checkbox" data-bind="checked: autoConnect, uniqueName: true"/></td>
-				<td><input type="checkbox" data-bind="checked: autoDisconnect, uniqueName: true"/></td>
+				<td><input type="checkbox" data-bind="checked: autoConnect, uniqueName: true"/><input data-bind="value: autoConnectDelay, uniqueName: true, visible: autoConnect" /></td>
+				<td><input type="checkbox" data-bind="checked: autoDisconnect, uniqueName: true"/><input data-bind="value: autoDisconnectDelay, uniqueName: true, visible: autoDisconnect" /></td>
 				<td><input data-bind="value: sysCmdOn, uniqueName: true" /></td>
 				<td><input data-bind="value: sysCmdOff, uniqueName: true" /></td>
 				<td><a href="#" class="icon-trash" data-bind="click: $root.removePlug, css: {disabled: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1}"></a></td>

@@ -121,7 +121,7 @@ $(function() {
 					if(data.displayWarning()){
 						$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("show");
 					} else {
-						if(data.disconnectOnPowerOff()){
+						if(data.autoDisconnect()){
 							self.disconnectPrinter();
 							setTimeout(self.turnOff(data.ip()),(data.autoDisconnectDelay()*1000))
 						} else {
@@ -130,7 +130,7 @@ $(function() {
 					}				
 					break;
 				case "off":
-					if(data.connectOnPowerOn()){
+					if(data.autoConnect()){
 						self.turnOn(data.ip());
 						setTimeout(self.connectPrinter(),(data.autoConnectDelay()*1000));
 					} else {
