@@ -123,7 +123,6 @@ $(function() {
 					break;
 				case "off":
 					self.turnOn(data);
-					}
 					break;
 				default:
 			}
