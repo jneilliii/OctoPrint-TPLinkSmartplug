@@ -210,8 +210,10 @@ $(function() {
 		
 		self.checkStatuses = function() {
 			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
-				console.log("checking " + item.ip())
-				self.checkStatus(item.ip());
+				if(item.ip() !== "") {
+					console.log("checking " + item.ip())
+					self.checkStatus(item.ip());
+				}
 			});
         };
     }

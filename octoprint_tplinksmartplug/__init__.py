@@ -86,15 +86,16 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		
 	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
-		response = self.sendCommand("info",plugip)
-		chk = response["system"]["get_sysinfo"]["relay_state"]
-		if chk == 1:
-			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",ip=plugip))
-		elif chk == 0:
-			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off",ip=plugip))
-		else:
-			self._tplinksmartplug_logger.debug(response)
-			self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",ip=plugip))		
+		if plugip !== "":
+			response = self.sendCommand("info",plugip)
+			chk = response["system"]["get_sysinfo"]["relay_state"]
+			if chk == 1:
+				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",ip=plugip))
+			elif chk == 0:
+				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off",ip=plugip))
+			else:
+				self._tplinksmartplug_logger.debug(response)
+				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",ip=plugip))		
 	
 	def get_api_commands(self):
 		return dict(turnOn=["ip"],turnOff=["ip"],checkStatus=["ip"],connectPrinter=[],disconnectPrinter=[],sysCommand=["cmd"])
