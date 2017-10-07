@@ -192,13 +192,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				plugip = re.sub(r'^M80\s?', '', cmd)
 				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",gcodeon=True,ip=plugip))
 				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on.")
-				self.turn_on(plugip)
 				return
 			elif cmd.startswith("M81"):
 				plugip = re.sub(r'^M81\s?', '', cmd)
 				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",gcodeoff=True,ip=plugip))
 				self._tplinksmartplug_logger.debug("Received M81 command, attempting power off.")
-				self.turn_off(plugip)
 				return
 			else:
 				return

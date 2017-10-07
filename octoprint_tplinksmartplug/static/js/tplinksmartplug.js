@@ -62,6 +62,11 @@ $(function() {
 				return false;
 			}
 			
+			if (data.gcodeoff && plug.gcodeEnabled()) {
+				self.turnOff(plug);
+				return false;
+			}
+			
 			if (plug.currentState != data.currentState) {
 				plug.currentState(data.currentState)
 				switch(data.currentState) {
