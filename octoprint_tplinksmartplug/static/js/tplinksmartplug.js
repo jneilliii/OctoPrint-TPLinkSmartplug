@@ -40,7 +40,7 @@ $(function() {
 									'sysRunCmdOff':ko.observable(''),
 									'sysCmdOffDelay':ko.observable(0),
 									'currentState':ko.observable('unknown'),
-									'btnColor':ko.observable('#808080'}));
+									'btnColor':ko.observable('#808080')});
 		}
 		
 		self.removePlug = function(row) {
