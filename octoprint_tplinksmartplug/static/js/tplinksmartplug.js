@@ -85,7 +85,6 @@ $(function() {
 							type: 'error',
 							hide: true
 							});
-				self.checkStatuses();
 				self.settings.saveData();
 				}
 			}
@@ -168,7 +167,9 @@ $(function() {
 					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
-            });
+            }).done(function(){
+				self.settings.saveData();
+				});
         }; 
 		
 		self.disconnectPrinter = function() {
