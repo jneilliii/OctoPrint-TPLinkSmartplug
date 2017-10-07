@@ -122,25 +122,30 @@ $(function() {
 					self.turnOff(data);
 					break;
 				case "off":
-					if(data.autoConnect()){
-						self.turnOn(data.ip());
-						setTimeout(function(){self.connectPrinter()},data.autoConnectDelay()*1000);
-					} else {
-					self.turnOn(data.ip());
+					self.turnOn(data);
 					}
 					break;
 				default:
 			}
 		}
 		
-		self.turnOn = function(plugIP) {
+		self.turnOn = function(data) {
+			if(data.autoConnect()){
+				self.sendTurnOn(data);
+				setTimeout(function(){self.connectPrinter()},data.autoConnectDelay()*1000);
+			} else {
+				self.sendTurnOn(data);
+			}
+		}
+		
+		self.sendTurnOn = function(data) {
             $.ajax({
                 url: API_BASEURL + "plugin/tplinksmartplug",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify({
                     command: "turnOn",
-					ip: plugIP
+					ip: data.ip()
                 }),
                 contentType: "application/json; charset=UTF-8"
             });

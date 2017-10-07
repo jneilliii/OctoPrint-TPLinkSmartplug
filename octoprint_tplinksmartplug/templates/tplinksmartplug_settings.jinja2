@@ -24,6 +24,14 @@
 				<td><input data-bind="value: sysCmdOff, uniqueName: true" /></td>
 				<td><a href="#" class="icon-trash" data-bind="click: $root.removePlug, css: {disabled: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1}"></a></td>
 			</tr>
+			<tr data-bind='visible: sysCmdOn().length > 0'>
+				<td colspan="4">System Command On Delay</td>
+				<td colspan="4"><input data-bind="value: sysCmdOnDelay, uniqueName: true" size="3" /></td>
+			</tr>
+			<tr data-bind='visible: sysCmdOff().length > 0'>
+				<td colspan="4">System Command Off Delay</td>
+				<td colspan="4"><input data-bind="value: sysCmdOffDelay, uniqueName: true" size="3" /></td>
+			</tr>
 		</tbody>
 	</table>
 	<button data-bind='click: addPlug'>Add Plug</button>
