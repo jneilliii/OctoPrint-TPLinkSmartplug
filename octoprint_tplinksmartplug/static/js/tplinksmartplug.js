@@ -55,14 +55,14 @@ $(function() {
 			//console.log("onDataUpdaterPluginMessage|" + ko.toJSON(data))
 			
 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
-				return item.ip() === data.ip();
+				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
 				
 			//console.log("onDataUpdaterPluginMessage|" + ko.toJSON(plug));
 			
-			if (plug.currentState() != data.currentState()) {
-				plug.currentState(data.currentState())
-				switch(data.currentState()) {
+			if (plug.currentState != data.currentState) {
+				plug.currentState(data.currentState)
+				switch(data.currentState) {
 					case "on":
 						plug.btnColor("#00FF00");
 						break;
