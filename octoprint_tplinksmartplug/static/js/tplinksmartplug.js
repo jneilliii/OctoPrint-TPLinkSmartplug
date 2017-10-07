@@ -23,6 +23,7 @@ $(function() {
 
         self.onEventSettingsUpdated = function (payload) {
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
+			self.checkStatuses();
 		}
 		
 		self.addPlug = function() {
