@@ -26,21 +26,21 @@ $(function() {
 		}
 		
 		self.addPlug = function() {
-			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':'ip',
-									'displayWarning':true,
-									'gcodeEnabled':false,
-									'autoConnect':true,
-									'autoConnectDelay':10.0,
-									'autoDisconnect':true,
-									'autoDisconnectDelay':0,
-									'sysCmdOn':false,
-									'sysRunCmdOn':'',
-									'sysCmdOnDelay':0,
-									'sysCmdOff':false,
-									'sysRunCmdOff':'',
-									'sysCmdOffDelay':0,
-									'currentState':'unknown',
-									'btnColor':'#808080'});
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':ko.observable(''),
+									'displayWarning':ko.observable(true),
+									'gcodeEnabled':ko.observable(false),
+									'autoConnect':ko.observable(true),
+									'autoConnectDelay':ko.observable(10.0),
+									'autoDisconnect':ko.observable(true),
+									'autoDisconnectDelay':ko.observable(0),
+									'sysCmdOn':ko.observable(false),
+									'sysRunCmdOn':ko.observable(''),
+									'sysCmdOnDelay':ko.observable(0),
+									'sysCmdOff':ko.observable(false),
+									'sysRunCmdOff':ko.observable(''),
+									'sysCmdOffDelay':ko.observable(0),
+									'currentState':ko.observable('unknown'),
+									'btnColor':ko.observable('#808080'}));
 		}
 		
 		self.removePlug = function(row) {
