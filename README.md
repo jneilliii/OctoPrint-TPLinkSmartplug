@@ -3,15 +3,9 @@
 Work inspired by [OctoPrint-PSUControl](https://github.com/kantlivelong/OctoPrint-PSUControl) and [TP-Link WiFi SmartPlug Client](https://github.com/softScheck/tplink-smartplug), this plugin controls a TP-Link Smartplug via OctoPrint's nav bar. 
 
 ##  Screenshots
-![screenshot](screenshot_on.png)
+![screenshot](screenshot.png)
 
-![screenshot](screenshot_off.png)
-
-![screenshot](settings_general.png)
-
-![screenshot](settings_on.png)
-
-![screenshot](settings_off.png)
+![screenshot](settings.png)
 
 ## Setup
 

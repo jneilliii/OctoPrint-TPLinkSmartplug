@@ -25,36 +25,44 @@
 				<td style="text-align:center"></td>
 			</tr>
 			<tr data-bind='visible: gcodeEnabled() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
 				<td colspan="2">GCODE On Delay</td>
-				<td colspan="5"><input data-bind="value: gcodeOnDelay, uniqueName: true" size="3" /></td>
+				<td colspan="4"><input data-bind="value: gcodeOnDelay, uniqueName: true" size="3" /></td>
 			</tr>
 			<tr data-bind='visible: gcodeEnabled() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
 				<td colspan="2">GCODE Off Delay</td>
-				<td colspan="5"><input data-bind="value: gcodeOffDelay, uniqueName: true" size="3" /></td>
+				<td colspan="4"><input data-bind="value: gcodeOffDelay, uniqueName: true" size="3" /></td>
 			</tr>
 			<tr data-bind='visible: autoConnect() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
 				<td colspan="2">Auto Connect Delay</td>
-				<td colspan="5"><input data-bind="value: autoConnectDelay, uniqueName: true" size="3" /></td>
+				<td colspan="4"><input data-bind="value: autoConnectDelay, uniqueName: true" size="3" /></td>
 			</tr>
 			<tr data-bind='visible: autoDisconnect() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
 				<td colspan="2">Auto Disconnect Delay</td>
-				<td colspan="5"><input data-bind="value: autoDisconnectDelay, uniqueName: true" size="3" /></td>
+				<td colspan="4"><input data-bind="value: autoDisconnectDelay, uniqueName: true" size="3" /></td>
 			</tr>
 			<tr data-bind='visible: sysCmdOn() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
 				<td colspan="2">System Command On</td>
-				<td colspan="5"><input data-bind="value: sysRunCmdOn, uniqueName: true" /></td>
+				<td colspan="4"><input data-bind="value: sysRunCmdOn, uniqueName: true" /></td>
 			</tr>
 			<tr data-bind='visible: sysCmdOn() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
 				<td colspan="2">System Command On Delay</td>
-				<td colspan="5"><input data-bind="value: sysCmdOnDelay, uniqueName: true" size="3" /></td>
+				<td colspan="4"><input data-bind="value: sysCmdOnDelay, uniqueName: true" size="3" /></td>
 			</tr>
 			<tr data-bind='visible: sysCmdOff() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
 				<td colspan="2">System Command Off</td>
-				<td colspan="5"><input data-bind="value: sysRunCmdOff, uniqueName: true" /></td>
+				<td colspan="4"><input data-bind="value: sysRunCmdOff, uniqueName: true" /></td>
 			</tr>
 			<tr data-bind='visible: sysCmdOff() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
 				<td colspan="2">System Command Off Delay</td>
-				<td colspan="5"><input data-bind="value: sysCmdOffDelay, uniqueName: true" size="3" /></td>
+				<td colspan="4"><input data-bind="value: sysCmdOffDelay, uniqueName: true" size="3" /></td>
 			</tr>
 		</tbody>
 	</table>
