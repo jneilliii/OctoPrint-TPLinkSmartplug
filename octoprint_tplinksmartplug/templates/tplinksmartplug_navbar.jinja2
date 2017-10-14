@@ -1,29 +1,7 @@
-<ul class="nav nav-tabs">
 <!-- ko foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs -->
 <!-- ko if: $data.ip().length > 0 -->
-<li>
 <a id="tplinksmartplug_indicator" class="pull-right" href=#" data-bind="click: $root.toggleRelay,visible: $root.loginState.loggedIn(),style: {color: $data.btnColor}, attr: {title: $data.ip}" style="display: none;">
     <i class="icon-bolt"></i>
 </a>
-<div data-bind="attr: {id: 'tplinksmartplug_poweroff_confirmation_dialog_' + $data.ip()}" class="modal hide fade">
-    <div class="modal-header">
-        <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-        <h3>TPLink Smartplug</h3>
-    </div>
-    <div class="modal-body">
-        <p>
-            TPLink Smartplug is currently ON. 
-        </p>
-        <p>
-            {{ _('Are you sure you want to proceed?') }}
-        </p>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">{{ _('Cancel') }}</a>
-        <a href="#" class="btn btn-danger" data-bind="click: $root.turnOff">{{ _('Proceed') }}</a>
-    </div>
-</div>
-</li>
 <!-- /ko -->
 <!-- /ko -->
-</ul>
