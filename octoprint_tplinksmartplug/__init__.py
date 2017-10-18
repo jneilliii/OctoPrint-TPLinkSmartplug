@@ -14,13 +14,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
                             octoprint.plugin.TemplatePlugin,
 							octoprint.plugin.SimpleApiPlugin,
-							octoprint.plugin.StartupPlugin):
+							octoprint.plugin.StartupPlugin,
+							octoprint.plugin.EventHandlerPlugin):
 							
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
 		self._tplinksmartplug_logger = logging.getLogger("octoprint.plugins.tplinksmartplug.debug")
 							
 	##~~ StartupPlugin mixin
+	
 	def on_startup(self, host, port):
 		# setup customized logger
 		from octoprint.logging.handlers import CleaningTimedRotatingFileHandler
@@ -34,12 +36,25 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
-
+		
+	##~~ EventHandlerPlugin mixin
+	
+	def on_event(self, event, payload):
+		if event == octoprint.events.Events.PRINT_STARTED:
+			self._settings.set_boolean(["isPrinting"], True, True)
+		elif event == octoprint.events.Events.PRINT_DONE:
+			self._settings.set_boolean(["isPrinting"], False, True)
+		elif event == octoprint.events.Events.PRINT_CANCELLED:
+			self._settings.set_boolean(["isPrinting"], False, True)
+		elif event == octoprint.events.Events.PRINT_FAILED:
+			self._settings.set_boolean(["isPrinting"], False, True)
+	
 	##~~ SettingsPlugin mixin
-
+	
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
+			isPrinting = False,
 			arrSmartplugs = [{'ip':'','displayWarning':True,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080'}]
 		)
 		

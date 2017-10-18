@@ -10,11 +10,13 @@ $(function() {
 
         self.settings = parameters[0];
 		self.loginState = parameters[1];
-		
+
 		self.arrSmartplugs = ko.observableArray();
+		self.isPrinting = ko.observable();
 		
 		self.onBeforeBinding = function() {		
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
+			self.isPrinting(self.settings.settings.plugins.tplinksmartplug.isPrinting());
         }
 		
 		self.onAfterBinding = function() {
@@ -130,7 +132,6 @@ $(function() {
         };
 
     	self.turnOff = function(data) {
-			console.log(self._printer.isPrinting());
 			if(data.displayWarning()  && !$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).is(':visible')){
 				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("show");
 			} else {
