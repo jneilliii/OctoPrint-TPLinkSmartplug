@@ -31,7 +31,6 @@ $(function() {
 			if (payload.state_id == "PRINTING"){
 				self.isPrinting(true);
 			} else {
-				console.log(payload.state_id)
 				self.isPrinting(false);
 			}
 		}
@@ -141,6 +140,7 @@ $(function() {
 
     	self.turnOff = function(data) {
 			if((data.displayWarning() || self.isPrinting()) && !$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).is(':visible')){
+				console.log(self.isPrinting());
 				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("show");
 			} else {
 				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("hide");
