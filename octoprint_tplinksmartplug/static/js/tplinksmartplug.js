@@ -140,6 +140,7 @@ $(function() {
 
     	self.turnOff = function(data) {
 			if((data.displayWarning() || self.isPrinting()) && !$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\\\$1" )).is(':visible')){
+				alert("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\\\$1" ));
 				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\\\$1" )).modal("show");
 			} else {
 				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\\\$1" )).modal("hide");
