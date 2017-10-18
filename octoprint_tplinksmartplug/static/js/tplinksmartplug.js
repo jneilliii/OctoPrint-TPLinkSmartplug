@@ -139,11 +139,12 @@ $(function() {
         };
 
     	self.turnOff = function(data) {
-			if((data.displayWarning() || self.isPrinting()) && !$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\\\$1" )).is(':visible')){
-				alert("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\\\$1" ));
-				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\\\$1" )).modal("show");
+			var dlg_id = "#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\\\$1" );
+			if((data.displayWarning() || self.isPrinting()) && !$(dlg_id).is(':visible')){
+				alert(dlg_id);
+				$(dlg_id).modal("show");
 			} else {
-				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\\\$1" )).modal("hide");
+				$(dlg_id).modal("hide");
 				if(data.sysCmdOff()){
 					setTimeout(function(){self.sysCommand(data.sysRunCmdOff())},data.sysCmdOffDelay()*1000);
 				}
