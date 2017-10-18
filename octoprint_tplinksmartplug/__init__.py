@@ -14,8 +14,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
                             octoprint.plugin.TemplatePlugin,
 							octoprint.plugin.SimpleApiPlugin,
-							octoprint.plugin.StartupPlugin,
-							octoprint.plugin.EventHandlerPlugin):
+							octoprint.plugin.StartupPlugin):
 							
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
@@ -36,18 +35,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
-		
-	##~~ EventHandlerPlugin mixin
-	
-	def on_event(self, event, payload):
-		if event == octoprint.events.Events.PRINT_STARTED:
-			self._settings.set_boolean(["isPrinting"], True, True)
-		elif event == octoprint.events.Events.PRINT_DONE:
-			self._settings.set_boolean(["isPrinting"], False, True)
-		elif event == octoprint.events.Events.PRINT_CANCELLED:
-			self._settings.set_boolean(["isPrinting"], False, True)
-		elif event == octoprint.events.Events.PRINT_FAILED:
-			self._settings.set_boolean(["isPrinting"], False, True)
 	
 	##~~ SettingsPlugin mixin
 	
