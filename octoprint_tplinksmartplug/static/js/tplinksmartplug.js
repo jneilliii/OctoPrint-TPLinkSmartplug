@@ -16,7 +16,6 @@ $(function() {
 		
 		self.onBeforeBinding = function() {		
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
-			self.isPrinting(self.settings.settings.plugins.tplinksmartplug.isPrinting());
         }
 		
 		self.onAfterBinding = function() {
