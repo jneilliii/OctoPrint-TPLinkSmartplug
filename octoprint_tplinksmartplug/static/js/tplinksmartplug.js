@@ -12,7 +12,7 @@ $(function() {
 		self.loginState = parameters[1];
 
 		self.arrSmartplugs = ko.observableArray();
-		self.isPrinting = ko.observable();
+		self.isPrinting = ko.observable(false);
 		
 		self.onBeforeBinding = function() {		
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
@@ -25,12 +25,15 @@ $(function() {
 
         self.onEventSettingsUpdated = function(payload) {
 			self.settings.requestData();
-			self.isPrinting(self.settings.settings.plugins.tplinksmartplug.isPrinting());
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 		}
 		
 		self.onEventPrinterStateChanged = function(payload) {
-			console.log(payload.state_id);
+			if (payload.state_id == "PRINTING"){
+				self.isPrinting(true);
+			} else {
+				self.isPrinting(false);
+			}
 		}
 		
 		self.addPlug = function() {
