@@ -140,7 +140,6 @@ $(function() {
 
     	self.turnOff = function(data) {
 			if((data.displayWarning() || self.isPrinting()) && !$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).is(':visible')){
-				console.log(self.isPrinting());
 				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("show");
 			} else {
 				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("hide");
