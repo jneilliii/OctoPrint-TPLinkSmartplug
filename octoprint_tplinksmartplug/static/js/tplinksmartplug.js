@@ -139,10 +139,10 @@ $(function() {
         };
 
     	self.turnOff = function(data) {
-			if((data.displayWarning() || self.isPrinting()) && !$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).is(':visible')){
-				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("show");
+			if((data.displayWarning() || self.isPrinting()) && !$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace('.','\\.')).is(':visible')){
+				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace('.','\\.')).modal("show");
 			} else {
-				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip()).modal("hide");
+				$("#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace('.','\\.')).modal("hide");
 				if(data.sysCmdOff()){
 					setTimeout(function(){self.sysCommand(data.sysRunCmdOff())},data.sysCmdOffDelay()*1000);
 				}
