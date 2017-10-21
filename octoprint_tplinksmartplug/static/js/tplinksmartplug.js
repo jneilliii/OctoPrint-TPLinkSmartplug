@@ -139,7 +139,7 @@ $(function() {
         };
 
     	self.turnOff = function(data) {
-			var dlg_id = "#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\\\$1" );
+			var dlg_id = "#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\$1" );
 			if((data.displayWarning() || self.isPrinting()) && !$(dlg_id).is(':visible')){
 				alert(dlg_id);
 				$(dlg_id).modal("show");
