@@ -38,6 +38,7 @@ $(function() {
 		self.addPlug = function() {
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':ko.observable(''),
 									'displayWarning':ko.observable(true),
+									'warnPrinting':ko.observable(false),
 									'gcodeEnabled':ko.observable(false),
 									'gcodeOnDelay':ko.observable(0),
 									'gcodeOffDelay':ko.observable(0),
@@ -140,8 +141,7 @@ $(function() {
 
     	self.turnOff = function(data) {
 			var dlg_id = "#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\$1" );
-			if((data.displayWarning() || self.isPrinting()) && !$(dlg_id).is(':visible')){
-				alert(dlg_id);
+			if((data.displayWarning() || (self.isPrinting() && data.warnPrinting())) && !$(dlg_id).is(':visible')){
 				$(dlg_id).modal("show");
 			} else {
 				$(dlg_id).modal("hide");
