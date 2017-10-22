@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Toggle off issue when using ip address and warning prompt due to jquery selectors.
 
-## [0.6.0] - 2017-10-08
+## [0.6.0] - unreleased
 ### Added
 - Support for multiple plugs incorporated.
 
@@ -77,7 +77,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Initial release.
 
 [0.7.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.7.0
-[0.6.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.6.0
 [0.5.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.5.0
 [0.4.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.4.0
 [0.3.1]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.3.1
