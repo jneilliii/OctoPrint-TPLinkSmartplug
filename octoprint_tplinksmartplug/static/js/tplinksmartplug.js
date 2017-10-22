@@ -28,7 +28,7 @@ $(function() {
 		}
 		
 		self.onEventPrinterStateChanged = function(payload) {
-			if (payload.state_id == "PRINTING"){
+			if (payload.state_id == "PRINTING" || payload.state_id == "PAUSED"){
 				self.isPrinting(true);
 			} else {
 				console.log(payload.state_id);
