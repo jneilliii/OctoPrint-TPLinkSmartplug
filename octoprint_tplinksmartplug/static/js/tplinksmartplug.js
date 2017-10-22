@@ -10,123 +10,226 @@ $(function() {
 
         self.settings = parameters[0];
 		self.loginState = parameters[1];
+
+		self.arrSmartplugs = ko.observableArray();
+		self.isPrinting = ko.observable(false);
 		
-		self.currentState = ko.observable("unknown");
-		self.ip = ko.observable();
-		self.relayState = ko.observable("#808080");
-		self.disconnectOnPowerOff = ko.observable();
-		self.connectOnPowerOn = ko.observable();
-		self.connectOnPowerOnDelay = ko.observable();
-		self.enablePowerOffWarningDialog = ko.observable();
-		self.gcodeprocessing = ko.observable();
-		self.validIP = ko.observable();
-		
-		self.onBeforeBinding = function() {
-			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());
-			self.validIP(self.settings.settings.plugins.tplinksmartplug.validIP());
-			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
-			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
-			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
-			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
-			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
+		self.onBeforeBinding = function() {		
+			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
         }
 		
 		self.onAfterBinding = function() {
-			self.checkStatus();
-			self.poweroff_dialog = $("#tplinksmartplug_poweroff_confirmation_dialog");
+			self.checkStatuses();
 		}
 
-        self.onEventSettingsUpdated = function (payload) {
-			self.ip(self.settings.settings.plugins.tplinksmartplug.ip());			
-			self.validIP(self.settings.settings.plugins.tplinksmartplug.validIP());
-			self.disconnectOnPowerOff(self.settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff());
-			self.connectOnPowerOn(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOn());
-			self.connectOnPowerOnDelay(self.settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay());
-			self.enablePowerOffWarningDialog(self.settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog());
-			self.gcodeprocessing(self.settings.settings.plugins.tplinksmartplug.gcodeprocessing());
-			self.checkStatus();
+        self.onEventSettingsUpdated = function(payload) {
+			self.settings.requestData();
+			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
+		}
+		
+		self.onEventPrinterStateChanged = function(payload) {
+			if (payload.state_id == "PRINTING" || payload.state_id == "PAUSED"){
+				self.isPrinting(true);
+			} else {
+				self.isPrinting(false);
+			}
+		}
+		
+		self.addPlug = function() {
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':ko.observable(''),
+									'displayWarning':ko.observable(true),
+									'warnPrinting':ko.observable(false),
+									'gcodeEnabled':ko.observable(false),
+									'gcodeOnDelay':ko.observable(0),
+									'gcodeOffDelay':ko.observable(0),
+									'autoConnect':ko.observable(true),
+									'autoConnectDelay':ko.observable(10.0),
+									'autoDisconnect':ko.observable(true),
+									'autoDisconnectDelay':ko.observable(0),
+									'sysCmdOn':ko.observable(false),
+									'sysRunCmdOn':ko.observable(''),
+									'sysCmdOnDelay':ko.observable(0),
+									'sysCmdOff':ko.observable(false),
+									'sysRunCmdOff':ko.observable(''),
+									'sysCmdOffDelay':ko.observable(0),
+									'currentState':ko.observable('unknown'),
+									'btnColor':ko.observable('#808080')});
+		}
+		
+		self.removePlug = function(row) {
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.remove(row);
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
             if (plugin != "tplinksmartplug") {
                 return;
             }
-
-			self.currentState(data.currentState);
-
-			switch(self.currentState()) {
-				case "on":
-					self.relayState("#00FF00");
-					self.validIP(true);
-					break;
-				case "off":
-					self.relayState("#FF0000");
-					self.validIP(true);
-					self.poweroff_dialog.modal("hide");
-					break;
-				default:
-					new PNotify({
-						title: 'TP-Link Smartplug Error',
-						text: 'Status ' + self.currentState() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
-						type: 'error',
-						hide: true
-						});
-					self.relayState("#808080");
-					self.validP(false);
-			}          
+			
+			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
+				return item.ip() === data.ip;
+				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
+			
+			if (data.gcodeon && plug.gcodeEnabled()) {
+				setTimeout(function(){self.turnOn(plug)},plug.gcodeOnDelay()*1000);
+				return false;
+			}
+			
+			if (data.gcodeoff && plug.gcodeEnabled()) {
+				setTimeout(function(){self.turnOff(plug)},plug.gcodeOffDelay()*1000);
+				return false;
+			}
+			
+			if (plug.currentState != data.currentState) {
+				plug.currentState(data.currentState)
+				switch(data.currentState) {
+					case "on":
+						plug.btnColor("#00FF00");
+						break;
+					case "off":
+						plug.btnColor("#FF0000");
+						break;
+					default:
+						plug.btnColor("#808080");
+						new PNotify({
+							title: 'TP-Link Smartplug Error',
+							text: 'Status ' + plug.currentState() + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
+							type: 'error',
+							hide: true
+							});
+				self.settings.saveData();
+				}
+			}
         };
 		
-		self.toggleRelay = function() {
-			switch(self.currentState()){
+		self.toggleRelay = function(data) {
+			switch(data.currentState()){
 				case "on":
-					if(self.enablePowerOffWarningDialog()){
-						self.poweroff_dialog.modal("show");
-					} else {
-						self.turnOff();
-					}					
+					self.turnOff(data);
 					break;
 				case "off":
-					self.turnOn();
+					self.turnOn(data);
 					break;
 				default:
+					self.checkStatus(data.ip());
 			}
 		}
 		
-		self.turnOn = function() {
+		self.turnOn = function(data) {
+			if(data.sysCmdOn()){
+				setTimeout(function(){self.sysCommand(data.sysRunCmdOn())},data.sysCmdOnDelay()*1000);
+			}
+			if(data.autoConnect()){
+				self.sendTurnOn(data);
+				setTimeout(function(){self.connectPrinter()},data.autoConnectDelay()*1000);
+			} else {
+				self.sendTurnOn(data);
+			}
+		}
+		
+		self.sendTurnOn = function(data) {
             $.ajax({
                 url: API_BASEURL + "plugin/tplinksmartplug",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify({
-                    command: "turnOn"
+                    command: "turnOn",
+					ip: data.ip()
                 }),
                 contentType: "application/json; charset=UTF-8"
             });
         };
 
-    	self.turnOff = function() {
-            $.ajax({
-                url: API_BASEURL + "plugin/tplinksmartplug",
-                type: "POST",
-                dataType: "json",
-                data: JSON.stringify({
-                    command: "turnOff"
-                }),
-                contentType: "application/json; charset=UTF-8"
-            });
+    	self.turnOff = function(data) {
+			var dlg_id = "#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\$1" );
+			if((data.displayWarning() || (self.isPrinting() && data.warnPrinting())) && !$(dlg_id).is(':visible')){
+				$(dlg_id).modal("show");
+			} else {
+				$(dlg_id).modal("hide");
+				if(data.sysCmdOff()){
+					setTimeout(function(){self.sysCommand(data.sysRunCmdOff())},data.sysCmdOffDelay()*1000);
+				}
+				if(data.autoDisconnect()){
+					self.disconnectPrinter();
+					setTimeout(function(){self.sendTurnOff(data);},data.autoDisconnectDelay()*1000);
+				} else {
+					self.sendTurnOff(data);
+				}
+			}
         }; 
 		
-		self.checkStatus = function() {
+		self.sendTurnOff = function(data) {
+			$.ajax({
+			url: API_BASEURL + "plugin/tplinksmartplug",
+			type: "POST",
+			dataType: "json",
+			data: JSON.stringify({
+				command: "turnOff",
+				ip: data.ip()
+			}),
+			contentType: "application/json; charset=UTF-8"
+			});		
+		}
+		
+		self.checkStatus = function(plugIP) {
             $.ajax({
                 url: API_BASEURL + "plugin/tplinksmartplug",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify({
-                    command: "checkStatus"
+                    command: "checkStatus",
+					ip: plugIP
                 }),
                 contentType: "application/json; charset=UTF-8"
-            });
+            }).done(function(){
+				self.settings.saveData();
+				});
         }; 
+		
+		self.disconnectPrinter = function() {
+            $.ajax({
+                url: API_BASEURL + "plugin/tplinksmartplug",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    command: "disconnectPrinter"
+                }),
+                contentType: "application/json; charset=UTF-8"
+            });			
+		}
+		
+		self.connectPrinter = function() {
+            $.ajax({
+                url: API_BASEURL + "plugin/tplinksmartplug",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    command: "connectPrinter"
+                }),
+                contentType: "application/json; charset=UTF-8"
+            });			
+		}
+		
+		self.sysCommand = function(sysCmd) {
+            $.ajax({
+                url: API_BASEURL + "plugin/tplinksmartplug",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify({
+                    command: "sysCommand",
+					cmd: sysCmd
+                }),
+                contentType: "application/json; charset=UTF-8"
+            });			
+		}
+		
+		self.checkStatuses = function() {
+			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
+				if(item.ip() !== "") {
+					console.log("checking " + item.ip())
+					self.checkStatus(item.ip());
+				}
+			});
+        };
     }
 
     // view model class, parameters for constructor, container to bind to

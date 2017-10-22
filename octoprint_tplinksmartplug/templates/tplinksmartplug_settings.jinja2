@@ -1,55 +1,77 @@
-<form class="form-horizontal">
-    <h4>TPLink Smartplug Options</h4>
-    <div class="control-group">
-        <label class="control-label">IP Address or Hostname</label>
-        <div class="controls">
-            <input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.ip">
-        </div>
-    </div>
+<div class="tplinksettings">
+    <h4>TP-Link Smartplug Settings</h4>
+	<table class="table table-condensed" data-bind='visible: settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 0'>
+		<tbody data-bind='foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs'>
+			<tr data-bind='attr: {title: ip}' class="info">
+				<td colspan="6"><strong>IP or Hostname</strong> <input data-bind='value: ip, uniqueName: true' /></td>
+				<td style="text-align:center"><a href="#" class="icon-trash" data-bind="click: $root.removePlug, visible: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1"></a></td>
+			</tr>
+			<tr data-bind='visible: ip().length > 0, attr: {title: ip}' class="info">
+				<td style="text-align:center">Warn</td>
+				<td style="text-align:center">GCODE</td>
+				<td style="text-align:center">postConnect</td>
+				<td style="text-align:center">preDisconnect</td>
+				<td style="text-align:center">Cmd On</td>
+				<td style="text-align:center">Cmd Off</td>
+				<td></td>
+			</tr>
+			<tr data-bind='visible: ip().length > 0, attr: {title: ip}'>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: displayWarning, uniqueName: true" title="Enable warning prompt." /><input type="checkbox" data-bind="checked: warnPrinting, uniqueName: true" title="Warn while printing." /></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: gcodeEnabled, uniqueName: true"/></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: autoConnect, uniqueName: true"/></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: autoDisconnect, uniqueName: true"/></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: sysCmdOn, uniqueName: true"/></td>
+				<td style="text-align:center"><input type="checkbox" data-bind="checked: sysCmdOff, uniqueName: true"/></td>
+				<td style="text-align:center"></td>
+			</tr>
+			<tr data-bind='visible: gcodeEnabled() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
+				<td colspan="2">GCODE On Delay</td>
+				<td colspan="4"><input data-bind="value: gcodeOnDelay, uniqueName: true" size="3" /></td>
+			</tr>
+			<tr data-bind='visible: gcodeEnabled() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
+				<td colspan="2">GCODE Off Delay</td>
+				<td colspan="4"><input data-bind="value: gcodeOffDelay, uniqueName: true" size="3" /></td>
+			</tr>
+			<tr data-bind='visible: autoConnect() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
+				<td colspan="2">Auto Connect Delay</td>
+				<td colspan="4"><input data-bind="value: autoConnectDelay, uniqueName: true" size="3" /></td>
+			</tr>
+			<tr data-bind='visible: autoDisconnect() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
+				<td colspan="2">Auto Disconnect Delay</td>
+				<td colspan="4"><input data-bind="value: autoDisconnectDelay, uniqueName: true" size="3" /></td>
+			</tr>
+			<tr data-bind='visible: sysCmdOn() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
+				<td colspan="2">System Command On</td>
+				<td colspan="4"><input data-bind="value: sysRunCmdOn, uniqueName: true" /></td>
+			</tr>
+			<tr data-bind='visible: sysCmdOn() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
+				<td colspan="2">System Command On Delay</td>
+				<td colspan="4"><input data-bind="value: sysCmdOnDelay, uniqueName: true" size="3" /></td>
+			</tr>
+			<tr data-bind='visible: sysCmdOff() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
+				<td colspan="2">System Command Off</td>
+				<td colspan="4"><input data-bind="value: sysRunCmdOff, uniqueName: true" /></td>
+			</tr>
+			<tr data-bind='visible: sysCmdOff() && ip().length > 0, attr: {title: ip}'>
+				<td></td>
+				<td colspan="2">System Command Off Delay</td>
+				<td colspan="4"><input data-bind="value: sysCmdOffDelay, uniqueName: true" size="3" /></td>
+			</tr>
+		</tbody>
+	</table>
+	<button data-bind='click: addPlug'>Add Plug</button>
 	<div class="control-group">
-        <div class="controls">
-            <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.connectOnPowerOn"> Automatically connect after power on.
-            </label>
-        </div>
-    </div>
-    <!-- ko if: settings.settings.plugins.tplinksmartplug.connectOnPowerOn() -->
-    <div class="control-group">
-        <label class="control-label">Connection delay</label>
-        <div class="controls">
-            <div class="input-append">
-                <input type="number" min="0" step="0.1" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.connectOnPowerOnDelay">
-                <span class="add-on">sec</span>
-            </div>
+		<div class="controls">
+			<label class="checkbox">
+			<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> Enable debug logging.
+			</label>
 		</div>
-    </div>
-    <!-- /ko -->
-    <div class="control-group">
-        <div class="controls">
-            <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.disconnectOnPowerOff"> Automatically disconnect before power off.
-            </label>
-        </div>
-    </div>
-	<div class="control-group">
-        <div class="controls">
-            <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.enablePowerOffWarningDialog"> Show warning dialog when powering off via toggle button.
-            </label>
-        </div>
-    </div>
-	<div class="control-group">
-        <div class="controls">
-            <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.gcodeprocessing"> Process M80 and M81 commands from gcode.
-            </label>
-        </div>
-    </div>
-	<div class="control-group">
-        <div class="controls">
-            <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> Enable debug logging.
-            </label>
-        </div>
-    </div>
-</form>
+	</div>
+</div>
