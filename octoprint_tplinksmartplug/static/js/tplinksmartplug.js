@@ -31,6 +31,7 @@ $(function() {
 			if (payload.state_id == "PRINTING"){
 				self.isPrinting(true);
 			} else {
+				console.log(payload.state_id);
 				self.isPrinting(false);
 			}
 		}
