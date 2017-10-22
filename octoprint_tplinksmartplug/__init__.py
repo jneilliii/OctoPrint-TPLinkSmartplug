@@ -61,7 +61,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < self.get_settings_version():
-			# clear smartplugs on upgrade
+			# Reset plug settings to defaults.
 			self._logger.debug("Resetting arrSmartplugs for tplinksmartplug settings.")
 			self._settings.set(['arrSmartplugs'], self.get_settings_defaults().arrSmartplugs)
 		
