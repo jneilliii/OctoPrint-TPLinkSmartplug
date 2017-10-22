@@ -63,7 +63,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if current is None or current < self.get_settings_version():
 			# clear smartplugs on upgrade
 			self._logger.debug("Resetting arrSmartplugs for tplinksmartplug settings.")
-			self._settings.set(['arrSmartplugs'], [{'ip':'','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080'}])
+			self._settings.set(['arrSmartplugs'], self.get_settings_defaults().arrSmartplugs)
 		
 	##~~ AssetPlugin mixin
 
