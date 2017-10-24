@@ -63,7 +63,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if current is None or current < self.get_settings_version():
 			# Reset plug settings to defaults.
 			self._logger.debug("Resetting arrSmartplugs for tplinksmartplug settings.")
-			self._settings.set(['arrSmartplugs'], self.get_settings_defaults().arrSmartplugs)
+			self._settings.set(['arrSmartplugs'], self.get_settings_defaults()["arrSmartplugs"])
 		
 	##~~ AssetPlugin mixin
 
