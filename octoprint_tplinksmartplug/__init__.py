@@ -91,13 +91,19 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if chk == 0:
 			self.check_status(plugip)
 			if plug["autoConnect"]:
-				time.sleep(int(plug["autoConnectDelay"]))
-				self._printer.connect()
+				t = threading.Timer(int(plug["autoConnectDelay"]),self._printer.connect)
+				t.start()
+			if plug["sysCmdOn"]:
+				t = threading.Timer(int(plug["sysCmdOnDelay"]),os.system,args=[plug["sysRunCmdOn"]])
+				t.start()
 	
 	def turn_off(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning off %s." % plugip)
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 		self._tplinksmartplug_logger.debug(plug)
+		if plug["sysCmdOff"]:
+			t = threading.Timer(int(plug["sysCmdOffDelay"]),os.system,args=[plug["sysRunCmdOff"]])
+			t.start()			
 		if plug["autoDisconnect"]:
 			self._printer.disconnect()
 			time.sleep(int(plug["autoDisconnectDelay"]))
@@ -132,15 +138,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.turn_off("{ip}".format(**data))
 		elif command == 'checkStatus':
 			self.check_status("{ip}".format(**data))
-		elif command == 'connectPrinter':
-			self._tplinksmartplug_logger.debug("Connecting printer.")
-			self._printer.connect()
-		elif command == 'disconnectPrinter':
-			self._tplinksmartplug_logger.debug("Disconnecting printer.")
-			self._printer.disconnect()
-		elif command == 'sysCommand':
-			self._tplinksmartplug_logger.debug("Running system command %s." % "{cmd}".format(**data))
-			os.system("{cmd}".format(**data))
 			
 	##~~ Utilities
 	
