@@ -9,6 +9,7 @@ import logging
 import os
 import re
 import threading
+import time
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
@@ -84,12 +85,22 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def turn_on(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning on %s." % plugip)
+		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+		self._tplinksmartplug_logger.debug(plug)		
 		chk = self.sendCommand("on",plugip)["system"]["set_relay_state"]["err_code"]
 		if chk == 0:
 			self.check_status(plugip)
+			if plug["autoConnect"]:
+				time.sleep(int(plug["autoConnectDelay"]))
+				self._printer.connect()
 	
 	def turn_off(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning off %s." % plugip)
+		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+		self._tplinksmartplug_logger.debug(plug)
+		if plug["autoDisconnect"]:
+			self._printer.disconnect()
+			time.sleep(int(plug["autoDisconnectDelay"]))
 		chk = self.sendCommand("off",plugip)["system"]["set_relay_state"]["err_code"]
 		if chk == 0:
 			self.check_status(plugip)
