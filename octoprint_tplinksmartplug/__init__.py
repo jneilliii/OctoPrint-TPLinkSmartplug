@@ -204,17 +204,19 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
 		if gcode:
 			if cmd.startswith("M80"):			
-				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on.")
 				plugip = re.sub(r'^M80\s?', '', cmd)
+				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on of %s." % plugip)
 				plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+				self._tplinksmartplug_logger.debug(plug)
 				if plug["gcodeEnabled"]:
 					t = threading.Timer(plug["gcodeOnDelay"],self.turn_on,args=[plugip])
 					t.start()
 				return
 			elif cmd.startswith("M81"):
-				self._tplinksmartplug_logger.debug("Received M81 command, attempting power off.")
 				plugip = re.sub(r'^M81\s?', '', cmd)
+				self._tplinksmartplug_logger.debug("Received M81 command, attempting power off of %s." % plugip)
 				plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+				self._tplinksmartplug_logger.debug(plug)
 				if plug["gcodeEnabled"]:
 					t = threading.Timer(plug["gcodeOffDelay"],self.turn_off,args=[plugip])
 					t.start()
