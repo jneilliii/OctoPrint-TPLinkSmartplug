@@ -5,10 +5,10 @@ import octoprint.plugin
 from octoprint.server import user_permission
 import socket
 import json
-import time
 import logging
 import os
 import re
+import threading
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
@@ -133,6 +133,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			
 	##~~ Utilities
 	
+	def plug_search(self, list, key, value): 
+		for item in list: 
+			if item[key] == value: 
+				return item
+	
 	def encrypt(self, string):
 		key = 171
 		result = "\0\0\0"+chr(len(string))
@@ -198,15 +203,21 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
 		if gcode:
-			if cmd.startswith("M80"):
-				plugip = re.sub(r'^M80\s?', '', cmd)
-				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",gcodeon=True,ip=plugip))
+			if cmd.startswith("M80"):			
 				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on.")
+				plugip = re.sub(r'^M80\s?', '', cmd)
+				plug = plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+				if plug["gcodeEnabled"]:
+					t = threading.Timer(plug["gcodeOnDelay"],self.turn_on,args=[plugip])
+					t.start()
 				return
 			elif cmd.startswith("M81"):
-				plugip = re.sub(r'^M81\s?', '', cmd)
-				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",gcodeoff=True,ip=plugip))
 				self._tplinksmartplug_logger.debug("Received M81 command, attempting power off.")
+				plugip = re.sub(r'^M81\s?', '', cmd)
+				plug = plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+				if plug["gcodeEnabled"]:
+					t = threading.Timer(plug["gcodeOffDelay"],self.turn_off,args=[plugip])
+					t.start()
 				return
 			else:
 				return
