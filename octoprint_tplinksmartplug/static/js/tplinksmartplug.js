@@ -69,16 +69,6 @@ $(function() {
 				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
 			
-			if (data.gcodeon && plug.gcodeEnabled()) {
-				setTimeout(function(){self.turnOn(plug)},plug.gcodeOnDelay()*1000);
-				return false;
-			}
-			
-			if (data.gcodeoff && plug.gcodeEnabled()) {
-				setTimeout(function(){self.turnOff(plug)},plug.gcodeOffDelay()*1000);
-				return false;
-			}
-			
 			if (plug.currentState != data.currentState) {
 				plug.currentState(data.currentState)
 				switch(data.currentState) {
@@ -118,12 +108,7 @@ $(function() {
 			if(data.sysCmdOn()){
 				setTimeout(function(){self.sysCommand(data.sysRunCmdOn())},data.sysCmdOnDelay()*1000);
 			}
-			if(data.autoConnect()){
-				self.sendTurnOn(data);
-				setTimeout(function(){self.connectPrinter()},data.autoConnectDelay()*1000);
-			} else {
-				self.sendTurnOn(data);
-			}
+			self.sendTurnOn(data);
 		}
 		
 		self.sendTurnOn = function(data) {
@@ -148,12 +133,7 @@ $(function() {
 				if(data.sysCmdOff()){
 					setTimeout(function(){self.sysCommand(data.sysRunCmdOff())},data.sysCmdOffDelay()*1000);
 				}
-				if(data.autoDisconnect()){
-					self.disconnectPrinter();
-					setTimeout(function(){self.sendTurnOff(data);},data.autoDisconnectDelay()*1000);
-				} else {
-					self.sendTurnOff(data);
-				}
+				self.sendTurnOff(data);
 			}
         }; 
 		

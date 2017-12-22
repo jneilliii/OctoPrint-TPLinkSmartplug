@@ -5,10 +5,11 @@ import octoprint.plugin
 from octoprint.server import user_permission
 import socket
 import json
-import time
 import logging
 import os
 import re
+import threading
+import time
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
@@ -84,12 +85,28 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def turn_on(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning on %s." % plugip)
+		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+		self._tplinksmartplug_logger.debug(plug)		
 		chk = self.sendCommand("on",plugip)["system"]["set_relay_state"]["err_code"]
 		if chk == 0:
 			self.check_status(plugip)
+			if plug["autoConnect"]:
+				t = threading.Timer(int(plug["autoConnectDelay"]),self._printer.connect)
+				t.start()
+			if plug["sysCmdOn"]:
+				t = threading.Timer(int(plug["sysCmdOnDelay"]),os.system,args=[plug["sysRunCmdOn"]])
+				t.start()
 	
 	def turn_off(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning off %s." % plugip)
+		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+		self._tplinksmartplug_logger.debug(plug)
+		if plug["sysCmdOff"]:
+			t = threading.Timer(int(plug["sysCmdOffDelay"]),os.system,args=[plug["sysRunCmdOff"]])
+			t.start()			
+		if plug["autoDisconnect"]:
+			self._printer.disconnect()
+			time.sleep(int(plug["autoDisconnectDelay"]))
 		chk = self.sendCommand("off",plugip)["system"]["set_relay_state"]["err_code"]
 		if chk == 0:
 			self.check_status(plugip)
@@ -121,17 +138,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.turn_off("{ip}".format(**data))
 		elif command == 'checkStatus':
 			self.check_status("{ip}".format(**data))
-		elif command == 'connectPrinter':
-			self._tplinksmartplug_logger.debug("Connecting printer.")
-			self._printer.connect()
-		elif command == 'disconnectPrinter':
-			self._tplinksmartplug_logger.debug("Disconnecting printer.")
-			self._printer.disconnect()
-		elif command == 'sysCommand':
-			self._tplinksmartplug_logger.debug("Running system command %s." % "{cmd}".format(**data))
-			os.system("{cmd}".format(**data))
 			
 	##~~ Utilities
+	
+	def plug_search(self, list, key, value): 
+		for item in list: 
+			if item[key] == value: 
+				return item
 	
 	def encrypt(self, string):
 		key = 171
@@ -198,15 +211,23 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	
 	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
 		if gcode:
-			if cmd.startswith("M80"):
+			if cmd.startswith("M80"):			
 				plugip = re.sub(r'^M80\s?', '', cmd)
-				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",gcodeon=True,ip=plugip))
-				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on.")
+				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on of %s." % plugip)
+				plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+				self._tplinksmartplug_logger.debug(plug)
+				if plug["gcodeEnabled"]:
+					t = threading.Timer(int(plug["gcodeOnDelay"]),self.turn_on,args=[plugip])
+					t.start()
 				return
 			elif cmd.startswith("M81"):
 				plugip = re.sub(r'^M81\s?', '', cmd)
-				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",gcodeoff=True,ip=plugip))
-				self._tplinksmartplug_logger.debug("Received M81 command, attempting power off.")
+				self._tplinksmartplug_logger.debug("Received M81 command, attempting power off of %s." % plugip)
+				plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+				self._tplinksmartplug_logger.debug(plug)
+				if plug["gcodeEnabled"]:
+					t = threading.Timer(int(plug["gcodeOffDelay"]),self.turn_off,args=[plugip])
+					t.start()
 				return
 			else:
 				return
