@@ -125,7 +125,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",ip=plugip))		
 	
 	def get_api_commands(self):
-		return dict(turnOn=["ip"],turnOff=["ip"],checkStatus=["ip"],connectPrinter=[],disconnectPrinter=[],sysCommand=["cmd"])
+		return dict(turnOn=["ip"],turnOff=["ip"],checkStatus=["ip"])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
