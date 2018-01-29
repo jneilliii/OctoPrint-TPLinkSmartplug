@@ -79,11 +79,11 @@
 					<td></td>
 				</tr>
 				<tr>
-					<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOn"/> Run System Command After On</label><input type="text" data-bind="value: sysCmdRunOn,visible: sysCmdOn" class="input-block-level" /></div></td>
+					<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOn"/> Run System Command After On</label><input type="text" data-bind="value: sysRunCmdOn,visible: sysCmdOn" class="input-block-level" /></div></td>
 					<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysRunCmdOn"><label class="control-label">{{ _('Delay') }}</label><input type="text" data-bind="value: sysCmdOnDelay"  class="input input-small" /></div></td>
 				</tr>
 				<tr>
-					<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOff"/> Run System Command Before Off</label><input type="text" data-bind="value: sysCmdRunOff,visible: sysCmdOff" class="input-block-level" /></div></td>
+					<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOff"/> Run System Command Before Off</label><input type="text" data-bind="value: sysRunCmdOff,visible: sysCmdOff" class="input-block-level" /></div></td>
 					<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysRunCmdOff"><label class="control-label">{{ _('Delay') }}</label><input type="text" data-bind="value: sysCmdOffDelay"  class="input input-small" /></div></td>
 				</tr>
 			</table>
