@@ -1,23 +1,22 @@
 <!-- ko foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs -->
-<!-- ko if: $data.ip().length > 0 -->
-<a class="pull-right" href=#" data-bind="click: $root.toggleRelay,visible: $root.loginState.loggedIn(),style: {color: $data.btnColor}, attr: {title: $data.ip}" style="display: none;float: left;"><i class="icon-bolt"></i></a>
-<div data-bind="attr: {id: 'tplinksmartplug_poweroff_confirmation_dialog_' + $data.ip()}" class="modal hide fade">
+<a class="pull-right" href=#" data-bind="click: $root.toggleRelay,visible: $root.loginState.loggedIn(),attr: {title: $data.label}" style="display: none;float: left;"><i class="icon" data-bind="css: [currentstate(), icon(),($root.processing().includes(ip()) ? 'icon-spin' : '')].join(' ')"></i></a>
+<!-- /ko -->
+
+<div id="TPLinkSmartPlugWarning" data-bind="with: selectedPlug" class="modal hide fade">
     <div class="modal-header">
         <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-        <h3>TPLink Smartplug</h3>
+        <h3>Tasmota-MQTT</h3>
     </div>
     <div class="modal-body">
         <p>
-            <!--ko text: $data.ip()--><!--/ko--> is currently <!--ko text: $data.currentState()--><!--/ko-->. 
+            <!--ko text: ip()--><!--/ko--> is currently <!--ko text: currentstate()--><!--/ko-->. 
         </p>
-        <p>
+		<p>
             {{ _('Are you sure you want to proceed?') }}
         </p>
     </div>
     <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">{{ _('Cancel') }}</a>
-        <a href="#" class="btn btn-danger" data-bind="click: $root.turnOff">{{ _('Proceed') }}</a>
+        <a href="#" class="btn" data-dismiss="modal" aria-hidden="true" data-bind="click: $root.cancelClick">{{ _('Cancel') }}</a>
+        <a href="#" class="btn btn-danger" data-bind="click: $root.toggleRelay">{{ _('Proceed') }}</a>
     </div>
 </div>
-<!-- /ko -->
-<!-- /ko -->

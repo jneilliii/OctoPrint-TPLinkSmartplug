@@ -1,0 +1,16 @@
+.ON {
+	color: #00FF00 !important;
+}
+
+.OFF {
+	color: #FF0000 !important;
+}
+
+.UNKNOWN {
+	color: #808080 !important;
+}
+
+#TPLinkPlugEditor table th, #TPLinkPlugEditor table td {
+	border-top: none;
+	vertical-align: top;
+}

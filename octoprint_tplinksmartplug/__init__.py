@@ -72,7 +72,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_assets(self):
 		return dict(
-			js=["js/tplinksmartplug.js"]
+			js=["js/tplinksmartplug.js"],
+			css=["css/tplinksmartplug.css"]
 		)
 		
 	##~~ TemplatePlugin mixin

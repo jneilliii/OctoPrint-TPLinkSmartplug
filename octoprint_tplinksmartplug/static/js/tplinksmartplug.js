@@ -14,6 +14,7 @@ $(function() {
 		self.arrSmartplugs = ko.observableArray();
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
+		self.processing = ko.observableArray([]);
 		
 		self.onBeforeBinding = function() {		
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
@@ -34,6 +35,10 @@ $(function() {
 			} else {
 				self.isPrinting(false);
 			}
+		}
+		
+		self.cancelClick = function(data) {
+			self.processing.remove(data.ip());
 		}
 		
 		self.editPlug = function(data) {
@@ -99,9 +104,11 @@ $(function() {
 				self.settings.saveData();
 				}
 			}
+			self.processing.remove(data.ip());
         };
 		
 		self.toggleRelay = function(data) {
+			$("#TPLinkSmartPlugWarning").modal("hide");
 			switch(data.currentState()){
 				case "on":
 					self.turnOff(data);
@@ -114,7 +121,8 @@ $(function() {
 			}
 		}
 		
-		self.turnOn = function(data) {
+		self.turnOn = function(data) {			
+			$("#TPLinkSmartPlugWarning").modal("hide");
 			if(data.sysCmdOn()){
 				setTimeout(function(){self.sysCommand(data.sysRunCmdOn())},data.sysCmdOnDelay()*1000);
 			}
@@ -135,11 +143,11 @@ $(function() {
         };
 
     	self.turnOff = function(data) {
-			var dlg_id = "#tplinksmartplug_poweroff_confirmation_dialog_" + data.ip().replace( /(:|\.|[|])/g, "\\$1" );
-			if((data.displayWarning() || (self.isPrinting() && data.warnPrinting())) && !$(dlg_id).is(':visible')){
-				$(dlg_id).modal("show");
+			if(data.displayWarning() || (self.isPrinting() && data.warnPrinting())){
+				self.selectedPlug(data);
+				$("#TPLinkSmartPlugWarning").modal("show");
 			} else {
-				$(dlg_id).modal("hide");
+				$("#TPLinkSmartPlugWarning").modal("hide");
 				if(data.sysCmdOff()){
 					setTimeout(function(){self.sysCommand(data.sysRunCmdOff())},data.sysCmdOffDelay()*1000);
 				}
