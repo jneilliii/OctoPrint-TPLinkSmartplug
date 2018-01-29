@@ -103,7 +103,7 @@ $(function() {
 				self.settings.saveData();
 				}
 			}
-			self.processing.remove(data.ip());
+			self.processing.remove(data.ip);
         };
 		
 		self.toggleRelay = function(data) {
