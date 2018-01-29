@@ -25,7 +25,6 @@ $(function() {
 		}
 
         self.onEventSettingsUpdated = function(payload) {
-			self.settings.requestData();
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 		}
 		
