@@ -74,4 +74,17 @@
 			</label>
 		</div>
 	</div>
+	<div class="control-group">
+		<div class="controls">
+			<label class="checkbox">
+			<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.pollingEnabled" /> Enable polling of status.
+			</label>
+		</div>
+	</div>
+	<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.pollingEnabled">
+		<div class="controls">
+			<label class="control-label">{{ _('Background Position') }}</label>
+			<input type="number" min="0" data-bind="value: settings.settings.plugins.tplinksmartplug.pollingInterval" />
+		</div>
+	</div>
 </div>
