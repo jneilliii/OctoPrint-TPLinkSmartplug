@@ -210,7 +210,8 @@ $(function() {
 				}
 			});
 			if (self.settings.settings.plugins.tplinksmartplug.pollingEnabled()) {
-				setTimeout(self.checkStatuses, (parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval,10) * 1000));
+				//setTimeout(self.checkStatuses, (parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval,10) * 1000));
+				console.log((parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval,10) * 1000));
 			};
         };
     }
