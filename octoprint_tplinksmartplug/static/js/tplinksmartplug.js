@@ -209,6 +209,9 @@ $(function() {
 					self.checkStatus(item.ip());
 				}
 			});
+			if (self.settings.settings.plugins.tplinksmartplug.pollingEnabled()) {
+				setTimeout(function() {self.checkStatuses();}, (parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval(),10) * 60000));
+			};
         };
     }
 
