@@ -13,6 +13,7 @@ $(function() {
 
 		self.arrSmartplugs = ko.observableArray();
 		self.isPrinting = ko.observable(false);
+		self.selectedPlug = ko.observable();
 		
 		self.onBeforeBinding = function() {		
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
@@ -35,8 +36,15 @@ $(function() {
 			}
 		}
 		
+		self.editPlug = function(data) {
+			self.selectedPlug(data);
+			$("#TPLinkPlugEditor").modal("show");
+		}
+		
 		self.addPlug = function() {
-			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push({'ip':ko.observable(''),
+			self.selectedPlug({'ip':ko.observable(''),
+									'label':ko.observable(''),
+									'icon':ko.observable('icon-bolt'),
 									'displayWarning':ko.observable(true),
 									'warnPrinting':ko.observable(false),
 									'gcodeEnabled':ko.observable(false),
@@ -54,6 +62,8 @@ $(function() {
 									'sysCmdOffDelay':ko.observable(0),
 									'currentState':ko.observable('unknown'),
 									'btnColor':ko.observable('#808080')});
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug);
+			$("#TPLinkPlugEditor").modal("show");
 		}
 		
 		self.removePlug = function(row) {
