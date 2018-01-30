@@ -104,6 +104,7 @@ $(function() {
         };
 		
 		self.toggleRelay = function(data) {
+			self.processing.push(data.ip());
 			switch(data.currentState()){
 				case "on":
 					self.turnOff(data);
