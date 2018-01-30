@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [0.9.0] - 2018-01-30
+## [0.9.1] - 2018-01-30
 ### Notes
 - **Previously configured plugs will be erased upon upgrade to account for new data structure.**
 
@@ -104,7 +104,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[0.9.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.0
+[0.9.1]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.1
 [0.8.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.8.0
 [0.7.3]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.7.3
 [0.7.2]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.7.2

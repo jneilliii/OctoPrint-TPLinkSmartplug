@@ -5,11 +5,11 @@
 <div id="TPLinkSmartPlugWarning" data-bind="with: selectedPlug" class="modal hide fade">
     <div class="modal-header">
         <a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-        <h3>Tasmota-MQTT</h3>
+        <h3>TP-Link Smartplug</h3>
     </div>
     <div class="modal-body">
         <p>
-            <!--ko text: ip()--><!--/ko--> is currently <!--ko text: currentState()--><!--/ko-->. 
+            <!--ko text: label()--><!--/ko--> is currently <!--ko text: currentState()--><!--/ko-->. 
         </p>
 		<p>
             {{ _('Are you sure you want to proceed?') }}
