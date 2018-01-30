@@ -151,7 +151,6 @@ $(function() {
         }; 
 		
 		self.sendTurnOff = function(data) {
-			console.log(data);
 			$.ajax({
 			url: API_BASEURL + "plugin/tplinksmartplug",
 			type: "POST",
