@@ -7,6 +7,8 @@ Work inspired by [OctoPrint-PSUControl](https://github.com/kantlivelong/OctoPrin
 
 ![screenshot](settings.png)
 
+![screenshot](plugeditor.png)
+
 ## Setup
 
 Install via the bundled [Plugin Manager](https://github.com/foosel/OctoPrint/wiki/Plugin:-Plugin-Manager)
@@ -20,7 +22,12 @@ or manually using this URL:
 Once installed go into settings and enter the ip address for your TP-Link Smartplug device. Adjust additional settings as needed.
 
 ## Settings Explained
-
+- **IP**
+  - IP or hostname of plug to control.
+- **Label**
+  - Label to use for title attribute on hover over button in navbar.
+- **Icon Class**
+  - Class name from [fontawesome](http://fontawesome.io/3.2.1/cheatsheet/) to use for icon on button.
 - **Warn**
   - The left checkbox will always warn when checked.
   - The right checkbox will only warn when printer is printing.

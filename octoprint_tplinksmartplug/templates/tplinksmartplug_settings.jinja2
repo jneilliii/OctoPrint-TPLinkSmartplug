@@ -1,90 +1,96 @@
-<div class="tplinksettings">
-    <h4>TP-Link Smartplug Settings</h4>
-	<table class="table table-condensed" data-bind='visible: settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 0'>
-		<tbody data-bind='foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs'>
-			<tr data-bind='attr: {title: ip}' class="info">
-				<td colspan="6"><strong>IP or Hostname</strong> <input data-bind='value: ip, uniqueName: true' /></td>
-				<td style="text-align:center"><a href="#" class="icon-trash" data-bind="click: $root.removePlug, visible: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1"></a></td>
-			</tr>
-			<tr data-bind='visible: ip().length > 0, attr: {title: ip}' class="info">
-				<td style="text-align:center">Warn</td>
-				<td style="text-align:center">GCODE</td>
-				<td style="text-align:center">postConnect</td>
-				<td style="text-align:center">preDisconnect</td>
-				<td style="text-align:center">Cmd On</td>
-				<td style="text-align:center">Cmd Off</td>
-				<td></td>
-			</tr>
-			<tr data-bind='visible: ip().length > 0, attr: {title: ip}'>
-				<td style="text-align:center"><input type="checkbox" data-bind="checked: displayWarning, uniqueName: true" title="Enable warning prompt." /><input type="checkbox" data-bind="checked: warnPrinting, uniqueName: true" title="Warn while printing." /></td>
-				<td style="text-align:center"><input type="checkbox" data-bind="checked: gcodeEnabled, uniqueName: true"/></td>
-				<td style="text-align:center"><input type="checkbox" data-bind="checked: autoConnect, uniqueName: true"/></td>
-				<td style="text-align:center"><input type="checkbox" data-bind="checked: autoDisconnect, uniqueName: true"/></td>
-				<td style="text-align:center"><input type="checkbox" data-bind="checked: sysCmdOn, uniqueName: true"/></td>
-				<td style="text-align:center"><input type="checkbox" data-bind="checked: sysCmdOff, uniqueName: true"/></td>
-				<td style="text-align:center"></td>
-			</tr>
-			<tr data-bind='visible: gcodeEnabled() && ip().length > 0, attr: {title: ip}'>
-				<td></td>
-				<td colspan="2">GCODE On Delay</td>
-				<td colspan="4"><input data-bind="value: gcodeOnDelay, uniqueName: true" size="3" /></td>
-			</tr>
-			<tr data-bind='visible: gcodeEnabled() && ip().length > 0, attr: {title: ip}'>
-				<td></td>
-				<td colspan="2">GCODE Off Delay</td>
-				<td colspan="4"><input data-bind="value: gcodeOffDelay, uniqueName: true" size="3" /></td>
-			</tr>
-			<tr data-bind='visible: autoConnect() && ip().length > 0, attr: {title: ip}'>
-				<td></td>
-				<td colspan="2">Auto Connect Delay</td>
-				<td colspan="4"><input data-bind="value: autoConnectDelay, uniqueName: true" size="3" /></td>
-			</tr>
-			<tr data-bind='visible: autoDisconnect() && ip().length > 0, attr: {title: ip}'>
-				<td></td>
-				<td colspan="2">Auto Disconnect Delay</td>
-				<td colspan="4"><input data-bind="value: autoDisconnectDelay, uniqueName: true" size="3" /></td>
-			</tr>
-			<tr data-bind='visible: sysCmdOn() && ip().length > 0, attr: {title: ip}'>
-				<td></td>
-				<td colspan="2">System Command On</td>
-				<td colspan="4"><input data-bind="value: sysRunCmdOn, uniqueName: true" /></td>
-			</tr>
-			<tr data-bind='visible: sysCmdOn() && ip().length > 0, attr: {title: ip}'>
-				<td></td>
-				<td colspan="2">System Command On Delay</td>
-				<td colspan="4"><input data-bind="value: sysCmdOnDelay, uniqueName: true" size="3" /></td>
-			</tr>
-			<tr data-bind='visible: sysCmdOff() && ip().length > 0, attr: {title: ip}'>
-				<td></td>
-				<td colspan="2">System Command Off</td>
-				<td colspan="4"><input data-bind="value: sysRunCmdOff, uniqueName: true" /></td>
-			</tr>
-			<tr data-bind='visible: sysCmdOff() && ip().length > 0, attr: {title: ip}'>
-				<td></td>
-				<td colspan="2">System Command Off Delay</td>
-				<td colspan="4"><input data-bind="value: sysCmdOffDelay, uniqueName: true" size="3" /></td>
-			</tr>
-		</tbody>
-	</table>
-	<button data-bind='click: addPlug' class="btn btn-primary">Add Plug</button>
-	<div class="control-group">
-		<div class="controls">
-			<label class="checkbox">
-			<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> Enable debug logging.
-			</label>
-		</div>
+<h4>TP-Link Smartplug Settings</h4>
+<table class="table table-condensed" data-bind='visible: settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 0'>
+	<thead>
+		<tr>
+			<td>{{ _('Plug') }}</td>
+			<td style="text-align:center">{{ _('Options') }}</td>
+			<td style="text-align:center"><a href="#" class="btn btn-mini icon-plus" data-bind="click: addPlug"></a></td>
+		</tr>
+	</thead>
+	<tbody data-bind="foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs">
+		<tr data-bind="attr: {title: ip}">
+			<td><span data-bind="text: label" /></td>
+			<td style="text-align:center">
+				<i class="icon" data-bind="css: {'icon-check': displayWarning(),'icon-check-empty': !displayWarning()}" title="Warning Prompt" />
+				<i class="icon" data-bind="css: {'icon-check': warnPrinting(),'icon-check-empty': !warnPrinting()}" title="Warn While Printing" />
+				<i class="icon" data-bind="css: {'icon-check': autoConnect(),'icon-check-empty': !autoConnect()}" title="Auto Connect" />
+				<i class="icon" data-bind="css: {'icon-check': autoDisconnect(),'icon-check-empty': !autoDisconnect()}" title="Auto Disconnect" />
+				<i class="icon" data-bind="css: {'icon-check': gcodeEnabled(),'icon-check-empty': !gcodeEnabled()}" title="GCODE Trigger" />
+				<i class="icon" data-bind="css: {'icon-check': sysCmdOn(),'icon-check-empty': !sysCmdOn()}" title="Run System Command On" />
+				<i class="icon" data-bind="css: {'icon-check': sysCmdOff(),'icon-check-empty': !sysCmdOff()}" title="Run System Command Off" /></td>
+			<td style="text-align:center">
+				<div class="btn-group">
+					<a href="#" class="btn btn-mini icon-pencil" data-bind="click: $root.editPlug"></a>
+					<a href="#" class="btn btn-mini icon-trash" data-bind="click: $root.removePlug, visible: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1"></a>
+				</div>
+				</td>
+		</tr>
+	</tbody>
+</table>
+
+<div class="control-group">
+	<div class="controls">
+		<label class="checkbox">
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> Enable debug logging.
+		</label>
 	</div>
-	<div class="control-group">
-		<div class="controls">
-			<label class="checkbox">
-			<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.pollingEnabled" /> Enable polling of status.
-			</label>
-		</div>
+</div>
+<div class="control-group">
+	<div class="controls">
+		<label class="checkbox">
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.pollingEnabled" /> Enable polling of status.
+		</label>
 	</div>
-	<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.pollingEnabled">
-		<div class="controls">
-			<label class="control-label">{{ _('Minutes between checks') }}</label>
-			<input type="number" min="0" data-bind="value: settings.settings.plugins.tplinksmartplug.pollingInterval" />
-		</div>
+</div>
+<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.pollingEnabled">
+	<div class="controls">
+		<label class="control-label">{{ _('Minutes between checks') }}</label>
+		<input type="number" min="0" data-bind="value: settings.settings.plugins.tplinksmartplug.pollingInterval" />
+	</div>
+</div>
+
+<div id="TPLinkPlugEditor" data-bind="with: selectedPlug" class="modal hide fade">
+	<div class="modal-header">
+		<a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+		<h3>TPLink Smartplug Editor</h3>
+	</div>
+	<div class="modal-body">
+		<table class="table table-condensed">
+			<tr>
+				<td><div class="controls"><label class="control-label">{{ _('IP') }}</label><input type="text" class="input-block-level" data-bind="value: ip" /><div></td>
+				<td><div class="controls"><label class="control-label">{{ _('Label') }}</label><input type="text" class="input input-small" data-bind="value: label" /></div></td>
+				<td><div class="controls"><label class="control-label"><a href="http://fontawesome.io/3.2.1/cheatsheet/" target="_blank">{{ _('Icon Class') }}</a></label><input type="text" class="input-block-level" data-bind="value: icon" /><div></td>
+			</tr>
+			<tr>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: displayWarning"/> Warning Prompt</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: warnPrinting"/> Warn While Printing</label></div></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoConnect"/> Auto Connect</label><input type="text" data-bind="value: autoConnectDelay,visible: autoConnect" class="input input-small" /></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoDisconnect"/> Auto Disconnect</label><input type="text" data-bind="value: autoDisconnectDelay,visible: autoDisconnect" class="input input-small" /></div></td>
+			</tr>
+			<tr>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: gcodeEnabled"/> GCODE Trigger</label></div></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr data-bind="visible: gcodeEnabled">
+				<td><div class="controls"><label class="control-label">{{ _('GCODE On Delay') }}</label><input type="text" data-bind="value: gcodeOnDelay" class="input input-small" /></div></td>
+				<td><div class="controls"><label class="control-label">{{ _('GCODE Off Delay') }}</label><input type="text" data-bind="value: gcodeOffDelay" class="input input-small" /></div></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOn"/> Run System Command After On</label><input type="text" data-bind="value: sysRunCmdOn,visible: sysCmdOn" class="input-block-level" /></div></td>
+				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysRunCmdOn"><label class="control-label">{{ _('Delay') }}</label><input type="text" data-bind="value: sysCmdOnDelay"  class="input input-small" /></div></td>
+			</tr>
+			<tr>
+				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOff"/> Run System Command Before Off</label><input type="text" data-bind="value: sysRunCmdOff,visible: sysCmdOff" class="input-block-level" /></div></td>
+				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysRunCmdOff"><label class="control-label">{{ _('Delay') }}</label><input type="text" data-bind="value: sysCmdOffDelay"  class="input input-small" /></div></td>
+			</tr>
+		</table>
+	</div>
+	<div class="modal-footer">
+		<a href="#" class="btn" data-dismiss="modal" aria-hidden="true">{{ _('Close') }}</a>
 	</div>
 </div>

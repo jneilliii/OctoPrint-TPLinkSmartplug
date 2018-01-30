@@ -1,0 +1,16 @@
+#navbar_plugin_tplinksmartplug > a > i.on {
+	color: #00FF00 !important;
+}
+
+#navbar_plugin_tplinksmartplug > a > i.off {
+	color: #FF0000 !important;
+}
+
+#navbar_plugin_tplinksmartplug > a > i.unknown {
+	color: #808080 !important;
+}
+
+#TPLinkPlugEditor table th, #TPLinkPlugEditor table td {
+	border-top: none;
+	vertical-align: top;
+}
