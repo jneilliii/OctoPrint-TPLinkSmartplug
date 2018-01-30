@@ -87,13 +87,10 @@ $(function() {
 				plug.currentState(data.currentState)
 				switch(data.currentState) {
 					case "on":
-						plug.btnColor("#00FF00");
 						break;
 					case "off":
-						plug.btnColor("#FF0000");
 						break;
 					default:
-						plug.btnColor("#808080");
 						new PNotify({
 							title: 'TP-Link Smartplug Error',
 							text: 'Status ' + plug.currentState() + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
@@ -107,7 +104,6 @@ $(function() {
         };
 		
 		self.toggleRelay = function(data) {
-			$("#TPLinkSmartPlugWarning").modal("hide");
 			switch(data.currentState()){
 				case "on":
 					self.turnOff(data);
@@ -120,8 +116,7 @@ $(function() {
 			}
 		}
 		
-		self.turnOn = function(data) {			
-			$("#TPLinkSmartPlugWarning").modal("hide");
+		self.turnOn = function(data) {
 			if(data.sysCmdOn()){
 				setTimeout(function(){self.sysCommand(data.sysRunCmdOn())},data.sysCmdOnDelay()*1000);
 			}
@@ -142,7 +137,7 @@ $(function() {
         };
 
     	self.turnOff = function(data) {
-			if(data.displayWarning() || (self.isPrinting() && data.warnPrinting())){
+			if((data.displayWarning() || (self.isPrinting() && data.warnPrinting())) && !$("#TPLinkSmartPlugWarning").is(':visible')){
 				self.selectedPlug(data);
 				$("#TPLinkSmartPlugWarning").modal("show");
 			} else {

@@ -20,8 +20,8 @@
 					<i class="icon" data-bind="css: {'icon-check': sysCmdOn(),'icon-check-empty': !sysCmdOn()}" title="Run System Command On" />
 					<i class="icon" data-bind="css: {'icon-check': sysCmdOff(),'icon-check-empty': !sysCmdOff()}" title="Run System Command Off" /></td>
 				<td style="text-align:center">
-					<a href="#" class="icon-pencil" data-bind="click: $root.editPlug"></a>
-					<a href="#" class="icon-trash" data-bind="click: $root.removePlug, visible: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1"></a> </td>
+					<a href="#" class="btn btn-mini icon-pencil" data-bind="click: $root.editPlug"></a>
+					<a href="#" class="btn btn-mini icon-trash" data-bind="click: $root.removePlug, visible: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1"></a> </td>
 			</tr>
 		</tbody>
 	</table>
