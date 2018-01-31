@@ -66,7 +66,7 @@ $(function() {
 									'sysCmdOffDelay':ko.observable(0),
 									'currentState':ko.observable('unknown'),
 									'btnColor':ko.observable('#808080')});
-			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug);
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
 		}
 		
