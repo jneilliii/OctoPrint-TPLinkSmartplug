@@ -1,5 +1,5 @@
 <!-- ko foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs -->
-<a class="pull-right" href=#" data-bind="click: $root.toggleRelay,visible: $root.loginState.loggedIn(),attr: {title: $data.label}" style="display: none;float: left;"><i class="icon" data-bind="css: [currentState(), icon(),($root.processing().includes(ip()) ? 'icon-spin' : '')].join(' ')"></i></a>
+<a class="pull-right" href=#" data-bind="click: $root.toggleRelay,visible: $root.loginState.loggedIn(),attr: {title: $data.label}" style="display: none;float: left;"><i class="icon" data-bind="css: [currentState(), icon(),(($root.processing().indexOf(ip()) > -1) ? 'icon-spin' : '')].join(' ')"></i></a>
 <!-- /ko -->
 
 <div id="TPLinkSmartPlugWarning" data-bind="with: selectedPlug" class="modal hide fade">
