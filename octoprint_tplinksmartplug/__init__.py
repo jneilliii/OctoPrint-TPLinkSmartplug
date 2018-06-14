@@ -212,6 +212,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			
 	##~~ Gcode processing hook
 	
+	def gcode_turn_off(self, plug):
+		if plug["warnPrinting"] and self._printer.is_printing():
+			self._logger.info("Not powering off %s because printer is printing." % plug["label"])
+		else:
+			self.turn_off(plug["ip"])
+	
 	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
 		if gcode:
 			if cmd.startswith("M80"):			
@@ -229,7 +235,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 				self._tplinksmartplug_logger.debug(plug)
 				if plug["gcodeEnabled"]:
-					t = threading.Timer(int(plug["gcodeOffDelay"]),self.turn_off,args=[plugip])
+					t = threading.Timer(int(plug["gcodeOffDelay"]),self.gcode_turn_off,[plug])
 					t.start()
 				return
 			else:

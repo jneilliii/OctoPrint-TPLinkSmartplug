@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [0.9.2] - 2018-02-03
+## [0.9.4] - 2018-06-09
+### Changed
+- If M81 command is received to power off plug with a configured delay and `Warn While Printing` is enabled the plug will not be powered off if another print is started before the delay is reached.
+
+## [0.9.3] - 2018-02-03
 ### Fixed
 - Icon not displaying in IE due to binding css issue.
 
@@ -120,6 +124,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
+[0.9.4]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.4
+[0.9.3]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.3
 [0.9.2]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.2
 [0.9.1]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.1
 [0.8.0]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.8.0
