@@ -240,7 +240,25 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				return
 			else:
 				return
-			
+				
+		elif cmd.startswith("@TPLINKON"):
+			plugip = re.sub(r'^@TPLINKON\s?', '', cmd)
+			self._tplinksmartplug_logger.debug("Received @TPLINKON command, attempting power on of %s." % plugip)
+			plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+			self._tplinksmartplug_logger.debug(plug)
+			if plug["gcodeEnabled"]:
+				t = threading.Timer(int(plug["gcodeOnDelay"]),self.turn_on,args=[plugip])
+				t.start()
+			return
+		elif cmd.startswith("@TPLINKOFF"):
+			plugip = re.sub(r'^@TPLINKOFF\s?', '', cmd)
+			self._tplinksmartplug_logger.debug("Received TPLINKOFF command, attempting power off of %s." % plugip)
+			plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+			self._tplinksmartplug_logger.debug(plug)
+			if plug["gcodeEnabled"]:
+				t = threading.Timer(int(plug["gcodeOffDelay"]),self.gcode_turn_off,[plug])
+				t.start()
+			return			
 
 	##~~ Softwareupdate hook
 

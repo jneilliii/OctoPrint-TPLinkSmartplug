@@ -33,6 +33,7 @@ Once installed go into settings and enter the ip address for your TP-Link Smartp
   - The right checkbox will only warn when printer is printing.
 - **GCODE**
   - When checked this will enable the processing of M80 and M81 commands from gcode to power on/off plug.  Syntax for gcode command is M80/M81 followed by hostname/ip.  For example if your plug is 192.168.1.2 your gcode command would be **M80 192.168.1.2**
+  - Added with version 0.9.5 you can now use the custom gcode commands @TPLINKON and @TPLINKOFF followed by the IP address of the plug.  This option will only work for plugs with GCODE processing enabled.  For example if your plug is 192.168.1.2 your gcode command would be **@TPLINKON 192.168.1.2**
 - **postConnect**
   - Automatically connect to printer after plug is powered on.
   - Will wait for number of seconds configured in **Auto Connect Delay** setting prior to attempting connection to printer.
