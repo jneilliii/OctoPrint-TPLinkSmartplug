@@ -71,6 +71,16 @@
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoDisconnect"/> Auto Disconnect</label><input type="text" data-bind="value: autoDisconnectDelay,visible: autoDisconnect" class="input input-small" /></div></td>
 			</tr>
 			<tr>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: useCountdownRules"/> Use Countdown Timers</label></div></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr data-bind="visible: useCountdownRules">
+				<td><div class="controls"><label class="control-label">{{ _('On Delay Countdown') }}</label><input type="text" data-bind="value: countdownOnDelay" class="input input-small" /></div></td>
+				<td><div class="controls"><label class="control-label">{{ _('Off Delay Countdown') }}</label><input type="text" data-bind="value: countdownOffDelay" class="input input-small" /></div></td>
+				<td></td>
+			</tr>
+			<tr>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: gcodeEnabled"/> GCODE Trigger</label></div></td>
 				<td></td>
 				<td></td>
@@ -82,11 +92,11 @@
 			</tr>
 			<tr>
 				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOn"/> Run System Command After On</label><input type="text" data-bind="value: sysRunCmdOn,visible: sysCmdOn" class="input-block-level" /></div></td>
-				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysRunCmdOn"><label class="control-label">{{ _('Delay') }}</label><input type="text" data-bind="value: sysCmdOnDelay"  class="input input-small" /></div></td>
+				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysCmdOn"><label class="control-label">{{ _('Delay') }}</label><input type="text" data-bind="value: sysCmdOnDelay"  class="input input-small" /></div></td>
 			</tr>
 			<tr>
 				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOff"/> Run System Command Before Off</label><input type="text" data-bind="value: sysRunCmdOff,visible: sysCmdOff" class="input-block-level" /></div></td>
-				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysRunCmdOff"><label class="control-label">{{ _('Delay') }}</label><input type="text" data-bind="value: sysCmdOffDelay"  class="input input-small" /></div></td>
+				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysCmdOff"><label class="control-label">{{ _('Delay') }}</label><input type="text" data-bind="value: sysCmdOffDelay"  class="input input-small" /></div></td>
 			</tr>
 		</table>
 	</div>

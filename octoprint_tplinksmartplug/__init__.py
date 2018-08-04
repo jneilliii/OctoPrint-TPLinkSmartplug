@@ -42,7 +42,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
-			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080'}],
+			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0}],
 			pollingInterval = 15,
 			pollingEnabled = False
 		)
@@ -60,7 +60,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 				
 	def get_settings_version(self):
-		return 4
+		return 5
 		
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < self.get_settings_version():
@@ -89,13 +89,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def turn_on(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning on %s." % plugip)
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
-		self._tplinksmartplug_logger.debug(plug)		
-		chk = self.sendCommand("on",plugip)["system"]["set_relay_state"]["err_code"]
+		self._tplinksmartplug_logger.debug(plug)
+		if plug["useCountdownRules"]:
+			self.sendCommand('{"count_down":{"delete_all_rules":null}}',plug["ip"])
+			chk = self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"],plug["ip"])["count_down"]["add_rule"]["err_code"]
+		else:		
+			chk = self.sendCommand('{"system":{"set_relay_state":{"state":1}}}',plugip)["system"]["set_relay_state"]["err_code"]
+			
 		if chk == 0:
 			self.check_status(plugip)
 			if plug["autoConnect"]:
-				t = threading.Timer(int(plug["autoConnectDelay"]),self._printer.connect)
-				t.start()
+				c = threading.Timer(int(plug["autoConnectDelay"]),self._printer.connect)
+				c.start()
 			if plug["sysCmdOn"]:
 				t = threading.Timer(int(plug["sysCmdOnDelay"]),os.system,args=[plug["sysRunCmdOn"]])
 				t.start()
@@ -104,20 +109,27 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug("Turning off %s." % plugip)
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 		self._tplinksmartplug_logger.debug(plug)
+		if plug["useCountdownRules"]:
+			self.sendCommand('{"count_down":{"delete_all_rules":null}}',plug["ip"])
+			chk = self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"],plug["ip"])["count_down"]["add_rule"]["err_code"]
+		
 		if plug["sysCmdOff"]:
 			t = threading.Timer(int(plug["sysCmdOffDelay"]),os.system,args=[plug["sysRunCmdOff"]])
-			t.start()			
+			t.start()
 		if plug["autoDisconnect"]:
 			self._printer.disconnect()
 			time.sleep(int(plug["autoDisconnectDelay"]))
-		chk = self.sendCommand("off",plugip)["system"]["set_relay_state"]["err_code"]
+			
+		if not plug["useCountdownRules"]:
+			chk = self.sendCommand('{"system":{"set_relay_state":{"state":0}}}',plugip)["system"]["set_relay_state"]["err_code"]
+			
 		if chk == 0:
 			self.check_status(plugip)
 		
 	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
 		if plugip != "":
-			response = self.sendCommand("info",plugip)
+			response = self.sendCommand('{"system":{"get_sysinfo":{}}}',plugip)
 			chk = response["system"]["get_sysinfo"]["relay_state"]
 			if chk == 1:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",ip=plugip))
@@ -167,7 +179,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			result += chr(a)
 		return result
 	
-	def sendCommand(self, cmd, plugip):	
+	def sendCommand(self, cmd, plugip):
 		commands = {'info'     : '{"system":{"get_sysinfo":{}}}',
 			'on'       : '{"system":{"set_relay_state":{"state":1}}}',
 			'off'      : '{"system":{"set_relay_state":{"state":0}}}',
@@ -199,7 +211,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		try:
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			sock_tcp.connect((ip, 9999))
-			sock_tcp.send(self.encrypt(commands[cmd]))
+			sock_tcp.send(self.encrypt(cmd))
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
 			
@@ -249,7 +261,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			if plug["gcodeEnabled"]:
 				t = threading.Timer(int(plug["gcodeOnDelay"]),self.turn_on,args=[plugip])
 				t.start()
-			return
+			return None
 		elif cmd.startswith("@TPLINKOFF"):
 			plugip = re.sub(r'^@TPLINKOFF\s?', '', cmd)
 			self._tplinksmartplug_logger.debug("Received TPLINKOFF command, attempting power off of %s." % plugip)
@@ -258,7 +270,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			if plug["gcodeEnabled"]:
 				t = threading.Timer(int(plug["gcodeOffDelay"]),self.gcode_turn_off,[plug])
 				t.start()
-			return			
+			return None
 
 	##~~ Softwareupdate hook
 

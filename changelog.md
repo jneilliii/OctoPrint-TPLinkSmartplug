@@ -4,9 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.6] - 2018-08-05
+### Added
+- Added countdown timer option to plug settings to allow using the plug's built in functions for delayed power on/off.
+
+### Notes
+- **Previously configured plugs will be erased upon upgrade to account for new data structure.**
+
 ## [0.9.5] - 2018-08-03
 ### Added
-- Custom gcode commands @TPLINKON and @TPLINKOFF for custom cases where M80/M81 can't be used.
+- Custom gcode commands `@TPLINKON` and `@TPLINKOFF` for custom cases where M80/M81 can't be used.
 
 ## [0.9.4] - 2018-06-09
 ### Changed
@@ -128,6 +135,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
+[0.9.6]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.6
 [0.9.5]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.5
 [0.9.4]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.4
 [0.9.3]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.3

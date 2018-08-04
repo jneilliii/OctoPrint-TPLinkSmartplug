@@ -65,7 +65,10 @@ $(function() {
 									'sysRunCmdOff':ko.observable(''),
 									'sysCmdOffDelay':ko.observable(0),
 									'currentState':ko.observable('unknown'),
-									'btnColor':ko.observable('#808080')});
+									'btnColor':ko.observable('#808080'),
+									'useCountdownRules':ko.observable(false),
+									'countdownOnDelay':ko.observable(0),
+									'countdownOffDelay':ko.observable(0)});
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
 		}
@@ -118,9 +121,9 @@ $(function() {
 		}
 		
 		self.turnOn = function(data) {
-			if(data.sysCmdOn()){
+/* 			if(data.sysCmdOn()){
 				setTimeout(function(){self.sysCommand(data.sysRunCmdOn())},data.sysCmdOnDelay()*1000);
-			}
+			} */
 			self.sendTurnOn(data);
 		}
 		
@@ -143,9 +146,9 @@ $(function() {
 				$("#TPLinkSmartPlugWarning").modal("show");
 			} else {
 				$("#TPLinkSmartPlugWarning").modal("hide");
-				if(data.sysCmdOff()){
+/* 				if(data.sysCmdOff()){
 					setTimeout(function(){self.sysCommand(data.sysRunCmdOff())},data.sysCmdOffDelay()*1000);
-				}
+				} */
 				self.sendTurnOff(data);
 			}
         }; 
@@ -202,7 +205,7 @@ $(function() {
             });			
 		}
 		
-		self.sysCommand = function(sysCmd) {
+/* 		self.sysCommand = function(sysCmd) {
             $.ajax({
                 url: API_BASEURL + "plugin/tplinksmartplug",
                 type: "POST",
@@ -213,7 +216,7 @@ $(function() {
                 }),
                 contentType: "application/json; charset=UTF-8"
             });			
-		}
+		} */
 		
 		self.checkStatuses = function() {
 			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
