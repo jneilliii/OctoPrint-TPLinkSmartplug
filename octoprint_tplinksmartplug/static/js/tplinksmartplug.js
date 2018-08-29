@@ -82,6 +82,11 @@ $(function() {
                 return;
             }
 			
+			if (data.energy) {
+				console.log(data.ip + ':' + data.energy);
+				return;
+			}
+			
 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
 				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};

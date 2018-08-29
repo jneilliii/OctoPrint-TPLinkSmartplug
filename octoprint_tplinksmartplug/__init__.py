@@ -10,6 +10,7 @@ import os
 import re
 import threading
 import time
+from datetime import datetime
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
@@ -130,6 +131,17 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
 		if plugip != "":
 			response = self.sendCommand('{"system":{"get_sysinfo":{}}}',plugip)
+			energy = self.sendCommand('{"emeter":{"get_realtime":{}}}',plugip)
+			today = datetime.today()
+			energy2 = self.sendCommand('{"emeter":{"get_daystat":{"month":%d,"year":%d}}}' % (today.month, today.year),plugip)
+			self._tplinksmartplug_logger.info("%s %s" % (energy, plugip))
+			self._tplinksmartplug_logger.info("%s %s" % (energy2, plugip))
+			if energy["emeter"]["err_code"] != 0:
+				self._tplinksmartplug_logger.info("energy error: %s" % energy["emeter"]["err_msg"])
+			else:
+				self._plugin_manager.send_plugin_message(self._identifier, dict(energy=energy["emeter"],ip=plugip))
+				self._plugin_manager.send_plugin_message(self._identifier, dict(energy=energy2["emeter"],ip=plugip))
+				
 			chk = response["system"]["get_sysinfo"]["relay_state"]
 			if chk == 1:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",ip=plugip))
