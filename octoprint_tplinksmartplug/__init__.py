@@ -43,7 +43,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
-			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0}],
+			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':dict()}],
 			pollingInterval = 15,
 			pollingEnabled = False
 		)
@@ -61,7 +61,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 				
 	def get_settings_version(self):
-		return 5
+		return 6
 		
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < self.get_settings_version():
@@ -130,17 +130,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
 		if plugip != "":
-			response = self.sendCommand('{"system":{"get_sysinfo":{}}}',plugip)
-			energy = self.sendCommand('{"emeter":{"get_realtime":{}}}',plugip)
 			today = datetime.today()
-			energy2 = self.sendCommand('{"emeter":{"get_daystat":{"month":%d,"year":%d}}}' % (today.month, today.year),plugip)
-			self._tplinksmartplug_logger.info("%s %s" % (energy, plugip))
-			self._tplinksmartplug_logger.info("%s %s" % (energy2, plugip))
-			if energy["emeter"]["err_code"] != 0:
-				self._tplinksmartplug_logger.info("energy error: %s" % energy["emeter"]["err_msg"])
+			response = self.sendCommand('{"system":{"get_sysinfo":{}},"emeter":{"get_realtime":{},"get_daystat":{"month":%d,"year":%d}}}' % (today.month, today.year),plugip)
+			self._tplinksmartplug_logger.info("%s %s" % (response["emeter"], plugip))
+			
+			if response["emeter"]["err_code"] != 0:
+				self._tplinksmartplug_logger.info("energy error: %s" % response["emeter"]["err_msg"])
+				self._plugin_manager.send_plugin_message(self._identifier, dict(emeter=dict(),ip=plugip))
 			else:
-				self._plugin_manager.send_plugin_message(self._identifier, dict(energy=energy["emeter"],ip=plugip))
-				self._plugin_manager.send_plugin_message(self._identifier, dict(energy=energy2["emeter"],ip=plugip))
+				self._plugin_manager.send_plugin_message(self._identifier, dict(emeter=response["emeter"],ip=plugip))
 				
 			chk = response["system"]["get_sysinfo"]["relay_state"]
 			if chk == 1:

@@ -15,6 +15,12 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
+		self.energy_data = function(data){
+			var output = data.label() + '\n';
+			var energy_data = ko.toJS(data.emeter);
+			for (x in energy_data){output += x + ': ' + energy_data[x] + '\n'};
+			return output;
+		}
 		
 		self.onBeforeBinding = function() {		
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
@@ -68,7 +74,8 @@ $(function() {
 									'btnColor':ko.observable('#808080'),
 									'useCountdownRules':ko.observable(false),
 									'countdownOnDelay':ko.observable(0),
-									'countdownOffDelay':ko.observable(0)});
+									'countdownOffDelay':ko.observable(0),
+									'emeter':ko.observable()});
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
 		}
@@ -82,14 +89,18 @@ $(function() {
                 return;
             }
 			
-			if (data.energy) {
-				console.log(data.ip + ':' + data.energy);
-				return;
-			}
-			
 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
 				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
+			
+			if(data.emeter){
+				console.log(data.emeter);
+				if(plug.emeter != data.emeter){
+					plug.emeter = data.emeter;
+					self.settings.saveData();
+				}
+				return;
+			}
 			
 			if (plug.currentState != data.currentState) {
 				plug.currentState(data.currentState)
