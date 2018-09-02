@@ -15,12 +15,19 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
-		self.energy_data = function(data){
-			var output = data.label() + '\n';
+/* 		self.energy_data = function(data){
+			var output = data.label() + '<br/>';
 			var energy_data = ko.toJS(data.emeter);
-			for (x in energy_data){output += x + ': ' + energy_data[x] + '\n'};
+			for (x in energy_data){output += x + ': ' + energy_data[x] + '<br/>'};
 			return output;
-		}
+		} */
+		
+		self.onStartup = function() {
+			var element = $("#state").find(".accordion-inner .progress");
+			if (element.length) {
+				element.before('<div class="row-fluid" data-bind="foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs"><!-- ko if: emeter.get_realtime --><div class="row-fluid"><hr>Plug: <strong data-bind="text: label"></strong><br>Current Power: <strong data-bind="text: emeter.get_realtime.power"></strong> W<br>Total Consumption: <strong data-bind="text: emeter.get_realtime.total"></strong> kWh</div><!-- /ko --></div>');
+			}
+		};
 		
 		self.onBeforeBinding = function() {		
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());

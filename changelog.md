@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.7] - 2018-11-03
+### Added
+- Added energy monitoring support for the HS-110 devices.  Plugs' statuses will be checked on startup, on toggle of on/off, on print progress, and on polling interval configured in settings.  
+
 ## [0.9.6] - 2018-08-05
 ### Added
 - Added countdown timer option to plug settings to allow using the plug's built in functions for delayed power on/off.
@@ -135,6 +139,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
+[0.9.7]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.7
 [0.9.6]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.6
 [0.9.5]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.5
 [0.9.4]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.4

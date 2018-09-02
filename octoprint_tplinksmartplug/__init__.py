@@ -16,7 +16,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
                             octoprint.plugin.AssetPlugin,
                             octoprint.plugin.TemplatePlugin,
 							octoprint.plugin.SimpleApiPlugin,
-							octoprint.plugin.StartupPlugin):
+							octoprint.plugin.StartupPlugin,
+							octoprint.plugin.ProgressPlugin):
 							
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
@@ -73,7 +74,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_assets(self):
 		return dict(
-			js=["js/tplinksmartplug.js"],
+			js=["js/tplinksmartplug.js","js/knockout-bootstrap.min.js"],
 			css=["css/tplinksmartplug.css"]
 		)
 		
@@ -84,6 +85,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			dict(type="navbar", custom_bindings=True),
 			dict(type="settings", custom_bindings=True)
 		]
+		
+	def on_print_progress(self, storage, path, progress):
+		self._tplinksmartplug_logger.debug("Checking statuses during print progress (%s)." % progress)
+		for plug in self._settings.get(["arrSmartplugs"]):
+			if plug["emeter"] and plug["emeter"] != {}:
+				self.check_status(plug["ip"])
 		
 	##~~ SimpleApiPlugin mixin
 	
@@ -131,16 +138,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
 		if plugip != "":
 			today = datetime.today()
-			response = self.sendCommand('{"system":{"get_sysinfo":{}},"emeter":{"get_realtime":{},"get_daystat":{"month":%d,"year":%d}}}' % (today.month, today.year),plugip)
-			self._tplinksmartplug_logger.info("%s %s" % (response["emeter"], plugip))
-			
-			if response["emeter"]["err_code"] != 0:
-				self._tplinksmartplug_logger.info("energy error: %s" % response["emeter"]["err_msg"])
-				self._plugin_manager.send_plugin_message(self._identifier, dict(emeter=dict(),ip=plugip))
-			else:
+			check_status_cmnd = '{"system":{"get_sysinfo":{}},"emeter":{"get_realtime":{},"get_daystat":{"month":%d,"year":%d}}}' % (today.month, today.year)
+			self._tplinksmartplug_logger.info(check_status_cmnd)
+			response = self.sendCommand(check_status_cmnd, plugip)
+			self._tplinksmartplug_logger.info(response)
+			if not self.lookup(response, *["emeter","err_code"]):
 				self._plugin_manager.send_plugin_message(self._identifier, dict(emeter=response["emeter"],ip=plugip))
 				
-			chk = response["system"]["get_sysinfo"]["relay_state"]
+			chk = self.lookup(response,*["system","get_sysinfo","relay_state"])
 			if chk == 1:
 				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",ip=plugip))
 			elif chk == 0:
@@ -165,6 +170,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.check_status("{ip}".format(**data))
 			
 	##~~ Utilities
+	
+	def lookup(self, dic, key, *keys):
+		if keys:
+			return self.lookup(dic.get(key, {}), *keys)
+		return dic.get(key)
 	
 	def plug_search(self, list, key, value): 
 		for item in list: 
@@ -216,7 +226,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.debug("Hostname %s is valid." % plugip)
 			except (socket.herror, socket.gaierror):
 				self._tplinksmartplug_logger.debug("Invalid hostname %s." % plugip)
-				return {"system":{"get_sysinfo":{"relay_state":3}}}
+				return {"system":{"get_sysinfo":{"relay_state":3}},"emeter":{"err_code": True}}
 				
 		try:
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -230,7 +240,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
 			self._tplinksmartplug_logger.debug("Could not connect to %s." % plugip)
-			return {"system":{"get_sysinfo":{"relay_state":3}}}
+			return {"system":{"get_sysinfo":{"relay_state":3}},"emeter":{"err_code": True}}
 			
 	##~~ Gcode processing hook
 	
