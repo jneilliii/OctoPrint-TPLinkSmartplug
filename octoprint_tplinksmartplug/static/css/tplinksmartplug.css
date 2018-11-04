@@ -14,3 +14,9 @@
 	border-top: none;
 	vertical-align: top;
 }
+
+div#tplinksmartplugs div:not(:last-child) {
+	margin-bottom: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #DDD;
+}

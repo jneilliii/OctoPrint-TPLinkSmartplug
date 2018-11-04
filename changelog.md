@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.8] - 2018-11-18
+### Fixed
+- Non Energy Monitoring devices were causing errors on status checks resulting in status update failure.
+
+### Issues
+- When toggling energy monitoring devices on/off the energy usage reported in the sidebar panel is from prior to the status change, so off plugs aren't reporting 0 as expected. Upon the next polling interval the power usage shoould be back in sync.
+
 ## [0.9.7] - 2018-11-03
 ### Added
 - Added energy monitoring support for the HS-110 devices.  Plugs' statuses will be checked on startup, on toggle of on/off, on print progress, and on polling interval configured in settings.  
@@ -139,6 +146,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
+[0.9.8]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.8
 [0.9.7]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.7
 [0.9.6]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.6
 [0.9.5]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.5
