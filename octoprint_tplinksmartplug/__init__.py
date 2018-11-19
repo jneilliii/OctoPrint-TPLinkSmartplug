@@ -44,7 +44,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
-			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':dict()}],
+			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':None}],
 			pollingInterval = 15,
 			pollingEnabled = False
 		)
@@ -62,13 +62,25 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 				
 	def get_settings_version(self):
-		return 6
+		return 7
 		
 	def on_settings_migrate(self, target, current=None):
-		if current is None or current < self.get_settings_version():
+		if current is None or current < 5:
 			# Reset plug settings to defaults.
 			self._logger.debug("Resetting arrSmartplugs for tplinksmartplug settings.")
 			self._settings.set(['arrSmartplugs'], self.get_settings_defaults()["arrSmartplugs"])
+		elif current == 6:
+			# Loop through plug array and set emeter to None
+			arrSmartplugs_new = []
+			for plug in self._settings.get(['arrSmartplugs']):
+				plug["emeter"] = None
+				arrSmartplugs_new.append(plug)
+				
+			self._logger.info("Updating plug array, converting")
+			self._logger.info(self._settings.get(['arrSmartplugs']))
+			self._logger.info("to")
+			self._logger.info(arrSmartplugs_new)
+			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
 		
 	##~~ AssetPlugin mixin
 
@@ -81,10 +93,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ TemplatePlugin mixin
 	
 	def get_template_configs(self):
-		return [
-			dict(type="navbar", custom_bindings=True),
-			dict(type="settings", custom_bindings=True)
-		]
+		templates_to_load = [dict(type="navbar", custom_bindings=True),dict(type="settings", custom_bindings=True),dict(type="sidebar", icon="plug", custom_bindings=True, data_bind="visible: show_sidebar()")]
+		return templates_to_load
 		
 	def on_print_progress(self, storage, path, progress):
 		self._tplinksmartplug_logger.debug("Checking statuses during print progress (%s)." % progress)
@@ -100,12 +110,16 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug(plug)
 		if plug["useCountdownRules"]:
 			self.sendCommand('{"count_down":{"delete_all_rules":null}}',plug["ip"])
-			chk = self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"],plug["ip"])["count_down"]["add_rule"]["err_code"]
+			#chk = self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"],plug["ip"])["count_down"]["add_rule"]["err_code"]
+			chk = self.lookup(self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"],plug["ip"]),*["count_down","add_rule","err_code"])
 		else:		
-			chk = self.sendCommand('{"system":{"set_relay_state":{"state":1}}}',plugip)["system"]["set_relay_state"]["err_code"]
+			#chk = self.sendCommand('{"system":{"set_relay_state":{"state":1}}}',plugip)["system"]["set_relay_state"]["err_code"]
+			chk = self.lookup(self.sendCommand('{"system":{"set_relay_state":{"state":1}}}',plugip),*["system","set_relay_state","err_code"])
 			
+		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
 			self.check_status(plugip)
+			#self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",ip=plugip))
 			if plug["autoConnect"]:
 				c = threading.Timer(int(plug["autoConnectDelay"]),self._printer.connect)
 				c.start()
@@ -119,7 +133,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug(plug)
 		if plug["useCountdownRules"]:
 			self.sendCommand('{"count_down":{"delete_all_rules":null}}',plug["ip"])
-			chk = self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"],plug["ip"])["count_down"]["add_rule"]["err_code"]
+			#chk = self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"],plug["ip"])["count_down"]["add_rule"]["err_code"]
+			chk = self.lookup(self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"],plug["ip"]),*["count_down","add_rule","err_code"])
 		
 		if plug["sysCmdOff"]:
 			t = threading.Timer(int(plug["sysCmdOffDelay"]),os.system,args=[plug["sysRunCmdOff"]])
@@ -129,30 +144,35 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			time.sleep(int(plug["autoDisconnectDelay"]))
 			
 		if not plug["useCountdownRules"]:
-			chk = self.sendCommand('{"system":{"set_relay_state":{"state":0}}}',plugip)["system"]["set_relay_state"]["err_code"]
+			# chk = self.sendCommand('{"system":{"set_relay_state":{"state":0}}}',plugip)["system"]["set_relay_state"]["err_code"]
+			chk = self.lookup(self.sendCommand('{"system":{"set_relay_state":{"state":0}}}',plugip),*["system","set_relay_state","err_code"])
 			
+		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
 			self.check_status(plugip)
+			#self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off",ip=plugip))
 		
 	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
 		if plugip != "":
 			today = datetime.today()
-			check_status_cmnd = '{"system":{"get_sysinfo":{}},"emeter":{"get_realtime":{},"get_daystat":{"month":%d,"year":%d}}}' % (today.month, today.year)
-			self._tplinksmartplug_logger.info(check_status_cmnd)
+			check_status_cmnd = '{"system":{"get_sysinfo":{}},"emeter":{"get_realtime":{}}}'
+			# ,"get_daystat":{"month":%d,"year":%d}}}' % (today.month, today.year)
+			self._tplinksmartplug_logger.debug(check_status_cmnd)
 			response = self.sendCommand(check_status_cmnd, plugip)
-			self._tplinksmartplug_logger.info(response)
-			if not self.lookup(response, *["emeter","err_code"]):
-				self._plugin_manager.send_plugin_message(self._identifier, dict(emeter=response["emeter"],ip=plugip))
+			if self.lookup(response, *["emeter","get_realtime"]):
+				emeter_data = response["emeter"]
+			else:
+				emeter_data = None
 				
 			chk = self.lookup(response,*["system","get_sysinfo","relay_state"])
 			if chk == 1:
-				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",ip=plugip))
+				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",emeter=emeter_data,ip=plugip))
 			elif chk == 0:
-				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off",ip=plugip))
+				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off",emeter=emeter_data,ip=plugip))
 			else:
 				self._tplinksmartplug_logger.debug(response)
-				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",ip=plugip))		
+				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",emeter=emeter_data,ip=plugip))
 	
 	def get_api_commands(self):
 		return dict(turnOn=["ip"],turnOff=["ip"],checkStatus=["ip"])
@@ -170,6 +190,21 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.check_status("{ip}".format(**data))
 			
 	##~~ Utilities
+	
+	def deep_get(self, d, keys, default=None):
+		"""
+		Example:
+			d = {'meta': {'status': 'OK', 'status_code': 200}}
+			deep_get(d, ['meta', 'status_code'])          # => 200
+			deep_get(d, ['garbage', 'status_code'])       # => None
+			deep_get(d, ['meta', 'garbage'], default='-') # => '-'
+		"""
+		assert type(keys) is list
+		if d is None:
+			return default
+		if not keys:
+			return d
+		return deep_get(d.get(keys[0]), keys[1:], default)
 	
 	def lookup(self, dic, key, *keys):
 		if keys:
