@@ -25,7 +25,7 @@ $(function() {
 					});
 			return energy_monitoring_enabled.length > 0;
 		});
-		self.get_power = function(data){
+		self.get_power = function(data){ // make computedObservable()?
 			if("power" in data.emeter.get_realtime){
 				return data.emeter.get_realtime.power().toFixed(2);
 			} else if ("power_mw" in data.emeter.get_realtime) {
@@ -34,7 +34,7 @@ $(function() {
 				return "-"
 			}
 		}
-		self.get_kwh = function(data){
+		self.get_kwh = function(data){ // make computedObservable()?
 			if("total" in data.emeter.get_realtime){
 				return data.emeter.get_realtime.total().toFixed(2);
 			} else if ("total_wh" in data.emeter.get_realtime) {
@@ -43,12 +43,6 @@ $(function() {
 				return "-"
 			}
 		}
-/* 		self.energy_data = function(data){
-			var output = data.label() + '<br/>';
-			var energy_data = ko.toJS(data.emeter);
-			for (x in energy_data){output += x + ': ' + energy_data[x] + '<br/>'};
-			return output;
-		} */
 
 		self.onBeforeBinding = function() {
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
@@ -56,7 +50,6 @@ $(function() {
 
 		self.onAfterBinding = function() {
 			self.checkStatuses();
-			console.log(self.show_sidebar());
 		}
 
 		self.onEventSettingsUpdated = function(payload) {
@@ -117,8 +110,10 @@ $(function() {
 			if (plugin != "tplinksmartplug") {
 				return;
 			}
+			console.log('Websocket message received, checking status of ' + data.ip);
+			self.checkStatus(data.ip);
 
-			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
+/* 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
 				return item.ip() === data.ip;
 				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
 
@@ -144,8 +139,7 @@ $(function() {
 							hide: true
 							});
 				}
-			}
-			self.processing.remove(data.ip);
+			} */
 		};
 
 		self.toggleRelay = function(data) {
@@ -163,9 +157,6 @@ $(function() {
 		}
 
 		self.turnOn = function(data) {
-/* 			if(data.sysCmdOn()){
-				setTimeout(function(){self.sysCommand(data.sysRunCmdOn())},data.sysCmdOnDelay()*1000);
-			} */
 			self.sendTurnOn(data);
 		}
 
@@ -179,7 +170,11 @@ $(function() {
 					ip: data.ip()
 				}),
 				contentType: "application/json; charset=UTF-8"
-			});
+			}).done(function(data){
+					console.log('Turn on command completed.');
+					console.log(data);
+					self.processing.remove(data.ip);
+				});
 		};
 
 		self.turnOff = function(data) {
@@ -188,9 +183,6 @@ $(function() {
 				$("#TPLinkSmartPlugWarning").modal("show");
 			} else {
 				$("#TPLinkSmartPlugWarning").modal("hide");
-/* 				if(data.sysCmdOff()){
-					setTimeout(function(){self.sysCommand(data.sysRunCmdOff())},data.sysCmdOffDelay()*1000);
-				} */
 				self.sendTurnOff(data);
 			}
 		}; 
@@ -205,26 +197,39 @@ $(function() {
 				ip: data.ip()
 			}),
 			contentType: "application/json; charset=UTF-8"
-			});
+			}).done(function(data){
+					console.log('Turn off command completed.');
+					console.log(data);
+					self.processing.remove(data.ip);
+				});
 		}
 
 		self.checkStatus = function(plugIP) {
 			$.ajax({
 				url: API_BASEURL + "plugin/tplinksmartplug",
-				type: "POST",
+				type: "GET",
 				dataType: "json",
-				data: JSON.stringify({
-					command: "checkStatus",
-					ip: plugIP
-				}),
+				data: {checkStatus:plugIP},
 				contentType: "application/json; charset=UTF-8"
-			}).done(function(){
-				self.settings.saveData();
+			}).done(function(data){
+				// self.settings.saveData();
+				console.log(data);
+				ko.utils.arrayForEach(self.arrSmartplugs(),function(item){
+						if(item.ip() == data.ip) {
+							item.currentState(data.currentState);
+							if(data.emeter){
+								for (key in data.emeter.get_realtime){
+									console.log(key + ' = ' + data.emeter.get_realtime[key]);
+									item.emeter.get_realtime[key](data.emeter.get_realtime[key]);
+								}
+							}
+						}
+					});
 				});
 		}; 
 
 		self.checkStatuses = function() {
-			ko.utils.arrayForEach(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
+			ko.utils.arrayForEach(self.arrSmartplugs(),function(item){
 				if(item.ip() !== "") {
 					console.log("checking " + item.ip())
 					self.checkStatus(item.ip());
@@ -236,14 +241,9 @@ $(function() {
 		};
 	}
 
-	// view model class, parameters for constructor, container to bind to
 	OCTOPRINT_VIEWMODELS.push([
 		tplinksmartplugViewModel,
-
-		// e.g. loginStateViewModel, settingsViewModel, ...
 		["settingsViewModel","loginStateViewModel"],
-
-		// "#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug"
 		["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug","#sidebar_plugin_tplinksmartplug_wrapper"]
 	]);
 });

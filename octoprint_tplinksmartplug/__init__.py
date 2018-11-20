@@ -5,6 +5,7 @@ import octoprint.plugin
 from octoprint.server import user_permission
 import socket
 import json
+import flask
 import logging
 import os
 import re
@@ -18,13 +19,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 							octoprint.plugin.SimpleApiPlugin,
 							octoprint.plugin.StartupPlugin,
 							octoprint.plugin.ProgressPlugin):
-							
+
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
 		self._tplinksmartplug_logger = logging.getLogger("octoprint.plugins.tplinksmartplug.debug")
-							
+
 	##~~ StartupPlugin mixin
-	
+
 	def on_startup(self, host, port):
 		# setup customized logger
 		from octoprint.logging.handlers import CleaningTimedRotatingFileHandler
@@ -35,12 +36,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.addHandler(tplinksmartplug_logging_handler)
 		self._tplinksmartplug_logger.setLevel(logging.DEBUG if self._settings.get_boolean(["debug_logging"]) else logging.INFO)
 		self._tplinksmartplug_logger.propagate = False
-	
+
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
-	
+
 	##~~ SettingsPlugin mixin
-	
+
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
@@ -48,8 +49,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			pollingInterval = 15,
 			pollingEnabled = False
 		)
-		
-	def on_settings_save(self, data):	
+
+	def on_settings_save(self, data):
 		old_debug_logging = self._settings.get_boolean(["debug_logging"])
 
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
@@ -60,10 +61,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.DEBUG)
 			else:
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
-				
+
 	def get_settings_version(self):
 		return 7
-		
+
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
 			# Reset plug settings to defaults.
@@ -75,13 +76,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			for plug in self._settings.get(['arrSmartplugs']):
 				plug["emeter"] = None
 				arrSmartplugs_new.append(plug)
-				
+
 			self._logger.info("Updating plug array, converting")
 			self._logger.info(self._settings.get(['arrSmartplugs']))
 			self._logger.info("to")
 			self._logger.info(arrSmartplugs_new)
 			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
-		
+
 	##~~ AssetPlugin mixin
 
 	def get_assets(self):
@@ -89,21 +90,21 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			js=["js/tplinksmartplug.js","js/knockout-bootstrap.min.js"],
 			css=["css/tplinksmartplug.css"]
 		)
-		
+
 	##~~ TemplatePlugin mixin
-	
+
 	def get_template_configs(self):
 		templates_to_load = [dict(type="navbar", custom_bindings=True),dict(type="settings", custom_bindings=True),dict(type="sidebar", icon="plug", custom_bindings=True, data_bind="visible: show_sidebar()")]
 		return templates_to_load
-		
+
 	def on_print_progress(self, storage, path, progress):
 		self._tplinksmartplug_logger.debug("Checking statuses during print progress (%s)." % progress)
 		for plug in self._settings.get(["arrSmartplugs"]):
 			if plug["emeter"] and plug["emeter"] != {}:
 				self.check_status(plug["ip"])
-		
+
 	##~~ SimpleApiPlugin mixin
-	
+
 	def turn_on(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning on %s." % plugip)
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
@@ -112,13 +113,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.sendCommand('{"count_down":{"delete_all_rules":null}}',plug["ip"])
 			#chk = self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"],plug["ip"])["count_down"]["add_rule"]["err_code"]
 			chk = self.lookup(self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"],plug["ip"]),*["count_down","add_rule","err_code"])
-		else:		
+		else:
 			#chk = self.sendCommand('{"system":{"set_relay_state":{"state":1}}}',plugip)["system"]["set_relay_state"]["err_code"]
 			chk = self.lookup(self.sendCommand('{"system":{"set_relay_state":{"state":1}}}',plugip),*["system","set_relay_state","err_code"])
-			
+
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
-			self.check_status(plugip)
 			#self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",ip=plugip))
 			if plug["autoConnect"]:
 				c = threading.Timer(int(plug["autoConnectDelay"]),self._printer.connect)
@@ -126,7 +126,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			if plug["sysCmdOn"]:
 				t = threading.Timer(int(plug["sysCmdOnDelay"]),os.system,args=[plug["sysRunCmdOn"]])
 				t.start()
-	
+			return self.check_status(plugip)
+
 	def turn_off(self, plugip):
 		self._tplinksmartplug_logger.debug("Turning off %s." % plugip)
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
@@ -135,23 +136,23 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.sendCommand('{"count_down":{"delete_all_rules":null}}',plug["ip"])
 			#chk = self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"],plug["ip"])["count_down"]["add_rule"]["err_code"]
 			chk = self.lookup(self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"],plug["ip"]),*["count_down","add_rule","err_code"])
-		
+
 		if plug["sysCmdOff"]:
 			t = threading.Timer(int(plug["sysCmdOffDelay"]),os.system,args=[plug["sysRunCmdOff"]])
 			t.start()
 		if plug["autoDisconnect"]:
 			self._printer.disconnect()
 			time.sleep(int(plug["autoDisconnectDelay"]))
-			
+
 		if not plug["useCountdownRules"]:
 			# chk = self.sendCommand('{"system":{"set_relay_state":{"state":0}}}',plugip)["system"]["set_relay_state"]["err_code"]
 			chk = self.lookup(self.sendCommand('{"system":{"set_relay_state":{"state":0}}}',plugip),*["system","set_relay_state","err_code"])
-			
+
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
-			self.check_status(plugip)
+			return self.check_status(plugip)
 			#self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off",ip=plugip))
-		
+
 	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
 		if plugip != "":
@@ -164,33 +165,43 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				emeter_data = response["emeter"]
 			else:
 				emeter_data = None
-				
+
 			chk = self.lookup(response,*["system","get_sysinfo","relay_state"])
 			if chk == 1:
-				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",emeter=emeter_data,ip=plugip))
+				return dict(currentState="on",emeter=emeter_data,ip=plugip)
 			elif chk == 0:
-				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off",emeter=emeter_data,ip=plugip))
+				return dict(currentState="off",emeter=emeter_data,ip=plugip)
 			else:
 				self._tplinksmartplug_logger.debug(response)
-				self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="unknown",emeter=emeter_data,ip=plugip))
-	
+				return dict(currentState="unknown",emeter=emeter_data,ip=plugip)
+
 	def get_api_commands(self):
 		return dict(turnOn=["ip"],turnOff=["ip"],checkStatus=["ip"])
 
+	def on_api_get(self, request):
+		self._logger.info(request.args)
+		if request.args.get("checkStatus"):
+			response = self.check_status(request.args.get("checkStatus"))
+			return flask.jsonify(response)
+
 	def on_api_command(self, command, data):
 		if not user_permission.can():
-			from flask import make_response
-			return make_response("Insufficient rights", 403)
-        
+			return flask.make_response("Insufficient rights", 403)
+
 		if command == 'turnOn':
-			self.turn_on("{ip}".format(**data))
+			response = self.turn_on("{ip}".format(**data))
+			self._plugin_manager.send_plugin_message(self._identifier, response)
 		elif command == 'turnOff':
-			self.turn_off("{ip}".format(**data))
+			response = self.turn_off("{ip}".format(**data))
+			self._plugin_manager.send_plugin_message(self._identifier, response)
 		elif command == 'checkStatus':
-			self.check_status("{ip}".format(**data))
-			
+			response = self.check_status("{ip}".format(**data))
+		else:
+			response = dict(ip = data.ip, currentState = "unknown", emeter = None)
+		return flask.jsonify(response)
+
 	##~~ Utilities
-	
+
 	def deep_get(self, d, keys, default=None):
 		"""
 		Example:
@@ -205,17 +216,17 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if not keys:
 			return d
 		return deep_get(d.get(keys[0]), keys[1:], default)
-	
+
 	def lookup(self, dic, key, *keys):
 		if keys:
 			return self.lookup(dic.get(key, {}), *keys)
 		return dic.get(key)
-	
+
 	def plug_search(self, list, key, value): 
 		for item in list: 
 			if item[key] == value: 
 				return item
-	
+
 	def encrypt(self, string):
 		key = 171
 		result = "\0\0\0"+chr(len(string))
@@ -233,7 +244,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			key = ord(i) 
 			result += chr(a)
 		return result
-	
+
 	def sendCommand(self, cmd, plugip):
 		commands = {'info'     : '{"system":{"get_sysinfo":{}}}',
 			'on'       : '{"system":{"set_relay_state":{"state":1}}}',
@@ -247,7 +258,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			'reboot'   : '{"system":{"reboot":{"delay":1}}}',
 			'reset'    : '{"system":{"reset":{"delay":1}}}'
 		}
-		
+
 		# try to connect via ip address
 		try:
 			socket.inet_aton(plugip)
@@ -262,32 +273,32 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			except (socket.herror, socket.gaierror):
 				self._tplinksmartplug_logger.debug("Invalid hostname %s." % plugip)
 				return {"system":{"get_sysinfo":{"relay_state":3}},"emeter":{"err_code": True}}
-				
+
 		try:
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			sock_tcp.connect((ip, 9999))
 			sock_tcp.send(self.encrypt(cmd))
 			data = sock_tcp.recv(2048)
 			sock_tcp.close()
-			
+
 			self._tplinksmartplug_logger.debug("Sending command %s to %s" % (cmd,plugip))
 			self._tplinksmartplug_logger.debug(self.decrypt(data))
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
 			self._tplinksmartplug_logger.debug("Could not connect to %s." % plugip)
 			return {"system":{"get_sysinfo":{"relay_state":3}},"emeter":{"err_code": True}}
-			
+
 	##~~ Gcode processing hook
-	
+
 	def gcode_turn_off(self, plug):
 		if plug["warnPrinting"] and self._printer.is_printing():
 			self._logger.info("Not powering off %s because printer is printing." % plug["label"])
 		else:
 			self.turn_off(plug["ip"])
-	
+
 	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
 		if gcode:
-			if cmd.startswith("M80"):			
+			if cmd.startswith("M80"):
 				plugip = re.sub(r'^M80\s?', '', cmd)
 				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on of %s." % plugip)
 				plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
@@ -307,7 +318,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				return
 			else:
 				return
-				
+
 		elif cmd.startswith("@TPLINKON"):
 			plugip = re.sub(r'^@TPLINKON\s?', '', cmd)
 			self._tplinksmartplug_logger.debug("Received @TPLINKON command, attempting power on of %s." % plugip)
@@ -330,29 +341,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ Softwareupdate hook
 
 	def get_update_information(self):
-		# Define the configuration for your plugin to use with the Software Update
-		# Plugin here. See https://github.com/foosel/OctoPrint/wiki/Plugin:-Software-Update
-		# for details.
 		return dict(
 			tplinksmartplug=dict(
 				displayName="TP-Link Smartplug",
 				displayVersion=self._plugin_version,
-
-				# version check: github repository
 				type="github_release",
 				user="jneilliii",
 				repo="OctoPrint-TPLinkSmartplug",
 				current=self._plugin_version,
-
-				# update method: pip
 				pip="https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/archive/{target_version}.zip"
 			)
 		)
 
-
-# If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
-# ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
-# can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
 __plugin_name__ = "TP-Link Smartplug"
 
 def __plugin_load__():

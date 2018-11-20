@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.9] - 2018-11-20
+### Changed
+- Changed current status logic checks to resolve potential issues with upcoming bundled force login plugin of OctoPrint 1.3.10.
+
 ## [0.9.8] - 2018-11-18
 ### Fixed
 - Non Energy Monitoring devices were causing errors on status checks resulting in status update failure.
@@ -146,6 +150,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
+[0.9.9]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.9
 [0.9.8]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.8
 [0.9.7]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.7
 [0.9.6]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.6
