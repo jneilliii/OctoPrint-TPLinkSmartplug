@@ -20,3 +20,15 @@ div#tplinksmartplugs div:not(:last-child) {
 	padding-bottom: 10px;
 	border-bottom: 1px solid #DDD;
 }
+
+#sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div.on {
+	color: #000;
+}
+
+#sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div.off {
+	color: #AAA;
+}
+
+#sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div.unknown {
+	color: #AAA;
+}
