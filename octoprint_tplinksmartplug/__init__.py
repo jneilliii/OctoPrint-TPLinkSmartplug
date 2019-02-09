@@ -14,8 +14,8 @@ import time
 from datetime import datetime
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
-                            octoprint.plugin.AssetPlugin,
-                            octoprint.plugin.TemplatePlugin,
+							octoprint.plugin.AssetPlugin,
+							octoprint.plugin.TemplatePlugin,
 							octoprint.plugin.SimpleApiPlugin,
 							octoprint.plugin.StartupPlugin,
 							octoprint.plugin.ProgressPlugin):
@@ -45,7 +45,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
-			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':None}],
+			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':{'get_realtime':{}}}],
 			pollingInterval = 15,
 			pollingEnabled = False
 		)
@@ -168,15 +168,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
 		if plugip != "":
+			emeter_data = None
 			today = datetime.today()
-			check_status_cmnd = '{"system":{"get_sysinfo":{}},"emeter":{"get_realtime":{}}}'
+			check_status_cmnd = '{"system":{"get_sysinfo":{}}}'
 			# ,"get_daystat":{"month":%d,"year":%d}}}' % (today.month, today.year)
+			# ,"emeter":{"get_realtime":{}}
 			self._tplinksmartplug_logger.debug(check_status_cmnd)
 			response = self.sendCommand(check_status_cmnd, plugip)
-			if self.lookup(response, *["emeter","get_realtime"]):
-				emeter_data = response["emeter"]
-			else:
-				emeter_data = None
+
+			if "ENE" in self.lookup(response, *["system","get_sysinfo","feature"]):
+				check_emeter_data = self.sendCommand('{"emeter":{"get_realtime":{}}}', plugip)
+				if self.lookup(check_emeter_data, *["emeter","get_realtime"]):
+					emeter_data = check_emeter_data["emeter"]
 
 			chk = self.lookup(response,*["system","get_sysinfo","relay_state"])
 			if chk == 1:
