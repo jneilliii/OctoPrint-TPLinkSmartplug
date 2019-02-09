@@ -63,7 +63,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 7
+		return 8
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -75,6 +75,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			arrSmartplugs_new = []
 			for plug in self._settings.get(['arrSmartplugs']):
 				plug["emeter"] = None
+				arrSmartplugs_new.append(plug)
+
+			self._logger.info("Updating plug array, converting")
+			self._logger.info(self._settings.get(['arrSmartplugs']))
+			self._logger.info("to")
+			self._logger.info(arrSmartplugs_new)
+			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
+		elif current == 7:
+			# Loop through plug array and set emeter to None
+			arrSmartplugs_new = []
+			for plug in self._settings.get(['arrSmartplugs']):
+				plug["emeter"] = dict(get_realtime = False)
 				arrSmartplugs_new.append(plug)
 
 			self._logger.info("Updating plug array, converting")
@@ -197,7 +209,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		elif command == 'checkStatus':
 			response = self.check_status("{ip}".format(**data))
 		else:
-			response = dict(ip = data.ip, currentState = "unknown", emeter = None)
+			response = dict(ip = data.ip, currentState = "unknown")
 		return flask.jsonify(response)
 
 	##~~ Utilities

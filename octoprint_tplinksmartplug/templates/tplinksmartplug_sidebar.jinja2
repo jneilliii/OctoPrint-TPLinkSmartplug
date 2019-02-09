@@ -1,9 +1,7 @@
-<div id="tplinksmartplugs" class="row-fluid" data-bind="foreach: arrSmartplugs">
-	<!-- ko if: emeter.get_realtime -->
-		<div class="row-fluid" data-bind="css: currentState()">
-			Plug: <strong data-bind="text: label"></strong><br/>
-			Current Power: <strong data-bind="text: $parent.get_power($data)"></strong> W<br/>
-			Total Consumption: <strong data-bind="text: $parent.get_kwh($data)"></strong> kWh
-		</div>
-	<!-- /ko -->
+<div id="tplinksmartplugs" class="row-fluid" data-bind="foreach: filteredSmartplugs">
+	<div class="row-fluid" data-bind="css: currentState()">
+		Plug: <strong data-bind="text: label"></strong><br/>
+		Current Power: <strong data-bind="text: $parent.get_power($data)"></strong> W<br/>
+		Total Consumption: <strong data-bind="text: $parent.get_kwh($data)"></strong> kWh
+	</div>
 </div>

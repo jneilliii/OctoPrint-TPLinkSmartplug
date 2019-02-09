@@ -15,15 +15,13 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
-		self.show_sidebar = ko.computed(function(){
-			var energy_monitoring_enabled = ko.utils.arrayFilter(self.arrSmartplugs(), function(item) {
-						if (item.emeter){
-							return "get_realtime" in item.emeter;
-						} else {
-							return false;
-						}
+		self.filteredSmartplugs = ko.computed(function(){
+			return ko.utils.arrayFilter(self.arrSmartplugs(), function(item) {
+						return "err_code" in item.emeter.get_realtime;
 					});
-			return energy_monitoring_enabled.length > 0;
+		});
+		self.show_sidebar = ko.computed(function(){
+			return self.filteredSmartplugs().length > 0;
 		});
 		self.get_power = function(data){ // make computedObservable()?
 			if("power" in data.emeter.get_realtime){
@@ -75,29 +73,29 @@ $(function() {
 
 		self.addPlug = function() {
 			self.selectedPlug({'ip':ko.observable(''),
-									'label':ko.observable(''),
-									'icon':ko.observable('icon-bolt'),
-									'displayWarning':ko.observable(true),
-									'warnPrinting':ko.observable(false),
-									'gcodeEnabled':ko.observable(false),
-									'gcodeOnDelay':ko.observable(0),
-									'gcodeOffDelay':ko.observable(0),
-									'autoConnect':ko.observable(true),
-									'autoConnectDelay':ko.observable(10.0),
-									'autoDisconnect':ko.observable(true),
-									'autoDisconnectDelay':ko.observable(0),
-									'sysCmdOn':ko.observable(false),
-									'sysRunCmdOn':ko.observable(''),
-									'sysCmdOnDelay':ko.observable(0),
-									'sysCmdOff':ko.observable(false),
-									'sysRunCmdOff':ko.observable(''),
-									'sysCmdOffDelay':ko.observable(0),
-									'currentState':ko.observable('unknown'),
-									'btnColor':ko.observable('#808080'),
-									'useCountdownRules':ko.observable(false),
-									'countdownOnDelay':ko.observable(0),
-									'countdownOffDelay':ko.observable(0),
-									'emeter':ko.observable()});
+								'label':ko.observable(''),
+								'icon':ko.observable('icon-bolt'),
+								'displayWarning':ko.observable(true),
+								'warnPrinting':ko.observable(false),
+								'gcodeEnabled':ko.observable(false),
+								'gcodeOnDelay':ko.observable(0),
+								'gcodeOffDelay':ko.observable(0),
+								'autoConnect':ko.observable(true),
+								'autoConnectDelay':ko.observable(10.0),
+								'autoDisconnect':ko.observable(true),
+								'autoDisconnectDelay':ko.observable(0),
+								'sysCmdOn':ko.observable(false),
+								'sysRunCmdOn':ko.observable(''),
+								'sysCmdOnDelay':ko.observable(0),
+								'sysCmdOff':ko.observable(false),
+								'sysRunCmdOff':ko.observable(''),
+								'sysCmdOffDelay':ko.observable(0),
+								'currentState':ko.observable('unknown'),
+								'btnColor':ko.observable('#808080'),
+								'useCountdownRules':ko.observable(false),
+								'countdownOnDelay':ko.observable(0),
+								'countdownOffDelay':ko.observable(0),
+								'emeter':{get_realtime:{}}});
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
 		}
@@ -214,17 +212,26 @@ $(function() {
 			}).done(function(data){
 				// self.settings.saveData();
 				console.log(data);
+				var saveNeeded = false;
 				ko.utils.arrayForEach(self.arrSmartplugs(),function(item){
+						console.log(item);
 						if(item.ip() == data.ip) {
 							item.currentState(data.currentState);
 							if(data.emeter){
+								item.emeter.get_realtime = {};
 								for (key in data.emeter.get_realtime){
 									console.log(key + ' = ' + data.emeter.get_realtime[key]);
-									item.emeter.get_realtime[key](data.emeter.get_realtime[key]);
+									item.emeter.get_realtime[key] = ko.observable(data.emeter.get_realtime[key]);
 								}
+								saveNeeded = true;
 							}
+							self.processing.remove(data.ip);
 						}
 					});
+				if (saveNeeded) {
+					self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(self.arrSmartplugs());
+					self.settings.saveData();
+				}
 				});
 		}; 
 
