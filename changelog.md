@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.12] - 2019-02-10
+### Fixed
+- Issue introduced in previous version prevented fresh installs from working properly.
+
 ## [0.9.11] - 2019-02-09
 ### Fixed
 - Energy monitoring sidebar not displaying consistently.
@@ -158,8 +162,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
-[0.9.9]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.11
-[0.9.9]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.10
+[0.9.12]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.12
+[0.9.11]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.11
+[0.9.10]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.10
 [0.9.9]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.9
 [0.9.8]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.8
 [0.9.7]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.7
