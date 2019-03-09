@@ -15,28 +15,38 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
+		self.test = ko.observableDictionary();
 		self.filteredSmartplugs = ko.computed(function(){
-			return ko.utils.arrayFilter(self.arrSmartplugs(), function(item) {
-						return "err_code" in item.emeter.get_realtime;
+			return ko.utils.arrayFilter(self.test.items(), function(item) {
+						return "err_code" in item.value().emeter.get_realtime;
 					});
 		});
 		self.show_sidebar = ko.computed(function(){
 			return self.filteredSmartplugs().length > 0;
 		});
+		self.monitorarray = ko.computed(function(){return ko.toJSON(self.arrSmartplugs);}).subscribe(function(){console.log('monitored array');console.log(ko.toJSON(self.test));})
 		self.get_power = function(data){ // make computedObservable()?
-			if("power" in data.emeter.get_realtime){
+			if("power" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power == "function"){
 				return data.emeter.get_realtime.power().toFixed(2);
-			} else if ("power_mw" in data.emeter.get_realtime) {
+			} else if ("power_mw" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power_mw == "function") {
 				return (data.emeter.get_realtime.power_mw()/1000).toFixed(2);
+			} else if("power" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power !== "function"){
+				return data.emeter.get_realtime.power.toFixed(2);
+			} else if ("power_mw" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power_mw !== "function") {
+				return (data.emeter.get_realtime.power_mw/1000).toFixed(2);
 			} else {
 				return "-"
 			}
 		}
 		self.get_kwh = function(data){ // make computedObservable()?
-			if("total" in data.emeter.get_realtime){
+			if("total" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total == "function"){
 				return data.emeter.get_realtime.total().toFixed(2);
-			} else if ("total_wh" in data.emeter.get_realtime) {
+			} else if ("total_wh" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total_wh == "function") {
 				return (data.emeter.get_realtime.total_wh()/1000).toFixed(2);
+			} else if("total" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total !== "function"){
+				return data.emeter.get_realtime.total.toFixed(2);
+			} else if ("total_wh" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total_wh !== "function") {
+				return (data.emeter.get_realtime.total_wh/1000).toFixed(2);
 			} else {
 				return "-"
 			}
@@ -110,34 +120,6 @@ $(function() {
 			}
 			console.log('Websocket message received, checking status of ' + data.ip);
 			self.checkStatus(data.ip);
-
-/* 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
-				return item.ip() === data.ip;
-				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
-
-			console.log(ko.toJSON(plug));
-			console.log(data);
-
-			if ((plug.currentState() != data.currentState) || (plug.emeter != data.emeter)) {
-				console.log('Changing state and emeter data.');
-				plug.currentState(data.currentState);
-				plug.emeter = data.emeter;
-				console.log(ko.toJSON(plug));
-				self.settings.saveData();
-				switch(data.currentState) {
-					case "on":
-						break;
-					case "off":
-						break;
-					default:
-						new PNotify({
-							title: 'TP-Link Smartplug Error',
-							text: 'Status ' + plug.currentState() + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
-							type: 'error',
-							hide: true
-							});
-				}
-			} */
 		};
 
 		self.toggleRelay = function(data) {
@@ -210,28 +192,21 @@ $(function() {
 				data: {checkStatus:plugIP},
 				contentType: "application/json; charset=UTF-8"
 			}).done(function(data){
-				// self.settings.saveData();
-				console.log(data);
-				var saveNeeded = false;
 				ko.utils.arrayForEach(self.arrSmartplugs(),function(item){
-						console.log(item);
 						if(item.ip() == data.ip) {
 							item.currentState(data.currentState);
 							if(data.emeter){
 								item.emeter.get_realtime = {};
 								for (key in data.emeter.get_realtime){
-									console.log(key + ' = ' + data.emeter.get_realtime[key]);
+									//console.log(key + ' = ' + data.emeter.get_realtime[key]);
 									item.emeter.get_realtime[key] = ko.observable(data.emeter.get_realtime[key]);
 								}
-								saveNeeded = true;
 							}
 							self.processing.remove(data.ip);
 						}
 					});
-				if (saveNeeded) {
-					self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(self.arrSmartplugs());
-					self.settings.saveData();
-				}
+					self.test.removeAll();
+					self.test.pushAll(ko.toJS(self.arrSmartplugs));
 				});
 		}; 
 
