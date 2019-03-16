@@ -9,6 +9,8 @@ Work inspired by [OctoPrint-PSUControl](https://github.com/kantlivelong/OctoPrin
 
 ![screenshot](plugeditor.png)
 
+![screenshot](screenshot_tab.png)
+
 ## Setup
 
 Install via the bundled [Plugin Manager](https://github.com/foosel/OctoPrint/wiki/Plugin:-Plugin-Manager)

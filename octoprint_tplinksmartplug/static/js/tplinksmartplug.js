@@ -15,6 +15,9 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
+		self.plotted_graph_ip = ko.observable();
+		self.plotted_graph_records = ko.observable(10);
+		self.plotted_graph_records_offset = ko.observable(0);
 		self.test = ko.observableDictionary();
 		self.filteredSmartplugs = ko.computed(function(){
 			return ko.utils.arrayFilter(self.test.items(), function(item) {
@@ -184,6 +187,92 @@ $(function() {
 				});
 		}
 
+		self.plotEnergyData = function(data) {
+			console.log(data);
+			if(data.plotted_graph_ip()) {
+				$.ajax({
+				url: API_BASEURL + "plugin/tplinksmartplug",
+				type: "POST",
+				dataType: "json",
+				data: JSON.stringify({
+					command: "getEnergyData",
+					ip: data.plotted_graph_ip(),
+					record_limit: data.plotted_graph_records(),
+					record_offset: data.plotted_graph_records_offset()
+				}),
+				contentType: "application/json; charset=UTF-8"
+				}).done(function(data){
+						console.log('Energy Data retrieved');
+						console.log(data);
+						
+						//update plotly graph here.
+						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
+						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'}; 
+						var trace_total = {x:[],y:[],mode:'lines+markers',name:'Total (kWh)'};
+						//var trace_voltage = {x:[],y:[],mode:'lines+markers',name:'Voltage (V)',yaxis: 'y3'};
+
+						ko.utils.arrayForEach(data.energy_data, function(row){
+							trace_current.x.push(row[0]);
+							trace_current.y.push(row[1]);
+							trace_power.x.push(row[0]);
+							trace_power.y.push(row[2]);
+							trace_total.x.push(row[0]);
+							trace_total.y.push(row[3]);
+							//trace_voltage.x.push(row[0]);
+							//trace_voltage.y.push(row[4]);
+						});
+						
+						var layout = {title:'TP-Link Smartplug Energy Data',
+									grid: {rows: 2, columns: 1, pattern: 'independent'},
+									xaxis: {
+										showticklabels: false
+									},
+									yaxis: {
+										title: 'Total (kWh)',
+										hoverformat: '.3f kWh',
+										tickangle: 45,
+										tickfont: {
+											size: 10
+										},
+										tickformat: '.2f'
+									},
+									xaxis2: {
+										anchor: 'y2'
+									},
+									yaxis2: {
+										title: 'Current (Amp)',
+										hoverformat: '.3f',
+										anchor: 'x2',
+										tickangle: 45,
+										tickfont: {
+											size: 10
+										},
+										tickformat: '.2f'
+									},
+									xaxis3: {
+										overlaying: 'x2',
+										anchor: 'y3',
+										showticklabels: false
+									},
+									yaxis3: {
+										overlaying: 'y2',
+										side: 'right',
+										title: 'Power (W)',
+										hoverformat: '.3f',
+										anchor: 'x3',
+										tickangle: -45,
+										tickfont: {
+											size: 10
+										},
+										tickformat: '.2f'
+									}};
+
+						var plot_data = [trace_total,trace_current,trace_power/* ,trace_voltage */]
+						Plotly.newPlot('tplinksmartplug_energy_graph',plot_data,layout);
+					});
+			}
+		}
+
 		self.checkStatus = function(plugIP) {
 			$.ajax({
 				url: API_BASEURL + "plugin/tplinksmartplug",
@@ -226,6 +315,6 @@ $(function() {
 	OCTOPRINT_VIEWMODELS.push([
 		tplinksmartplugViewModel,
 		["settingsViewModel","loginStateViewModel"],
-		["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug","#sidebar_plugin_tplinksmartplug_wrapper"]
+		["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug","#sidebar_plugin_tplinksmartplug_wrapper","#tab_plugin_tplinksmartplug"]
 	]);
 });

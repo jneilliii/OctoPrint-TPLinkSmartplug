@@ -1,0 +1,21 @@
+<div class="row-fluid" id="tplinksmartplug_energy_graph" data-bind="visible: loginState.isUser()"></div>
+<div class="row-fluid" data-bind="visible: loginState.isUser()">
+    <div class="span5">
+		<label class="control-label">{{ _('Plug to Graph') }}</label>
+		<div class="controls">
+			<select data-bind="options: filteredSmartplugs,optionsText: function(self){ return self.value()['label']; },optionsValue: function(self){ return self.value()['ip']; },value: plotted_graph_ip, event: { change: plotEnergyData}"></select>
+		</div>
+	</div>
+    <div class="span3">
+		<label class="control-label">{{ _('Records') }}</label>
+		<div class="controls">
+			<input type="number" step="10" class="input-mini" data-bind="value: plotted_graph_records, event: { change: plotEnergyData}"/>
+		</div>
+	</div>
+    <div class="span3">
+		<label class="control-label">{{ _('Offset') }}</label>
+		<div class="controls">
+			<input type="number" step="10" class="input-mini" data-bind="value: plotted_graph_records_offset, event: { change: plotEnergyData}"/>
+		</div>
+	</div>
+</div>

@@ -11,6 +11,7 @@ import os
 import re
 import threading
 import time
+import sqlite3
 from datetime import datetime
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
@@ -36,6 +37,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.addHandler(tplinksmartplug_logging_handler)
 		self._tplinksmartplug_logger.setLevel(logging.DEBUG if self._settings.get_boolean(["debug_logging"]) else logging.INFO)
 		self._tplinksmartplug_logger.propagate = False
+
+		self.db_path = os.path.join(self.get_plugin_data_folder(),"energy_data.db")
 
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
@@ -63,7 +66,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 8
+		return 9
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -95,18 +98,26 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.info(arrSmartplugs_new)
 			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
 
+		if current is None or current < 9:
+			self.db_path = os.path.join(self.get_plugin_data_folder(),"energy_data.db")
+			self.db = sqlite3.connect(self.db_path)
+			cursor = self.db.cursor()
+			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL)''')
+			self.db.commit()
+			self.db.close()
+
 	##~~ AssetPlugin mixin
 
 	def get_assets(self):
 		return dict(
-			js=["js/tplinksmartplug.js","js/knockout-bootstrap.min.js","js/ko.observableDictionary.js"],
+			js=["js/tplinksmartplug.js","js/knockout-bootstrap.min.js","js/ko.observableDictionary.js","js/plotly-latest.min.js"],
 			css=["css/tplinksmartplug.css"]
 		)
 
 	##~~ TemplatePlugin mixin
 
 	def get_template_configs(self):
-		templates_to_load = [dict(type="navbar", custom_bindings=True),dict(type="settings", custom_bindings=True),dict(type="sidebar", icon="plug", custom_bindings=True, data_bind="visible: show_sidebar()")]
+		templates_to_load = [dict(type="navbar", custom_bindings=True),dict(type="settings", custom_bindings=True),dict(type="sidebar", icon="plug", custom_bindings=True, data_bind="visible: show_sidebar()"),dict(type="tab", custom_bindings=True)]
 		return templates_to_load
 
 	def on_print_progress(self, storage, path, progress):
@@ -180,6 +191,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				check_emeter_data = self.sendCommand('{"emeter":{"get_realtime":{}}}', plugip)
 				if self.lookup(check_emeter_data, *["emeter","get_realtime"]):
 					emeter_data = check_emeter_data["emeter"]
+					self.db = sqlite3.connect(self.db_path)
+					cursor = self.db.cursor()
+					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''', (plugip,today.isoformat(' '), emeter_data["get_realtime"]["current"], emeter_data["get_realtime"]["power"],emeter_data["get_realtime"]["total"],emeter_data["get_realtime"]["voltage"]))
+					self.db.commit()
+					self.db.close()
 
 			chk = self.lookup(response,*["system","get_sysinfo","relay_state"])
 			if chk == 1:
@@ -191,7 +207,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				return dict(currentState="unknown",emeter=emeter_data,ip=plugip)
 
 	def get_api_commands(self):
-		return dict(turnOn=["ip"],turnOff=["ip"],checkStatus=["ip"])
+		return dict(turnOn=["ip"],turnOff=["ip"],checkStatus=["ip"],getEnergyData=["ip"])
 
 	def on_api_get(self, request):
 		self._logger.info(request.args)
@@ -211,6 +227,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._plugin_manager.send_plugin_message(self._identifier, response)
 		elif command == 'checkStatus':
 			response = self.check_status("{ip}".format(**data))
+		elif command == 'getEnergyData':
+			self.db = sqlite3.connect(self.db_path)
+			cursor = self.db.cursor()
+			cursor.execute('''SELECT timestamp, current, power, total, voltage FROM energy_data WHERE ip=? ORDER BY timestamp DESC LIMIT ?,?''', (data["ip"],data["record_offset"],data["record_limit"],))
+			response = {'energy_data' : cursor.fetchall()}
+			self.db.close()
+			self._logger.info(response)
+			#SELECT * FROM energy_data WHERE ip = '192.168.0.102' LIMIT 0,30 
 		else:
 			response = dict(ip = data.ip, currentState = "unknown")
 		return flask.jsonify(response)
