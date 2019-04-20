@@ -50,7 +50,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			debug_logging = False,
 			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':{'get_realtime':{}}}],
 			pollingInterval = 15,
-			pollingEnabled = False
+			pollingEnabled = False,
+			thermal_runaway_monitoring = False,
+			thermal_runaway_max_bed = 0,
+			thermal_runaway_max_extruder = 0
 		)
 
 	def on_settings_save(self, data):
@@ -66,7 +69,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 9
+		return 10
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -105,6 +108,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL)''')
 			self.db.commit()
 			self.db.close()
+
+		if current is None or current < 10:
+			arrSmartplugs_new = []
+			for plug in self._settings.get(['arrSmartplugs']):
+				plug["thermal_runaway"] = False
+				arrSmartplugs_new.append(plug)
+			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
 
 	##~~ AssetPlugin mixin
 
@@ -382,6 +392,31 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				t.start()
 			return None
 
+	##~~ Temperatures received hook
+
+	def check_temps(self, parsed_temps):
+		thermal_runaway_triggered = False
+		for k, v in parsed_temps.items():
+			if k == "B" and v[1] > 0 and v[0] > int(self._settings.get(["thermal_runaway_max_bed"])):
+				self._tplinksmartplug_logger.debug("Max bed temp reached, shutting off plugs.")
+				thermal_runaway_triggered = True
+			if k.startswith("T") and v[1] > 0 and v[0] > int(self._settings.get(["thermal_runaway_max_extruder"])):
+				self._tplinksmartplug_logger.debug("Extruder max temp reached, shutting off plugs.")
+				thermal_runaway_triggered = True
+			if thermal_runaway_triggered == True:
+				for plug in self._settings.get(['arrSmartplugs']):
+					if plug["thermal_runaway"] == True:
+						response = self.turn_off(plug["ip"])
+						if response["currentState"] == "off":
+							self._plugin_manager.send_plugin_message(self._identifier, response)
+
+	def monitor_temperatures(self, comm, parsed_temps):
+		if self._settings.get(["thermal_runaway_monitoring"]):
+			# Run inside it's own thread to prevent communication blocking
+			t = threading.Timer(0,self.check_temps,[parsed_temps])
+			t.start()
+		return parsed_temps
+
 	##~~ Softwareupdate hook
 
 	def get_update_information(self):
@@ -406,6 +441,7 @@ def __plugin_load__():
 	global __plugin_hooks__
 	__plugin_hooks__ = {
 		"octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.processGCODE,
+		"octoprint.comm.protocol.temperatures.received": __plugin_implementation__.monitor_temperatures,
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
 	}
 
