@@ -13,6 +13,7 @@ import threading
 import time
 import sqlite3
 from datetime import datetime
+from struct import unpack
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 							octoprint.plugin.AssetPlugin,
@@ -143,16 +144,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 		self._tplinksmartplug_logger.debug(plug)
 		if plug["useCountdownRules"]:
-			self.sendCommand('{"count_down":{"delete_all_rules":null}}',plug["ip"])
-			#chk = self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"],plug["ip"])["count_down"]["add_rule"]["err_code"]
-			chk = self.lookup(self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"],plug["ip"]),*["count_down","add_rule","err_code"])
+			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug["ip"])
+			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"]),plug["ip"]),*["count_down","add_rule","err_code"])
 		else:
-			#chk = self.sendCommand('{"system":{"set_relay_state":{"state":1}}}',plugip)["system"]["set_relay_state"]["err_code"]
-			chk = self.lookup(self.sendCommand('{"system":{"set_relay_state":{"state":1}}}',plugip),*["system","set_relay_state","err_code"])
+			turn_on_cmnd = dict(system=dict(set_relay_state=dict(state=1)))
+			plug_ip = plugip.split("/")
+			if len(plugip) == 2:
+				chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip[0],plug_ip[1]),*["system","set_relay_state","err_code"])
+			else:
+				chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip[0]),*["system","set_relay_state","err_code"])
 
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
-			#self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="on",ip=plugip))
 			if plug["autoConnect"]:
 				c = threading.Timer(int(plug["autoConnectDelay"]),self._printer.connect)
 				c.start()
@@ -166,9 +169,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 		self._tplinksmartplug_logger.debug(plug)
 		if plug["useCountdownRules"]:
-			self.sendCommand('{"count_down":{"delete_all_rules":null}}',plug["ip"])
-			#chk = self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"],plug["ip"])["count_down"]["add_rule"]["err_code"]
-			chk = self.lookup(self.sendCommand('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"],plug["ip"]),*["count_down","add_rule","err_code"])
+			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug["ip"])
+			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"]),plug["ip"]),*["count_down","add_rule","err_code"])
 
 		if plug["sysCmdOff"]:
 			t = threading.Timer(int(plug["sysCmdOffDelay"]),os.system,args=[plug["sysRunCmdOff"]])
@@ -178,36 +180,51 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			time.sleep(int(plug["autoDisconnectDelay"]))
 
 		if not plug["useCountdownRules"]:
-			# chk = self.sendCommand('{"system":{"set_relay_state":{"state":0}}}',plugip)["system"]["set_relay_state"]["err_code"]
-			chk = self.lookup(self.sendCommand('{"system":{"set_relay_state":{"state":0}}}',plugip),*["system","set_relay_state","err_code"])
+			turn_off_cmnd = dict(system=dict(set_relay_state=dict(state=0)))
+			plug_ip = plugip.split("/")
+			if len(plug_ip) == 2:
+				chk = self.lookup(self.sendCommand(turn_off_cmnd,plug_ip[0],plug_ip[1]),*["system","set_relay_state","err_code"])
+			else:
+				chk = self.lookup(self.sendCommand(turn_off_cmnd,plug_ip[0]),*["system","set_relay_state","err_code"])
 
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
 			return self.check_status(plugip)
-			#self._plugin_manager.send_plugin_message(self._identifier, dict(currentState="off",ip=plugip))
 
 	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
 		if plugip != "":
 			emeter_data = None
 			today = datetime.today()
-			check_status_cmnd = '{"system":{"get_sysinfo":{}}}'
-			# ,"get_daystat":{"month":%d,"year":%d}}}' % (today.month, today.year)
-			# ,"emeter":{"get_realtime":{}}
+			check_status_cmnd = dict(system = dict(get_sysinfo = dict()))
+			plug_ip = plugip.split("/")
 			self._tplinksmartplug_logger.debug(check_status_cmnd)
-			response = self.sendCommand(check_status_cmnd, plugip)
+			if len(plugip) == 2:
+				response = self.sendCommand(check_status_cmnd, plug_ip[0], plug_ip[1])
+			else:
+				response = self.sendCommand(check_status_cmnd, plug_ip[0])
 
 			if "ENE" in self.lookup(response, *["system","get_sysinfo","feature"]):
-				check_emeter_data = self.sendCommand('{"emeter":{"get_realtime":{}}}', plugip)
+				emeter_data_cmnd = dict(emeter = dict(get_realtime = dict()))
+				if len(plug_ip) == 2:
+					check_emeter_data = self.sendCommand(emeter_data_cmnd, plug_ip[0], plug_ip[1])
+				else:
+					check_emeter_data = self.sendCommand(emeter_data_cmnd, plug_ip[0])
 				if self.lookup(check_emeter_data, *["emeter","get_realtime"]):
 					emeter_data = check_emeter_data["emeter"]
 					self.db = sqlite3.connect(self.db_path)
 					cursor = self.db.cursor()
-					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''', (plugip,today.isoformat(' '), emeter_data["get_realtime"]["current"], emeter_data["get_realtime"]["power"],emeter_data["get_realtime"]["total"],emeter_data["get_realtime"]["voltage"]))
+					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''', [plugip,today.isoformat(' '), emeter_data["get_realtime"]["current"], emeter_data["get_realtime"]["power"],emeter_data["get_realtime"]["total"],emeter_data["get_realtime"]["voltage"]])
 					self.db.commit()
 					self.db.close()
 
-			chk = self.lookup(response,*["system","get_sysinfo","relay_state"])
+			if len(plug_ip) == 2:
+				chk = self.lookup(response,*["system","get_sysinfo","children"])
+				if chk:
+					chk = chk[int(plug_ip[1])]["state"]
+			else:
+				chk = self.lookup(response,*["system","get_sysinfo","relay_state"])
+
 			if chk == 1:
 				return dict(currentState="on",emeter=emeter_data,ip=plugip)
 			elif chk == 0:
@@ -251,6 +268,25 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	##~~ Utilities
 
+	def _get_device_id(self, plugip):
+		response = self._settings.get([plugip])
+		if not response:
+			check_status_cmnd = dict(system = dict(get_sysinfo = dict()))
+			plug_ip = plugip.split("/")
+			self._tplinksmartplug_logger.debug(check_status_cmnd)
+			plug_data = self.sendCommand(check_status_cmnd, plug_ip[0])
+			if len(plug_ip) == 2:
+				response = self.deep_get(plug_data,["system","get_sysinfo","children"], default=False)
+				if response:
+					response = response[int(plug_ip[1])]["id"]
+				self._tplinksmartplug_logger.debug(response)
+			else:
+				response = self.deep_get(response,["system","get_sysinfo","deviceId"])
+			if response:
+				self._settings.set([plugip],response)
+				self._settings.save()
+		return response
+
 	def deep_get(self, d, keys, default=None):
 		"""
 		Example:
@@ -264,7 +300,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			return default
 		if not keys:
 			return d
-		return deep_get(d.get(keys[0]), keys[1:], default)
+		return self.deep_get(d.get(keys[0]), keys[1:], default)
 
 	def lookup(self, dic, key, *keys):
 		if keys:
@@ -294,7 +330,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			result += chr(a)
 		return result
 
-	def sendCommand(self, cmd, plugip):
+	def sendCommand(self, cmd, plugip, plug_num = -1):
 		commands = {'info'     : '{"system":{"get_sysinfo":{}}}',
 			'on'       : '{"system":{"set_relay_state":{"state":1}}}',
 			'off'      : '{"system":{"set_relay_state":{"state":0}}}',
@@ -323,14 +359,21 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.debug("Invalid hostname %s." % plugip)
 				return {"system":{"get_sysinfo":{"relay_state":3}},"emeter":{"err_code": True}}
 
+		if plug_num >= 0:
+			plug_ip_num = plugip + "/" + plug_num
+			cmd["context"] = dict(child_ids = [self._get_device_id(plug_ip_num)])
+
 		try:
+			self._tplinksmartplug_logger.debug("Sending command %s to %s" % (cmd,plugip))
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			sock_tcp.connect((ip, 9999))
-			sock_tcp.send(self.encrypt(cmd))
-			data = sock_tcp.recv(2048)
+			sock_tcp.send(self.encrypt(json.dumps(cmd)))
+			data = sock_tcp.recv(1024)
+			len_data = unpack('>I', data[0:4])
+			while (len(data) - 4) < len_data[0]:
+				data = data + sock_tcp.recv(1024)
 			sock_tcp.close()
 
-			self._tplinksmartplug_logger.debug("Sending command %s to %s" % (cmd,plugip))
 			self._tplinksmartplug_logger.debug(self.decrypt(data))
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:

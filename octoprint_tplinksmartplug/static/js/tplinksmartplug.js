@@ -108,7 +108,8 @@ $(function() {
 								'useCountdownRules':ko.observable(false),
 								'countdownOnDelay':ko.observable(0),
 								'countdownOffDelay':ko.observable(0),
-								'emeter':{get_realtime:{}}});
+								'emeter':{get_realtime:{}},
+								'thermal_runaway':ko.observable(false)});
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
 		}
