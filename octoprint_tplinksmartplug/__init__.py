@@ -40,6 +40,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.propagate = False
 
 		self.db_path = os.path.join(self.get_plugin_data_folder(),"energy_data.db")
+		if not os.path.exists(self.db_path):
+			self.db = sqlite3.connect(self.db_path)
+			cursor = self.db.cursor()
+			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL)''')
+			self.db.commit()
+			self.db.close()
 
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
@@ -49,7 +55,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
-			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':{'get_realtime':{}}}],
+			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'thermal_runaway':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':{'get_realtime':{}}}],
 			pollingInterval = 15,
 			pollingEnabled = False,
 			thermal_runaway_monitoring = False,
@@ -70,7 +76,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 10
+		return 9
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -102,15 +108,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.info(arrSmartplugs_new)
 			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
 
-		if current is None or current < 9:
-			self.db_path = os.path.join(self.get_plugin_data_folder(),"energy_data.db")
-			self.db = sqlite3.connect(self.db_path)
-			cursor = self.db.cursor()
-			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL)''')
-			self.db.commit()
-			self.db.close()
-
-		if current is None or current < 10:
+		if current is not None and current < 9:
 			arrSmartplugs_new = []
 			for plug in self._settings.get(['arrSmartplugs']):
 				plug["thermal_runaway"] = False
@@ -149,7 +147,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		else:
 			turn_on_cmnd = dict(system=dict(set_relay_state=dict(state=1)))
 			plug_ip = plugip.split("/")
-			if len(plugip) == 2:
+			if len(plug_ip) == 2:
 				chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip[0],plug_ip[1]),*["system","set_relay_state","err_code"])
 			else:
 				chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip[0]),*["system","set_relay_state","err_code"])
@@ -199,7 +197,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			check_status_cmnd = dict(system = dict(get_sysinfo = dict()))
 			plug_ip = plugip.split("/")
 			self._tplinksmartplug_logger.debug(check_status_cmnd)
-			if len(plugip) == 2:
+			if len(plug_ip) == 2:
 				response = self.sendCommand(check_status_cmnd, plug_ip[0], plug_ip[1])
 			else:
 				response = self.sendCommand(check_status_cmnd, plug_ip[0])
@@ -212,9 +210,33 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 					check_emeter_data = self.sendCommand(emeter_data_cmnd, plug_ip[0])
 				if self.lookup(check_emeter_data, *["emeter","get_realtime"]):
 					emeter_data = check_emeter_data["emeter"]
+					if "voltage_mv" in emeter_data["get_realtime"]:
+						v = emeter_data["get_realtime"]["voltage_mv"] / 1000.0
+					elif "voltage" in emeter_data["get_realtime"]:
+						v = emeter_data["get_realtime"]["voltage"]
+					else:
+						v = ""
+					if "current_ma" in emeter_data["get_realtime"]:
+						c = emeter_data["get_realtime"]["current_ma"] / 1000.0
+					elif "current" in emeter_data["get_realtime"]:
+						c = emeter_data["get_realtime"]["current"]
+					else:
+						c = ""
+					if "power_mw" in emeter_data["get_realtime"]:
+						p = emeter_data["get_realtime"]["power_mw"] / 1000.0
+					elif "power" in emeter_data["get_realtime"]:
+						p = emeter_data["get_realtime"]["power"]
+					else:
+						p = ""
+					if "total_wh" in emeter_data["get_realtime"]:
+						t = emeter_data["get_realtime"]["total_wh"] / 1000.0
+					elif "total" in emeter_data["get_realtime"]:
+						t = emeter_data["get_realtime"]["total"]
+					else:
+						t = ""
 					self.db = sqlite3.connect(self.db_path)
 					cursor = self.db.cursor()
-					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''', [plugip,today.isoformat(' '), emeter_data["get_realtime"]["current"], emeter_data["get_realtime"]["power"],emeter_data["get_realtime"]["total"],emeter_data["get_realtime"]["voltage"]])
+					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''', [plugip,today.isoformat(' '),c,p,t,v])
 					self.db.commit()
 					self.db.close()
 

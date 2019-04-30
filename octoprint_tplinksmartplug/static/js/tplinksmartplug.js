@@ -15,19 +15,19 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
-		self.plotted_graph_ip = ko.observable();
+		self.plotted_graph_ip = ko.observable(false);
 		self.plotted_graph_records = ko.observable(10);
 		self.plotted_graph_records_offset = ko.observable(0);
-		self.test = ko.observableDictionary();
+		self.dictSmartplugs = ko.observableDictionary();
 		self.filteredSmartplugs = ko.computed(function(){
-			return ko.utils.arrayFilter(self.test.items(), function(item) {
+			return ko.utils.arrayFilter(self.dictSmartplugs.items(), function(item) {
 						return "err_code" in item.value().emeter.get_realtime;
 					});
 		});
 		self.show_sidebar = ko.computed(function(){
 			return self.filteredSmartplugs().length > 0;
 		});
-		self.monitorarray = ko.computed(function(){return ko.toJSON(self.arrSmartplugs);}).subscribe(function(){console.log('monitored array');console.log(ko.toJSON(self.test));})
+		self.monitorarray = ko.computed(function(){return ko.toJSON(self.arrSmartplugs);}).subscribe(function(){console.log('monitored array');console.log(ko.toJSON(self.dictSmartplugs));})
 		self.get_power = function(data){ // make computedObservable()?
 			if("power" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power == "function"){
 				return data.emeter.get_realtime.power().toFixed(2);
@@ -74,6 +74,12 @@ $(function() {
 				self.isPrinting(false);
 			}
 		}
+
+		self.onTabChange = function(current, previous) {
+				if (current === "#tab_plugin_tplinksmartplug") {
+					self.plotEnergyData(false);
+				}
+			};
 
 		self.cancelClick = function(data) {
 			self.processing.remove(data.ip());
@@ -190,22 +196,22 @@ $(function() {
 
 		self.plotEnergyData = function(data) {
 			console.log(data);
-			if(data.plotted_graph_ip()) {
+			if(self.plotted_graph_ip()) {
 				$.ajax({
 				url: API_BASEURL + "plugin/tplinksmartplug",
 				type: "POST",
 				dataType: "json",
 				data: JSON.stringify({
 					command: "getEnergyData",
-					ip: data.plotted_graph_ip(),
-					record_limit: data.plotted_graph_records(),
-					record_offset: data.plotted_graph_records_offset()
+					ip: self.plotted_graph_ip(),
+					record_limit: self.plotted_graph_records(),
+					record_offset: self.plotted_graph_records_offset()
 				}),
 				contentType: "application/json; charset=UTF-8"
 				}).done(function(data){
 						console.log('Energy Data retrieved');
 						console.log(data);
-						
+
 						//update plotly graph here.
 						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
 						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'}; 
@@ -222,7 +228,7 @@ $(function() {
 							//trace_voltage.x.push(row[0]);
 							//trace_voltage.y.push(row[4]);
 						});
-						
+
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									xaxis: {
@@ -295,8 +301,8 @@ $(function() {
 							self.processing.remove(data.ip);
 						}
 					});
-					self.test.removeAll();
-					self.test.pushAll(ko.toJS(self.arrSmartplugs));
+					self.dictSmartplugs.removeAll();
+					self.dictSmartplugs.pushAll(ko.toJS(self.arrSmartplugs));
 				});
 		}; 
 
