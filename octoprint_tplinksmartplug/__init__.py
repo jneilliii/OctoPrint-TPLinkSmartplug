@@ -149,7 +149,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		else:
 			turn_on_cmnd = dict(system=dict(set_relay_state=dict(state=1)))
 			plug_ip = plugip.split("/")
-			if len(plugip) == 2:
+			if len(plug_ip) == 2:
 				chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip[0],plug_ip[1]),*["system","set_relay_state","err_code"])
 			else:
 				chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip[0]),*["system","set_relay_state","err_code"])
@@ -199,7 +199,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			check_status_cmnd = dict(system = dict(get_sysinfo = dict()))
 			plug_ip = plugip.split("/")
 			self._tplinksmartplug_logger.debug(check_status_cmnd)
-			if len(plugip) == 2:
+			if len(plug_ip) == 2:
 				response = self.sendCommand(check_status_cmnd, plug_ip[0], plug_ip[1])
 			else:
 				response = self.sendCommand(check_status_cmnd, plug_ip[0])
@@ -212,9 +212,33 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 					check_emeter_data = self.sendCommand(emeter_data_cmnd, plug_ip[0])
 				if self.lookup(check_emeter_data, *["emeter","get_realtime"]):
 					emeter_data = check_emeter_data["emeter"]
+					if "voltage_mv" in emeter_data["get_realtime"]:
+						v = emeter_data["get_realtime"]["voltage_mv"] / 1000.0
+					elif "voltage" in emeter_data["get_realtime"]:
+						v = emeter_data["get_realtime"]["voltage"]
+					else:
+						v = ""
+					if "current_ma" in emeter_data["get_realtime"]:
+						c = emeter_data["get_realtime"]["current_ma"] / 1000.0
+					elif "current" in emeter_data["get_realtime"]:
+						c = emeter_data["get_realtime"]["current"]
+					else:
+						c = ""
+					if "power_mw" in emeter_data["get_realtime"]:
+						p = emeter_data["get_realtime"]["power_mw"] / 1000.0
+					elif "power" in emeter_data["get_realtime"]:
+						p = emeter_data["get_realtime"]["power"]
+					else:
+						p = ""
+					if "total_wh" in emeter_data["get_realtime"]:
+						t = emeter_data["get_realtime"]["total_wh"] / 1000.0
+					elif "total" in emeter_data["get_realtime"]:
+						t = emeter_data["get_realtime"]["total"]
+					else:
+						t = ""
 					self.db = sqlite3.connect(self.db_path)
 					cursor = self.db.cursor()
-					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''', [plugip,today.isoformat(' '), emeter_data["get_realtime"]["current"], emeter_data["get_realtime"]["power"],emeter_data["get_realtime"]["total"],emeter_data["get_realtime"]["voltage"]])
+					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''', [plugip,today.isoformat(' '),c,p,t,v])
 					self.db.commit()
 					self.db.close()
 
