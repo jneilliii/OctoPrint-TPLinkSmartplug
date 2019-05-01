@@ -9,6 +9,8 @@ Work inspired by [OctoPrint-PSUControl](https://github.com/kantlivelong/OctoPrin
 
 ![screenshot](plugeditor.png)
 
+![screenshot](screenshot_tab.png)
+
 ## Setup
 
 Install via the bundled [Plugin Manager](https://github.com/foosel/OctoPrint/wiki/Plugin:-Plugin-Manager)
@@ -23,7 +25,7 @@ Once installed go into settings and enter the ip address for your TP-Link Smartp
 
 ## Settings Explained
 - **IP**
-  - IP or hostname of plug to control.
+  - IP or hostname of plug to control. For strip devices use the format `<ip>/<0 based socket index>`, ie 192.168.0.2/0 would control the first socket in the strip.
 - **Label**
   - Label to use for title attribute on hover over button in navbar.
 - **Icon Class**

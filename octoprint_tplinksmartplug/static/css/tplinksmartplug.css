@@ -21,14 +21,14 @@ div#tplinksmartplugs div:not(:last-child) {
 	border-bottom: 1px solid #DDD;
 }
 
-#sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div.on {
+#sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div > div.on {
 	color: #000;
 }
 
-#sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div.off {
+#sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div > div.off {
 	color: #AAA;
 }
 
-#sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div.unknown {
+#sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div > div.unknown {
 	color: #AAA;
 }

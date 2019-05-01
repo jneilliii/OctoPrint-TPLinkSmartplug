@@ -15,28 +15,41 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
+		self.plotted_graph_ip = ko.observable();
+		self.plotted_graph_records = ko.observable(10);
+		self.plotted_graph_records_offset = ko.observable(0);
+		self.dictSmartplugs = ko.observableDictionary();
 		self.filteredSmartplugs = ko.computed(function(){
-			return ko.utils.arrayFilter(self.arrSmartplugs(), function(item) {
-						return "err_code" in item.emeter.get_realtime;
+			return ko.utils.arrayFilter(self.dictSmartplugs.items(), function(item) {
+						return "err_code" in item.value().emeter.get_realtime;
 					});
 		});
 		self.show_sidebar = ko.computed(function(){
 			return self.filteredSmartplugs().length > 0;
 		});
+		self.monitorarray = ko.computed(function(){return ko.toJSON(self.arrSmartplugs);}).subscribe(function(){console.log('monitored array');console.log(ko.toJSON(self.dictSmartplugs));})
 		self.get_power = function(data){ // make computedObservable()?
-			if("power" in data.emeter.get_realtime){
+			if("power" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power == "function"){
 				return data.emeter.get_realtime.power().toFixed(2);
-			} else if ("power_mw" in data.emeter.get_realtime) {
+			} else if ("power_mw" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power_mw == "function") {
 				return (data.emeter.get_realtime.power_mw()/1000).toFixed(2);
+			} else if("power" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power !== "function"){
+				return data.emeter.get_realtime.power.toFixed(2);
+			} else if ("power_mw" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power_mw !== "function") {
+				return (data.emeter.get_realtime.power_mw/1000).toFixed(2);
 			} else {
 				return "-"
 			}
 		}
 		self.get_kwh = function(data){ // make computedObservable()?
-			if("total" in data.emeter.get_realtime){
+			if("total" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total == "function"){
 				return data.emeter.get_realtime.total().toFixed(2);
-			} else if ("total_wh" in data.emeter.get_realtime) {
+			} else if ("total_wh" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total_wh == "function") {
 				return (data.emeter.get_realtime.total_wh()/1000).toFixed(2);
+			} else if("total" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total !== "function"){
+				return data.emeter.get_realtime.total.toFixed(2);
+			} else if ("total_wh" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total_wh !== "function") {
+				return (data.emeter.get_realtime.total_wh/1000).toFixed(2);
 			} else {
 				return "-"
 			}
@@ -61,6 +74,12 @@ $(function() {
 				self.isPrinting(false);
 			}
 		}
+
+		self.onTabChange = function(current, previous) {
+				if (current === "#tab_plugin_tplinksmartplug") {
+					self.plotEnergyData(false);
+				}
+			};
 
 		self.cancelClick = function(data) {
 			self.processing.remove(data.ip());
@@ -95,7 +114,8 @@ $(function() {
 								'useCountdownRules':ko.observable(false),
 								'countdownOnDelay':ko.observable(0),
 								'countdownOffDelay':ko.observable(0),
-								'emeter':{get_realtime:{}}});
+								'emeter':{get_realtime:{}},
+								'thermal_runaway':ko.observable(false)});
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
 		}
@@ -110,34 +130,6 @@ $(function() {
 			}
 			console.log('Websocket message received, checking status of ' + data.ip);
 			self.checkStatus(data.ip);
-
-/* 			plug = ko.utils.arrayFirst(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(),function(item){
-				return item.ip() === data.ip;
-				}) || {'ip':data.ip,'currentState':'unknown','btnColor':'#808080'};
-
-			console.log(ko.toJSON(plug));
-			console.log(data);
-
-			if ((plug.currentState() != data.currentState) || (plug.emeter != data.emeter)) {
-				console.log('Changing state and emeter data.');
-				plug.currentState(data.currentState);
-				plug.emeter = data.emeter;
-				console.log(ko.toJSON(plug));
-				self.settings.saveData();
-				switch(data.currentState) {
-					case "on":
-						break;
-					case "off":
-						break;
-					default:
-						new PNotify({
-							title: 'TP-Link Smartplug Error',
-							text: 'Status ' + plug.currentState() + ' for ' + plug.ip() + '. Double check IP Address\\Hostname in TPLinkSmartplug Settings.',
-							type: 'error',
-							hide: true
-							});
-				}
-			} */
 		};
 
 		self.toggleRelay = function(data) {
@@ -202,6 +194,92 @@ $(function() {
 				});
 		}
 
+		self.plotEnergyData = function(data) {
+			console.log(data);
+			if(self.plotted_graph_ip()) {
+				$.ajax({
+				url: API_BASEURL + "plugin/tplinksmartplug",
+				type: "POST",
+				dataType: "json",
+				data: JSON.stringify({
+					command: "getEnergyData",
+					ip: self.plotted_graph_ip(),
+					record_limit: self.plotted_graph_records(),
+					record_offset: self.plotted_graph_records_offset()
+				}),
+				contentType: "application/json; charset=UTF-8"
+				}).done(function(data){
+						console.log('Energy Data retrieved');
+						console.log(data);
+						
+						//update plotly graph here.
+						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
+						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'}; 
+						var trace_total = {x:[],y:[],mode:'lines+markers',name:'Total (kWh)'};
+						//var trace_voltage = {x:[],y:[],mode:'lines+markers',name:'Voltage (V)',yaxis: 'y3'};
+
+						ko.utils.arrayForEach(data.energy_data, function(row){
+							trace_current.x.push(row[0]);
+							trace_current.y.push(row[1]);
+							trace_power.x.push(row[0]);
+							trace_power.y.push(row[2]);
+							trace_total.x.push(row[0]);
+							trace_total.y.push(row[3]);
+							//trace_voltage.x.push(row[0]);
+							//trace_voltage.y.push(row[4]);
+						});
+						
+						var layout = {title:'TP-Link Smartplug Energy Data',
+									grid: {rows: 2, columns: 1, pattern: 'independent'},
+									xaxis: {
+										showticklabels: false
+									},
+									yaxis: {
+										title: 'Total (kWh)',
+										hoverformat: '.3f kWh',
+										tickangle: 45,
+										tickfont: {
+											size: 10
+										},
+										tickformat: '.2f'
+									},
+									xaxis2: {
+										anchor: 'y2'
+									},
+									yaxis2: {
+										title: 'Current (Amp)',
+										hoverformat: '.3f',
+										anchor: 'x2',
+										tickangle: 45,
+										tickfont: {
+											size: 10
+										},
+										tickformat: '.2f'
+									},
+									xaxis3: {
+										overlaying: 'x2',
+										anchor: 'y3',
+										showticklabels: false
+									},
+									yaxis3: {
+										overlaying: 'y2',
+										side: 'right',
+										title: 'Power (W)',
+										hoverformat: '.3f',
+										anchor: 'x3',
+										tickangle: -45,
+										tickfont: {
+											size: 10
+										},
+										tickformat: '.2f'
+									}};
+
+						var plot_data = [trace_total,trace_current,trace_power/* ,trace_voltage */]
+						Plotly.newPlot('tplinksmartplug_energy_graph',plot_data,layout);
+					});
+			}
+		}
+
 		self.checkStatus = function(plugIP) {
 			$.ajax({
 				url: API_BASEURL + "plugin/tplinksmartplug",
@@ -210,28 +288,21 @@ $(function() {
 				data: {checkStatus:plugIP},
 				contentType: "application/json; charset=UTF-8"
 			}).done(function(data){
-				// self.settings.saveData();
-				console.log(data);
-				var saveNeeded = false;
 				ko.utils.arrayForEach(self.arrSmartplugs(),function(item){
-						console.log(item);
 						if(item.ip() == data.ip) {
 							item.currentState(data.currentState);
 							if(data.emeter){
 								item.emeter.get_realtime = {};
 								for (key in data.emeter.get_realtime){
-									console.log(key + ' = ' + data.emeter.get_realtime[key]);
+									//console.log(key + ' = ' + data.emeter.get_realtime[key]);
 									item.emeter.get_realtime[key] = ko.observable(data.emeter.get_realtime[key]);
 								}
-								saveNeeded = true;
 							}
 							self.processing.remove(data.ip);
 						}
 					});
-				if (saveNeeded) {
-					self.settings.settings.plugins.tplinksmartplug.arrSmartplugs(self.arrSmartplugs());
-					self.settings.saveData();
-				}
+					self.dictSmartplugs.removeAll();
+					self.dictSmartplugs.pushAll(ko.toJS(self.arrSmartplugs));
 				});
 		}; 
 
@@ -251,6 +322,6 @@ $(function() {
 	OCTOPRINT_VIEWMODELS.push([
 		tplinksmartplugViewModel,
 		["settingsViewModel","loginStateViewModel"],
-		["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug","#sidebar_plugin_tplinksmartplug_wrapper"]
+		["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug","#sidebar_plugin_tplinksmartplug_wrapper","#tab_plugin_tplinksmartplug"]
 	]);
 });
