@@ -15,7 +15,7 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
-		self.plotted_graph_ip = ko.observable();
+		self.plotted_graph_ip = ko.observable(false);
 		self.plotted_graph_records = ko.observable(10);
 		self.plotted_graph_records_offset = ko.observable(0);
 		self.dictSmartplugs = ko.observableDictionary();
@@ -64,7 +64,9 @@ $(function() {
 		}
 
 		self.onEventSettingsUpdated = function(payload) {
-			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
+			if ("settings" in self.settings) {
+				self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
+			}
 		}
 
 		self.onEventPrinterStateChanged = function(payload) {
@@ -128,8 +130,13 @@ $(function() {
 			if (plugin != "tplinksmartplug") {
 				return;
 			}
-			console.log('Websocket message received, checking status of ' + data.ip);
-			self.checkStatus(data.ip);
+			if(data.currentState){
+				console.log('Websocket message received, checking status of ' + data.ip);
+				self.checkStatus(data.ip);
+			}
+			if(data.updatePlot && window.location.href.indexOf('tplinksmartplug') > 0){
+				self.plotEnergyData();
+			}
 		};
 
 		self.toggleRelay = function(data) {
@@ -211,7 +218,7 @@ $(function() {
 				}).done(function(data){
 						console.log('Energy Data retrieved');
 						console.log(data);
-						
+
 						//update plotly graph here.
 						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
 						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'}; 
@@ -228,7 +235,7 @@ $(function() {
 							//trace_voltage.x.push(row[0]);
 							//trace_voltage.y.push(row[4]);
 						});
-						
+
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									xaxis: {
@@ -297,6 +304,9 @@ $(function() {
 									//console.log(key + ' = ' + data.emeter.get_realtime[key]);
 									item.emeter.get_realtime[key] = ko.observable(data.emeter.get_realtime[key]);
 								}
+								if(data.ip == self.plotted_graph_ip() && self.settings.settings.plugins.tplinksmartplug.pollingEnabled() && window.location.href.indexOf('tplinksmartplug') > 0){
+									self.plotEnergyData();
+								}
 							}
 							self.processing.remove(data.ip);
 						}
@@ -313,7 +323,7 @@ $(function() {
 					self.checkStatus(item.ip());
 				}
 			});
-			if (self.settings.settings.plugins.tplinksmartplug.pollingEnabled()) {
+			if (self.settings.settings.plugins.tplinksmartplug.pollingEnabled() && parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval(),10) > 0) {
 				setTimeout(function() {self.checkStatuses();}, (parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval(),10) * 60000));
 			};
 		};
