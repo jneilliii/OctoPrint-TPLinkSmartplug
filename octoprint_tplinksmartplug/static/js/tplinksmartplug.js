@@ -24,10 +24,15 @@ $(function() {
 						return "err_code" in item.value().emeter.get_realtime;
 					});
 		});
+		self.energySmartplugs = ko.computed(function(){
+			return ko.utils.arrayFilter(self.arrSmartplugs(), function(item) {
+						return "err_code" in item.emeter.get_realtime;
+					});
+		});
 		self.show_sidebar = ko.computed(function(){
 			return self.filteredSmartplugs().length > 0;
 		});
-		self.monitorarray = ko.computed(function(){return ko.toJSON(self.arrSmartplugs);}).subscribe(function(){console.log('monitored array');console.log(ko.toJSON(self.dictSmartplugs));})
+		//self.monitorarray = ko.computed(function(){return ko.toJSON(self.arrSmartplugs);}).subscribe(function(){console.log('monitored array');console.log(ko.toJSON(self.dictSmartplugs));})
 		self.get_power = function(data){ // make computedObservable()?
 			if("power" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power == "function"){
 				return data.emeter.get_realtime.power().toFixed(2);
@@ -64,7 +69,9 @@ $(function() {
 		}
 
 		self.onEventSettingsUpdated = function(payload) {
-			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
+			if (self.settings.settings !== undefined && self.settings.settings.plugins !== undefined) {
+				self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
+			} 
 		}
 
 		self.onEventPrinterStateChanged = function(payload) {
@@ -128,8 +135,13 @@ $(function() {
 			if (plugin != "tplinksmartplug") {
 				return;
 			}
-			console.log('Websocket message received, checking status of ' + data.ip);
-			self.checkStatus(data.ip);
+			if(data.currentState){
+				//console.log('Websocket message received, checking status of ' + data.ip);
+				self.checkStatus(data.ip);
+			}
+			if(data.updatePlot && window.location.href.indexOf('tplinksmartplug') > 0){
+				self.plotEnergyData();
+			}
 		};
 
 		self.toggleRelay = function(data) {
@@ -161,8 +173,8 @@ $(function() {
 				}),
 				contentType: "application/json; charset=UTF-8"
 			}).done(function(data){
-					console.log('Turn on command completed.');
-					console.log(data);
+					//console.log('Turn on command completed.');
+					//console.log(data);
 					self.processing.remove(data.ip);
 				});
 		};
@@ -188,14 +200,14 @@ $(function() {
 			}),
 			contentType: "application/json; charset=UTF-8"
 			}).done(function(data){
-					console.log('Turn off command completed.');
-					console.log(data);
+					//console.log('Turn off command completed.');
+					//console.log(data);
 					self.processing.remove(data.ip);
 				});
 		}
 
 		self.plotEnergyData = function(data) {
-			console.log(data);
+			//console.log(data);
 			if(self.plotted_graph_ip()) {
 				$.ajax({
 				url: API_BASEURL + "plugin/tplinksmartplug",
@@ -209,8 +221,8 @@ $(function() {
 				}),
 				contentType: "application/json; charset=UTF-8"
 				}).done(function(data){
-						console.log('Energy Data retrieved');
-						console.log(data);
+						//console.log('Energy Data retrieved');
+						//console.log(data);
 
 						//update plotly graph here.
 						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
@@ -275,7 +287,7 @@ $(function() {
 									}};
 
 						var plot_data = [trace_total,trace_current,trace_power/* ,trace_voltage */]
-						Plotly.newPlot('tplinksmartplug_energy_graph',plot_data,layout);
+						Plotly.react('tplinksmartplug_energy_graph',plot_data,layout);
 					});
 			}
 		}
@@ -297,6 +309,9 @@ $(function() {
 									//console.log(key + ' = ' + data.emeter.get_realtime[key]);
 									item.emeter.get_realtime[key] = ko.observable(data.emeter.get_realtime[key]);
 								}
+								if(data.ip == self.plotted_graph_ip() && self.settings.settings.plugins.tplinksmartplug.pollingEnabled() && window.location.href.indexOf('tplinksmartplug') > 0){
+									self.plotEnergyData();
+								}
 							}
 							self.processing.remove(data.ip);
 						}
@@ -309,11 +324,11 @@ $(function() {
 		self.checkStatuses = function() {
 			ko.utils.arrayForEach(self.arrSmartplugs(),function(item){
 				if(item.ip() !== "") {
-					console.log("checking " + item.ip())
+					//console.log("checking " + item.ip())
 					self.checkStatus(item.ip());
 				}
 			});
-			if (self.settings.settings.plugins.tplinksmartplug.pollingEnabled()) {
+			if (self.settings.settings.plugins.tplinksmartplug.pollingEnabled() && parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval(),10) > 0) {
 				setTimeout(function() {self.checkStatuses();}, (parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval(),10) * 60000));
 			};
 		};

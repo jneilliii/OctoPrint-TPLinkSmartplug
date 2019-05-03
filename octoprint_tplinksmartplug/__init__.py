@@ -41,11 +41,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		self.db_path = os.path.join(self.get_plugin_data_folder(),"energy_data.db")
 		if not os.path.exists(self.db_path):
-			self.db = sqlite3.connect(self.db_path)
-			cursor = self.db.cursor()
+			db = sqlite3.connect(self.db_path)
+			cursor = db.cursor()
 			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL)''')
-			self.db.commit()
-			self.db.close()
+			db.commit()
+			db.close()
 
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
@@ -132,8 +132,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def on_print_progress(self, storage, path, progress):
 		self._tplinksmartplug_logger.debug("Checking statuses during print progress (%s)." % progress)
 		for plug in self._settings.get(["arrSmartplugs"]):
-			if plug["emeter"] and plug["emeter"] != {}:
+			chk = self.lookup(plug,*["emeter","get_realtime","err_code"])
+			if chk == 0:
 				self.check_status(plug["ip"])
+				self._plugin_manager.send_plugin_message(self._identifier, dict(updatePlot=True))
 
 	##~~ SimpleApiPlugin mixin
 
@@ -234,11 +236,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 						t = emeter_data["get_realtime"]["total"]
 					else:
 						t = ""
-					self.db = sqlite3.connect(self.db_path)
-					cursor = self.db.cursor()
+					db = sqlite3.connect(self.db_path)
+					cursor = db.cursor()
 					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''', [plugip,today.isoformat(' '),c,p,t,v])
-					self.db.commit()
-					self.db.close()
+					db.commit()
+					db.close()
 
 			if len(plug_ip) == 2:
 				chk = self.lookup(response,*["system","get_sysinfo","children"])
@@ -277,11 +279,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		elif command == 'checkStatus':
 			response = self.check_status("{ip}".format(**data))
 		elif command == 'getEnergyData':
-			self.db = sqlite3.connect(self.db_path)
-			cursor = self.db.cursor()
+			db = sqlite3.connect(self.db_path)
+			cursor = db.cursor()
 			cursor.execute('''SELECT timestamp, current, power, total, voltage FROM energy_data WHERE ip=? ORDER BY timestamp DESC LIMIT ?,?''', (data["ip"],data["record_offset"],data["record_limit"],))
 			response = {'energy_data' : cursor.fetchall()}
-			self.db.close()
+			db.close()
 			self._logger.info(response)
 			#SELECT * FROM energy_data WHERE ip = '192.168.0.102' LIMIT 0,30 
 		else:
@@ -301,12 +303,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				response = self.deep_get(plug_data,["system","get_sysinfo","children"], default=False)
 				if response:
 					response = response[int(plug_ip[1])]["id"]
-				self._tplinksmartplug_logger.debug(response)
 			else:
 				response = self.deep_get(response,["system","get_sysinfo","deviceId"])
 			if response:
 				self._settings.set([plugip],response)
 				self._settings.save()
+		self._tplinksmartplug_logger.debug("get_device_id response: %s" % response)
 		return response
 
 	def deep_get(self, d, keys, default=None):

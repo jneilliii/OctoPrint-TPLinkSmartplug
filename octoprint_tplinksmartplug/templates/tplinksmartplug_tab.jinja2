@@ -3,7 +3,7 @@
 	<div class="span5">
 		<label class="control-label">{{ _('Plug to Graph') }}</label>
 		<div class="controls">
-			<select data-bind="options: filteredSmartplugs,optionsText: function(self){ return self.value()['label']; },optionsValue: function(self){ return self.value()['ip']; },value: plotted_graph_ip"></select>
+			<select data-bind="options: energySmartplugs,optionsText: 'label',optionsValue: 'ip',value: plotted_graph_ip"></select>
 		</div>
 	</div>
 	<div class="span2">

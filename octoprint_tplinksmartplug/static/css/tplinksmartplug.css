@@ -32,3 +32,7 @@ div#tplinksmartplugs div:not(:last-child) {
 #sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div > div.unknown {
 	color: #AAA;
 }
+
+#tab_plugin_tplinksmartplug .js-plotly-plot .plotly .modebar {
+	z-index: 100 !important;
+}
