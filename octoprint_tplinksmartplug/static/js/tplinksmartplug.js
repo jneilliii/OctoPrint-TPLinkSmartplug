@@ -15,7 +15,7 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
-		self.plotted_graph_ip = ko.observable();
+		self.plotted_graph_ip = ko.observable(false);
 		self.plotted_graph_records = ko.observable(10);
 		self.plotted_graph_records_offset = ko.observable(0);
 		self.dictSmartplugs = ko.observableDictionary();
@@ -211,7 +211,7 @@ $(function() {
 				}).done(function(data){
 						console.log('Energy Data retrieved');
 						console.log(data);
-						
+
 						//update plotly graph here.
 						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
 						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'}; 
@@ -228,7 +228,7 @@ $(function() {
 							//trace_voltage.x.push(row[0]);
 							//trace_voltage.y.push(row[4]);
 						});
-						
+
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									xaxis: {

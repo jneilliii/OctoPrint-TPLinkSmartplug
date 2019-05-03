@@ -40,6 +40,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.propagate = False
 
 		self.db_path = os.path.join(self.get_plugin_data_folder(),"energy_data.db")
+		if not os.path.exists(self.db_path):
+			self.db = sqlite3.connect(self.db_path)
+			cursor = self.db.cursor()
+			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL)''')
+			self.db.commit()
+			self.db.close()
 
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
@@ -49,7 +55,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
-			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':{'get_realtime':{}}}],
+			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'thermal_runaway':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':{'get_realtime':{}}}],
 			pollingInterval = 15,
 			pollingEnabled = False,
 			thermal_runaway_monitoring = False,
@@ -70,7 +76,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 10
+		return 9
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -102,15 +108,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.info(arrSmartplugs_new)
 			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
 
-		if current is None or current < 9:
-			self.db_path = os.path.join(self.get_plugin_data_folder(),"energy_data.db")
-			self.db = sqlite3.connect(self.db_path)
-			cursor = self.db.cursor()
-			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL)''')
-			self.db.commit()
-			self.db.close()
-
-		if current is None or current < 10:
+		if current is not None and current < 9:
 			arrSmartplugs_new = []
 			for plug in self._settings.get(['arrSmartplugs']):
 				plug["thermal_runaway"] = False
