@@ -1,5 +1,5 @@
 <!-- ko foreach: arrSmartplugs -->
-<a class="pull-right" href=#" data-toggle="tooltip" data-html="true" data-bind="click: $root.toggleRelay, visible: $root.loginState.loggedIn(), tooltip: {title: label, placement: 'bottom'}" style="display: none;float: left;"><i class="icon" data-bind="css: [currentState(), icon(),(($root.processing().indexOf(ip()) > -1) ? 'icon-spin' : '')].join(' ')"></i></a>
+<a class="pull-right" href="#" data-toggle="tooltip" data-html="true" data-bind="click: $root.toggleRelay, visible: $root.loginState.loggedIn(), tooltip: {title: label, placement: 'bottom'}" style="float: left;"><i class="icon" data-bind="css: [currentState(), icon(),(($root.processing().indexOf(ip()) > -1) ? 'icon-spin' : '')].join(' ')"></i><span data-bind="text: label"></span></a>
 <!-- /ko -->
 
 <div id="TPLinkSmartPlugWarning" data-bind="with: selectedPlug" class="modal hide fade">

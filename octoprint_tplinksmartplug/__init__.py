@@ -156,7 +156,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
-			if plug["autoConnect"]:
+			if plug["autoConnect"] and self._printer.is_closed_or_error():
 				c = threading.Timer(int(plug["autoConnectDelay"]),self._printer.connect)
 				c.start()
 			if plug["sysCmdOn"]:

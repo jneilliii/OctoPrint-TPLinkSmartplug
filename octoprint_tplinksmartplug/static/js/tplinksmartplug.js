@@ -68,10 +68,12 @@ $(function() {
 			self.checkStatuses();
 		}
 
-		self.onEventSettingsUpdated = function(payload) {
-			if (self.settings.settings !== undefined && self.settings.settings.plugins !== undefined) {
+		self.onSettingsBeforeSave = function() {
+			if(JSON.stringify(self.arrSmartplugs()) !== JSON.stringify(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs())){
+				console.log('arrSmartplugs changed, checking statuses');
 				self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
-			} 
+				self.checkStatuses();
+			}
 		}
 
 		self.onEventPrinterStateChanged = function(payload) {

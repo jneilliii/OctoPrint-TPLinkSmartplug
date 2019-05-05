@@ -29,7 +29,7 @@ Once installed go into settings and enter the ip address for your TP-Link Smartp
 - **Label**
   - Label to use for title attribute on hover over button in navbar.
 - **Icon Class**
-  - Class name from [fontawesome](http://fontawesome.io/3.2.1/cheatsheet/) to use for icon on button.
+  - Class name from [fontawesome](https://fontawesome.com/v3.2.1/icons/) to use for icon on button.
 - **Warning Prompt**
   - Always warn when checked.
 - **Warn While Printing**
