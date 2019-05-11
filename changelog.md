@@ -4,11 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [0.9.16] - 2019-05-04
+## [0.9.16] - 2019-05-11
 ### Added
-- Strip support.
+- Added HS107 and HS300 multiple plug support.
 - Energy data logging and graphing via new tab.
 - Temperature runaway protection.
+
+### Fixed
+- Change socket receive to grab 1024 chunks until full response is received.
+- Fixed settings migration issue.
+- CSS changes to integrate better with TouchUI.
+- Check current state of plugs on settings save if plug list changes in anyway.
+- Status checks no longer saves the settings in favor of real-time updates to current state.
 
 ## [0.9.13] - 2019-02-16
 ### Fixed

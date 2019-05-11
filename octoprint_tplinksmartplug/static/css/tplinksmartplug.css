@@ -21,6 +21,10 @@ div#tplinksmartplugs div:not(:last-child) {
 	border-bottom: 1px solid #DDD;
 }
 
+div#tplinksmartplugs {
+	padding-bottom: 10px;
+}
+
 #sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div > div.on {
 	color: #000;
 }
@@ -35,4 +39,50 @@ div#tplinksmartplugs div:not(:last-child) {
 
 #tab_plugin_tplinksmartplug .js-plotly-plot .plotly .modebar {
 	z-index: 100 !important;
+}
+
+#touch body #tabs #tab_plugin_tplinksmartplug_link a:before, #touch body #navbar #all_touchui_settings #tab_plugin_tplinksmartplug_link a:before,#touch body #tabs #tab_plugin_tplinksmartplug_link2 a:before, #touch body #navbar #all_touchui_settings #tab_plugin_tplinksmartplug_link2 a:before {
+	content: "\f080";
+}
+
+#touch body #tabs #sidebar_plugin_tplinksmartplug_wrapper_link a:before, #touch body #navbar #all_touchui_settings #sidebar_plugin_tplinksmartplug_wrapper_link a:before,#touch body #tabs #sidebar_plugin_tplinksmartplug_wrapper_link2 a:before, #touch body #navbar #all_touchui_settings #sidebar_plugin_tplinksmartplug_wrapper_link2 a:before {
+	content: "\f1e6";
+}
+
+#touch body #sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div > div.on {
+	color: #FFFFFF;
+}
+
+#touch body #navbar .navbar-inner .container .nav li.dropdown#all_touchui_settings #navbar_plugin_tplinksmartplug a:before {
+	display: none;
+}
+
+#touch body #navbar_plugin_tplinksmartplug > a > i {
+	padding-left: 1px;
+	font-size: 1.25rem!important;
+}
+
+body #navbar_plugin_tplinksmartplug > a > span {
+	display:none;
+}
+
+#touch body #navbar_plugin_tplinksmartplug > a > span {
+	display: inline;
+	position: absolute;
+	left: 52px;
+	line-height: 34px;
+}
+
+@media (max-width: 800px) {
+	#touch body #tab_plugin_tplinksmartplug_link {
+		display:none;
+	}
+
+	#touch body #tab_plugin_tplinksmartplug_link2 {
+		display:none;
+	}
+
+	#touch body #tab_plugin_tplinksmartplug {
+		display:none;
+	}
 }

@@ -32,6 +32,17 @@ $(function() {
 		self.show_sidebar = ko.computed(function(){
 			return self.filteredSmartplugs().length > 0;
 		});
+
+		self.allPlugsDisabled =  ko.computed(function() {
+			var enablePlug = null;
+			enablePlug = ko.utils.arrayFirst(self.arrSmartplugs(), function(item) {
+				return item.currentState() == "on" && "err_code" in item.emeter.get_realtime;
+			});
+			if (enablePlug == null)
+				return false;
+			return true;
+		})
+
 		//self.monitorarray = ko.computed(function(){return ko.toJSON(self.arrSmartplugs);}).subscribe(function(){console.log('monitored array');console.log(ko.toJSON(self.dictSmartplugs));})
 		self.get_power = function(data){ // make computedObservable()?
 			if("power" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power == "function"){
@@ -68,10 +79,14 @@ $(function() {
 			self.checkStatuses();
 		}
 
-		self.onEventSettingsUpdated = function(payload) {
-			if (self.settings.settings !== undefined && self.settings.settings.plugins !== undefined) {
+		self.onSettingsBeforeSave = function() {
+			console.log('arrSmartplugs: ' + ko.toJSON(self.arrSmartplugs()));
+			console.log('settings.settings.plugins.tplinksmartplug.arrSmartplugs: ' + ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
+			if(ko.toJSON(self.arrSmartplugs()) !== ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs())){
+				console.log('arrSmartplugs changed, checking statuses');
 				self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
-			} 
+				self.checkStatuses();
+			}
 		}
 
 		self.onEventPrinterStateChanged = function(payload) {
