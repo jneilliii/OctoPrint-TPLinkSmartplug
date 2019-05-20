@@ -143,16 +143,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug("Turning on %s." % plugip)
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 		self._tplinksmartplug_logger.debug(plug)
+		plug_ip, plug_num = plugip.split("/")
+		if plug_num is None:
+			plug_num = -1
 		if plug["useCountdownRules"]:
-			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug["ip"])
-			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"]),plug["ip"]),*["count_down","add_rule","err_code"])
+			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug_ip, plug_num)
+			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"]),plug_ip,plug_num),*["count_down","add_rule","err_code"])
 		else:
 			turn_on_cmnd = dict(system=dict(set_relay_state=dict(state=1)))
-			plug_ip = plugip.split("/")
-			if len(plug_ip) == 2:
-				chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip[0],plug_ip[1]),*["system","set_relay_state","err_code"])
-			else:
-				chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip[0]),*["system","set_relay_state","err_code"])
+			chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip,plug_num),*["system","set_relay_state","err_code"])
 
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
@@ -168,9 +167,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug("Turning off %s." % plugip)
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 		self._tplinksmartplug_logger.debug(plug)
+		plug_ip, plug_num = plugip.split("/")
+		if plug_num is None:
+			plug_num = -1
 		if plug["useCountdownRules"]:
-			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug["ip"])
-			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"]),plug["ip"]),*["count_down","add_rule","err_code"])
+			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug_ip,plug_num)
+			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"]),plug_ip,plug_num),*["count_down","add_rule","err_code"])
 
 		if plug["sysCmdOff"]:
 			t = threading.Timer(int(plug["sysCmdOffDelay"]),os.system,args=[plug["sysRunCmdOff"]])
@@ -181,11 +183,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		if not plug["useCountdownRules"]:
 			turn_off_cmnd = dict(system=dict(set_relay_state=dict(state=0)))
-			plug_ip = plugip.split("/")
-			if len(plug_ip) == 2:
-				chk = self.lookup(self.sendCommand(turn_off_cmnd,plug_ip[0],plug_ip[1]),*["system","set_relay_state","err_code"])
-			else:
-				chk = self.lookup(self.sendCommand(turn_off_cmnd,plug_ip[0]),*["system","set_relay_state","err_code"])
+			chk = self.lookup(self.sendCommand(turn_off_cmnd,plug_ip,plug_num),*["system","set_relay_state","err_code"])
 
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
@@ -367,7 +365,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			'reboot'   : '{"system":{"reboot":{"delay":1}}}',
 			'reset'    : '{"system":{"reset":{"delay":1}}}'
 		}
-
+		if re.search('/\d+$', plugip):
+			self._tplinksmartplug_logger.exception("Internal error passing unsplit %s", plugip)
 		# try to connect via ip address
 		try:
 			socket.inet_aton(plugip)
