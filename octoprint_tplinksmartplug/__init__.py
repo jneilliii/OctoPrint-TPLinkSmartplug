@@ -14,13 +14,15 @@ import time
 import sqlite3
 from datetime import datetime
 from struct import unpack
+from builtins import bytes
 
 class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 							octoprint.plugin.AssetPlugin,
 							octoprint.plugin.TemplatePlugin,
 							octoprint.plugin.SimpleApiPlugin,
 							octoprint.plugin.StartupPlugin,
-							octoprint.plugin.ProgressPlugin):
+							octoprint.plugin.ProgressPlugin,
+							octoprint.plugin.EventHandlerPlugin):
 
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
@@ -55,12 +57,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
-			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'thermal_runaway':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':0,'countdownOffDelay':0,'emeter':{'get_realtime':{}}}],
+			arrSmartplugs = [{'ip':'','label':'','icon':'icon-bolt','displayWarning':True,'warnPrinting':False,'thermal_runaway':False,'event_on_error':False,'event_on_disconnect':False,'gcodeEnabled':False,'gcodeOnDelay':0,'gcodeOffDelay':0,'autoConnect':True,'autoConnectDelay':10.0,'autoDisconnect':True,'autoDisconnectDelay':0,'sysCmdOn':False,'sysRunCmdOn':'','sysCmdOnDelay':0,'sysCmdOff':False,'sysRunCmdOff':'','sysCmdOffDelay':0,'currentState':'unknown','btnColor':'#808080','useCountdownRules':False,'countdownOnDelay':1,'countdownOffDelay':1,'emeter':{'get_realtime':{}}}],
 			pollingInterval = 15,
 			pollingEnabled = False,
 			thermal_runaway_monitoring = False,
 			thermal_runaway_max_bed = 0,
-			thermal_runaway_max_extruder = 0
+			thermal_runaway_max_extruder = 0,
+			event_on_error_monitoring = False,
+			event_on_disconnect_monitoring = False
 		)
 
 	def on_settings_save(self, data):
@@ -76,7 +80,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 9
+		return 10
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -115,6 +119,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				arrSmartplugs_new.append(plug)
 			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
 
+		if current is not None and current < 10:
+			arrSmartplugs_new = []
+			for plug in self._settings.get(['arrSmartplugs']):
+				plug["event_on_error"] = False
+				plug["event_on_disconnect"] = False
+				arrSmartplugs_new.append(plug)
+			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
+
 	##~~ AssetPlugin mixin
 
 	def get_assets(self):
@@ -143,16 +155,20 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug("Turning on %s." % plugip)
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 		self._tplinksmartplug_logger.debug(plug)
-		if plug["useCountdownRules"]:
-			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug["ip"])
-			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"]),plug["ip"]),*["count_down","add_rule","err_code"])
+		if "/" in plugip:
+			plug_ip, plug_num = plugip.split("/")
+		else:
+			plug_ip = plugip
+			plug_num = -1
+		if plug["useCountdownRules"] and int(plug["countdownOnDelay"]) > 0:
+			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug_ip, plug_num)
+			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"]),plug_ip,plug_num),*["count_down","add_rule","err_code"])
+			if chk == 0:
+				c = threading.Timer(int(plug["countdownOnDelay"])+5,self._plugin_manager.send_plugin_message,[self._identifier, dict(check_status=True,ip=plugip)])
+				c.start()
 		else:
 			turn_on_cmnd = dict(system=dict(set_relay_state=dict(state=1)))
-			plug_ip = plugip.split("/")
-			if len(plug_ip) == 2:
-				chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip[0],plug_ip[1]),*["system","set_relay_state","err_code"])
-			else:
-				chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip[0]),*["system","set_relay_state","err_code"])
+			chk = self.lookup(self.sendCommand(turn_on_cmnd,plug_ip,plug_num),*["system","set_relay_state","err_code"])
 
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
@@ -168,9 +184,17 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug("Turning off %s." % plugip)
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 		self._tplinksmartplug_logger.debug(plug)
-		if plug["useCountdownRules"]:
-			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug["ip"])
-			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"]),plug["ip"]),*["count_down","add_rule","err_code"])
+		if "/" in plugip:
+			plug_ip, plug_num = plugip.split("/")
+		else:
+			plug_ip = plugip
+			plug_num = -1
+		if plug["useCountdownRules"] and int(plug["countdownOffDelay"]) > 0:
+			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug_ip,plug_num)
+			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"]),plug_ip,plug_num),*["count_down","add_rule","err_code"])
+			if chk == 0:
+				c = threading.Timer(int(plug["countdownOnDelay"])+5,self._plugin_manager.send_plugin_message,[self._identifier, dict(check_status=True,ip=plugip)])
+				c.start()
 
 		if plug["sysCmdOff"]:
 			t = threading.Timer(int(plug["sysCmdOffDelay"]),os.system,args=[plug["sysRunCmdOff"]])
@@ -181,11 +205,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		if not plug["useCountdownRules"]:
 			turn_off_cmnd = dict(system=dict(set_relay_state=dict(state=0)))
-			plug_ip = plugip.split("/")
-			if len(plug_ip) == 2:
-				chk = self.lookup(self.sendCommand(turn_off_cmnd,plug_ip[0],plug_ip[1]),*["system","set_relay_state","err_code"])
-			else:
-				chk = self.lookup(self.sendCommand(turn_off_cmnd,plug_ip[0]),*["system","set_relay_state","err_code"])
+			chk = self.lookup(self.sendCommand(turn_off_cmnd,plug_ip,plug_num),*["system","set_relay_state","err_code"])
 
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
@@ -203,8 +223,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				response = self.sendCommand(check_status_cmnd, plug_ip[0], plug_ip[1])
 			else:
 				response = self.sendCommand(check_status_cmnd, plug_ip[0])
-
-			if "ENE" in self.lookup(response, *["system","get_sysinfo","feature"]):
+				
+			self._tplinksmartplug_logger.debug(self.deep_get(response,["system","get_sysinfo","feature"], default=""))
+			if "ENE" in self.deep_get(response,["system","get_sysinfo","feature"], default=""):
+			# if "ENE" in self.lookup(response, *["system","get_sysinfo","feature"]):
 				emeter_data_cmnd = dict(emeter = dict(get_realtime = dict()))
 				if len(plug_ip) == 2:
 					check_emeter_data = self.sendCommand(emeter_data_cmnd, plug_ip[0], plug_ip[1])
@@ -290,6 +312,28 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			response = dict(ip = data.ip, currentState = "unknown")
 		return flask.jsonify(response)
 
+	##~~ EventHandlerPlugin mixin
+
+	def on_event(self, event, payload):
+		if event == "PrinterStateChanged":
+			self._tplinksmartplug_logger.debug(payload["state_id"])
+		if event == "Error" and self._settings.getBoolean(["event_on_error_monitoring"]) == True:
+			self._tplinksmartplug_logger.debug("powering off due to %s event." % event)
+			for plug in self._settings.get(['arrSmartplugs']):
+				if plug["event_on_error"] == True:
+					self._tplinksmartplug_logger.debug("powering off %s due to %s event." % (plug["ip"], event))
+					response = self.turn_off(plug["ip"])
+					if response["currentState"] == "off":
+						self._plugin_manager.send_plugin_message(self._identifier, response)
+		if event == "Disconnected" and self._settings.getBoolean(["event_on_disconnect_monitoring"]) == True:
+			self._tplinksmartplug_logger.debug("powering off due to %s event." % event)
+			for plug in self._settings.get(['arrSmartplugs']):
+				if plug["event_on_disconnect"] == True:
+					self._tplinksmartplug_logger.debug("powering off %s due to %s event." % (plug["ip"], event))
+					response = self.turn_off(plug["ip"])
+					if response["currentState"] == "off":
+						self._plugin_manager.send_plugin_message(self._identifier, response)
+
 	##~~ Utilities
 
 	def _get_device_id(self, plugip):
@@ -336,23 +380,42 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			if item[key] == value: 
 				return item
 
+	# def encrypt(self, string):
+		# key = 171
+		# result = "\0\0\0"+chr(len(string))
+		# for i in string: 
+			# a = key ^ ord(i)
+			# key = a
+			# result += chr(a)
+		# return result
+
+	# def decrypt(self, string):
+		# key = 171 
+		# result = ""
+		# for i in string: 
+			# a = key ^ ord(i)
+			# key = ord(i) 
+			# result += chr(a)
+		# return result
+
 	def encrypt(self, string):
 		key = 171
-		result = "\0\0\0"+chr(len(string))
-		for i in string: 
-			a = key ^ ord(i)
+		result = b"\0\0\0" + bytes([len(string)])
+		for i in bytes(string.encode('latin-1')):
+			a = key ^ i
 			key = a
-			result += chr(a)
+			result += bytes([a])
 		return result
 
+
 	def decrypt(self, string):
-		key = 171 
-		result = ""
-		for i in string: 
-			a = key ^ ord(i)
-			key = ord(i) 
-			result += chr(a)
-		return result
+		key = 171
+		result = b""
+		for i in bytes(string):
+			a = key ^ i
+			key = i
+			result += bytes([a])
+		return result.decode('latin-1')
 
 	def sendCommand(self, cmd, plugip, plug_num = -1):
 		commands = {'info'     : '{"system":{"get_sysinfo":{}}}',
@@ -367,7 +430,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			'reboot'   : '{"system":{"reboot":{"delay":1}}}',
 			'reset'    : '{"system":{"reset":{"delay":1}}}'
 		}
-
+		if re.search('/\d+$', plugip):
+			self._tplinksmartplug_logger.exception("Internal error passing unsplit %s", plugip)
 		# try to connect via ip address
 		try:
 			socket.inet_aton(plugip)
@@ -383,7 +447,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.debug("Invalid hostname %s." % plugip)
 				return {"system":{"get_sysinfo":{"relay_state":3}},"emeter":{"err_code": True}}
 
-		if plug_num >= 0:
+		if int(plug_num) >= 0:
 			plug_ip_num = plugip + "/" + plug_num
 			cmd["context"] = dict(child_ids = [self._get_device_id(plug_ip_num)])
 
@@ -464,10 +528,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def check_temps(self, parsed_temps):
 		thermal_runaway_triggered = False
 		for k, v in parsed_temps.items():
-			if k == "B" and v[1] > 0 and v[0] > int(self._settings.get(["thermal_runaway_max_bed"])):
+			if k == "B" and v[0] > int(self._settings.get(["thermal_runaway_max_bed"])):
 				self._tplinksmartplug_logger.debug("Max bed temp reached, shutting off plugs.")
 				thermal_runaway_triggered = True
-			if k.startswith("T") and v[1] > 0 and v[0] > int(self._settings.get(["thermal_runaway_max_extruder"])):
+			if k.startswith("T") and v[0] > int(self._settings.get(["thermal_runaway_max_extruder"])):
 				self._tplinksmartplug_logger.debug("Extruder max temp reached, shutting off plugs.")
 				thermal_runaway_triggered = True
 			if thermal_runaway_triggered == True:
@@ -500,6 +564,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		)
 
 __plugin_name__ = "TP-Link Smartplug"
+__plugin_pythoncompat__ = ">=2.7,<4"
 
 def __plugin_load__():
 	global __plugin_implementation__

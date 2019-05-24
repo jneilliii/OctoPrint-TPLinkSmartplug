@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.9.17] = 2019-05-25
+### Added
+- Error and Disconnect event monitoring.
+
+### Fixed
+- Countdown timers for multiple plug devices like the HS300.
+- Energy monitoring pull-down list now reflects newly added plugs.
+- Sidebar not displaying multiple plug devices.
+
 ## [0.9.16] - 2019-05-11
 ### Added
 - Added HS107 and HS300 multiple plug support.
@@ -179,6 +188,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release.
 
+[0.9.17]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.17
 [0.9.16]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.16
 [0.9.13]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.13
 [0.9.12]: https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/0.9.12
