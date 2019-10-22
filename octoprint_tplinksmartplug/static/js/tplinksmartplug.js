@@ -5,6 +5,35 @@
  * License: AGPLv3
  */
 $(function() {
+/* 	function plugViewModel() {
+		var self = this;
+		self.ip = ko.observable(ip);
+		self.label = ko.observable(label);
+		self.icon = ko.observable(icon);
+		self.displayWarning = ko.observable(displayWarning);
+		self.warnPrinting = ko.observable(warnPrinting);
+		self.gcodeEnabled = ko.observable(gcodeEnabled);
+		self.gcodeOnDelay = ko.observable(gcodeOnDelay);
+		self.gcodeOffDelay = ko.observable(gcodeOffDelay);
+		self.autoConnect = ko.observable(autoConnect);
+		self.autoConnectDelay = ko.observable(autoConnectDelay);
+		self.autoDisconnect = ko.observable(autoDisconnect);
+		self.autoDisconnectDelay = ko.observable(autoDisconnectDelay);
+		self.sysCmdOn = ko.observable(sysCmdOn);
+		self.sysRunCmdOn = ko.observable(sysRunCmdOn);
+		self.sysCmdOnDelay = ko.observable(sysCmdOnDelay);
+		self.sysCmdOff = ko.observable(sysCmdOff);
+		self.sysRunCmdOff = ko.observable(sysRunCmdOff);
+		self.sysCmdOffDelay = ko.observable(sysCmdOffDelay);
+		self.currentState = ko.observable(currentState);
+		self.btnColor = ko.observable(btnColor);
+		self.useCountdownRules = ko.observable(useCountdownRules);
+		self.countdownOnDelay = ko.observable(countdownOnDelay);
+		self.countdownOffDelay = ko.observable(countdownOffDelay);
+		self.emeter = {get_realtime = {}};
+		self.thermal_runaway = ko.observable(thermal_runaway)
+	} */
+
 	function tplinksmartplugViewModel(parameters) {
 		var self = this;
 
@@ -79,12 +108,14 @@ $(function() {
 			self.checkStatuses();
 		}
 
-		self.onSettingsBeforeSave = function() {
-			console.log('arrSmartplugs: ' + ko.toJSON(self.arrSmartplugs()));
-			console.log('settings.settings.plugins.tplinksmartplug.arrSmartplugs: ' + ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
-			if(ko.toJSON(self.arrSmartplugs()) !== ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs())){
+		self.onSettingsBeforeSave = function(payload) {
+			var plugs_updated = (ko.toJSON(self.arrSmartplugs()) !== ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
+			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
+			if(plugs_updated){
+				console.log('onEventSettingsUpdated:');
+				console.log('arrSmartplugs: ' + ko.toJSON(self.arrSmartplugs()));
+				console.log('settings.settings.plugins.tplinksmartplug.arrSmartplugs: ' + ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
 				console.log('arrSmartplugs changed, checking statuses');
-				self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 				self.checkStatuses();
 			}
 		}
@@ -134,10 +165,12 @@ $(function() {
 								'currentState':ko.observable('unknown'),
 								'btnColor':ko.observable('#808080'),
 								'useCountdownRules':ko.observable(false),
-								'countdownOnDelay':ko.observable(0),
-								'countdownOffDelay':ko.observable(0),
+								'countdownOnDelay':ko.observable(1),
+								'countdownOffDelay':ko.observable(1),
 								'emeter':{get_realtime:{}},
-								'thermal_runaway':ko.observable(false)});
+								'thermal_runaway':ko.observable(false),
+								'event_on_error':ko.observable(false),
+								'event_on_disconnect':ko.observable(false)});
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
 		}
@@ -150,8 +183,9 @@ $(function() {
 			if (plugin != "tplinksmartplug") {
 				return;
 			}
-			if(data.currentState){
-				//console.log('Websocket message received, checking status of ' + data.ip);
+
+			if(data.currentState || data.check_status){
+				// console.log('Websocket message received, checking status of ' + data.ip);
 				self.checkStatus(data.ip);
 			}
 			if(data.updatePlot && window.location.href.indexOf('tplinksmartplug') > 0){

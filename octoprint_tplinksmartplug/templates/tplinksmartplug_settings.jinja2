@@ -50,6 +50,22 @@
 <div class="control-group">
 	<div class="controls">
 		<label class="checkbox">
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_error_monitoring" /> Enable error event monitoring.
+		</label>
+	</div>
+</div>
+
+<div class="control-group">
+	<div class="controls">
+		<label class="checkbox">
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_disconnect_monitoring" /> Enable disconnect event monitoring.
+		</label>
+	</div>
+</div>
+
+<div class="control-group">
+	<div class="controls">
+		<label class="checkbox">
 		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> Enable debug logging.
 		</label>
 	</div>
@@ -86,6 +102,10 @@
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: thermal_runaway"/> Thermal Runaway</label></div></td>
 			</tr>
 			<tr>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_error"/> Off on Error</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_disconnect"/> Off on Disconnect</label></div></td>
+			</tr>
+			<tr>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoConnect"/> Auto Connect</label><input type="text" data-bind="value: autoConnectDelay,visible: autoConnect" class="input input-small" /></div></td>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoDisconnect"/> Auto Disconnect</label><input type="text" data-bind="value: autoDisconnectDelay,visible: autoDisconnect" class="input input-small" /></div></td>
 			</tr>
@@ -95,8 +115,8 @@
 				<td></td>
 			</tr>
 			<tr data-bind="visible: useCountdownRules">
-				<td><div class="controls"><label class="control-label">{{ _('On Delay Countdown') }}</label><input type="text" data-bind="value: countdownOnDelay" class="input input-small" /></div></td>
-				<td><div class="controls"><label class="control-label">{{ _('Off Delay Countdown') }}</label><input type="text" data-bind="value: countdownOffDelay" class="input input-small" /></div></td>
+				<td><div class="controls"><label class="control-label">{{ _('On Delay Countdown') }}</label><input type="number" min="1" data-bind="value: countdownOnDelay" class="input input-small" /></div></td>
+				<td><div class="controls"><label class="control-label">{{ _('Off Delay Countdown') }}</label><input type="number" min="1" data-bind="value: countdownOffDelay" class="input input-small" /></div></td>
 				<td></td>
 			</tr>
 			<tr>
@@ -105,17 +125,17 @@
 				<td></td>
 			</tr>
 			<tr data-bind="visible: gcodeEnabled">
-				<td><div class="controls"><label class="control-label">{{ _('GCODE On Delay') }}</label><input type="text" data-bind="value: gcodeOnDelay" class="input input-small" /></div></td>
-				<td><div class="controls"><label class="control-label">{{ _('GCODE Off Delay') }}</label><input type="text" data-bind="value: gcodeOffDelay" class="input input-small" /></div></td>
+				<td><div class="controls"><label class="control-label">{{ _('GCODE On Delay') }}</label><input type="number" data-bind="value: gcodeOnDelay" class="input input-small" /></div></td>
+				<td><div class="controls"><label class="control-label">{{ _('GCODE Off Delay') }}</label><input type="number" data-bind="value: gcodeOffDelay" class="input input-small" /></div></td>
 				<td></td>
 			</tr>
 			<tr>
 				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOn"/> Run System Command After On</label><input type="text" data-bind="value: sysRunCmdOn,visible: sysCmdOn" class="input-block-level" /></div></td>
-				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysCmdOn"><label class="control-label">{{ _('Delay') }}</label><input type="text" data-bind="value: sysCmdOnDelay"  class="input input-small" /></div></td>
+				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysCmdOn"><label class="control-label">{{ _('Delay') }}</label><input type="number" data-bind="value: sysCmdOnDelay"  class="input input-small" /></div></td>
 			</tr>
 			<tr>
 				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOff"/> Run System Command Before Off</label><input type="text" data-bind="value: sysRunCmdOff,visible: sysCmdOff" class="input-block-level" /></div></td>
-				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysCmdOff"><label class="control-label">{{ _('Delay') }}</label><input type="text" data-bind="value: sysCmdOffDelay"  class="input input-small" /></div></td>
+				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysCmdOff"><label class="control-label">{{ _('Delay') }}</label><input type="number" data-bind="value: sysCmdOffDelay"  class="input input-small" /></div></td>
 			</tr>
 		</table>
 	</div>
