@@ -285,8 +285,9 @@ $(function() {
 				cost_rate: self.settings.settings.plugins.tplinksmartplug.cost_rate(),
 				contentType: "application/json; charset=UTF-8"
 				}).done(function(data){
-						//console.log('Energy Data retrieved');
-						//console.log(data);
+						console.log('Energy Data retrieved');
+						console.log(data);
+						console.log(this.cost_rate);
 
 						//update plotly graph here.
 						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
