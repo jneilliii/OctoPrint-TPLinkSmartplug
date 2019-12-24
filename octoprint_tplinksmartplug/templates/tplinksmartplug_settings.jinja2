@@ -83,6 +83,12 @@
 		<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.pollingInterval" />
 	</div>
 </div>
+<div class="control-group">
+	<div class="controls">
+		<label class="control-label">{{ _('Cost per kWh') }}</label>
+		<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.cost_rate" />
+	</div>
+</div>
 
 <div id="TPLinkPlugEditor" data-bind="with: selectedPlug" class="modal hide fade">
 	<div class="modal-header">
