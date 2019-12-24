@@ -307,7 +307,7 @@ $(function() {
 							trace_cost.y.push(row[3]*this.cost_rate);
 							//trace_voltage.x.push(row[0]);
 							//trace_voltage.y.push(row[4]);
-						});
+						}, this);
 
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
