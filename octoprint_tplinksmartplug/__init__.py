@@ -45,7 +45,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if not os.path.exists(self.db_path):
 			db = sqlite3.connect(self.db_path)
 			cursor = db.cursor()
-			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL)''')
+			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL, kwh_diff REAL)''')
 			db.commit()
 			db.close()
 
@@ -64,7 +64,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			thermal_runaway_max_bed = 0,
 			thermal_runaway_max_extruder = 0,
 			event_on_error_monitoring = False,
-			event_on_disconnect_monitoring = False
+			event_on_disconnect_monitoring = False,
+			cost_rate = 0
 		)
 
 	def on_settings_save(self, data):
@@ -80,7 +81,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 10
+		return 11
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -126,6 +127,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				plug["event_on_disconnect"] = False
 				arrSmartplugs_new.append(plug)
 			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
+
+		if current == 10:
+			self.db_path = os.path.join(self.get_plugin_data_folder(),"energy_data.db")
+			if os.path.exists(self.db_path):
+				db = sqlite3.connect(self.db_path)
+				cursor = db.cursor()
+				cursor.execute('''ALTER TABLE energy_data ADD kwh_diff REAL''')
+				db.commit()
+				db.close()
 
 	##~~ AssetPlugin mixin
 
@@ -260,7 +270,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 						t = ""
 					db = sqlite3.connect(self.db_path)
 					cursor = db.cursor()
-					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''', [plugip,today.isoformat(' '),c,p,t,v])
+					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage, kwh_diff) VALUES(?,?,?,?,?,?,?-(SELECT total as kwh_diff from energy_data  WHERE ip = ? order by timestamp desc limit 1))''', [plugip,today.isoformat(' '),c,p,t,v,t,plugip])
 					db.commit()
 					db.close()
 
@@ -377,7 +387,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def plug_search(self, list, key, value): 
 		for item in list: 
-			if item[key] == value: 
+			if item[key] == value.strip(): 
 				return item
 
 	# def encrypt(self, string):
