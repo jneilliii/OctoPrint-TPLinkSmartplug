@@ -100,6 +100,20 @@ $(function() {
 			}
 		}
 
+		self.get_cost = function(data){ // make computedObservable()?
+			if("total" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total == "function"){
+				return (data.emeter.get_realtime.total() * self.settings.settings.plugins.tplinksmartplug.cost_rate());
+			} else if ("total_wh" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total_wh == "function") {
+				return ((data.emeter.get_realtime.total_wh()/1000) * self.settings.settings.plugins.tplinksmartplug.cost_rate());
+			} else if("total" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total !== "function"){
+				return (data.emeter.get_realtime.total * self.settings.settings.plugins.tplinksmartplug.cost_rate());
+			} else if ("total_wh" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total_wh !== "function") {
+				return ((data.emeter.get_realtime.total_wh/1000) * self.settings.settings.plugins.tplinksmartplug.cost_rate());
+			} else {
+				return "-"
+			}
+		}
+
 		self.onBeforeBinding = function() {
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 		}
@@ -266,9 +280,9 @@ $(function() {
 					command: "getEnergyData",
 					ip: self.plotted_graph_ip(),
 					record_limit: self.plotted_graph_records(),
-					record_offset: self.plotted_graph_records_offset(),
-					cost_rate: self.settings.settings.plugins.tplinksmartplug.cost_rate()
+					record_offset: self.plotted_graph_records_offset()
 				}),
+				cost_rate: self.settings.settings.plugins.tplinksmartplug.cost_rate(),
 				contentType: "application/json; charset=UTF-8"
 				}).done(function(data){
 						//console.log('Energy Data retrieved');
@@ -289,7 +303,7 @@ $(function() {
 							trace_total.x.push(row[0]);
 							trace_total.y.push(row[3]);
 							trace_cost.x.push(row[0]);
-							trace_cost.y.push(row[5]);
+							trace_cost.y.push(row[5]*this.cost_rate);
 							//trace_voltage.x.push(row[0]);
 							//trace_voltage.y.push(row[4]);
 						});
@@ -298,7 +312,7 @@ $(function() {
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									xaxis: {
 										showticklabels: false,
-										anchor: 'x'
+										anchor: 'y'
 									},
 									yaxis: {
 										title: 'Total (kWh)',
@@ -308,7 +322,7 @@ $(function() {
 											size: 10
 										},
 										tickformat: '.2f',
-										anchor: 'y'
+										anchor: 'x'
 									},
 									xaxis2: {
 										anchor: 'y2'

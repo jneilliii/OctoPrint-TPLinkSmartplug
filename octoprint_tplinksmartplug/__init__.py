@@ -45,7 +45,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if not os.path.exists(self.db_path):
 			db = sqlite3.connect(self.db_path)
 			cursor = db.cursor()
-			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL, kwh_diff REAL)''')
+			cursor.execute('''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL)''')
 			db.commit()
 			db.close()
 
@@ -81,7 +81,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 11
+		return 10
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -127,15 +127,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				plug["event_on_disconnect"] = False
 				arrSmartplugs_new.append(plug)
 			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
-
-		if current == 10:
-			self.db_path = os.path.join(self.get_plugin_data_folder(),"energy_data.db")
-			if os.path.exists(self.db_path):
-				db = sqlite3.connect(self.db_path)
-				cursor = db.cursor()
-				cursor.execute('''ALTER TABLE energy_data ADD kwh_diff REAL''')
-				db.commit()
-				db.close()
 
 	##~~ AssetPlugin mixin
 
@@ -270,7 +261,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 						t = ""
 					db = sqlite3.connect(self.db_path)
 					cursor = db.cursor()
-					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage, kwh_diff) VALUES(?,?,?,?,?,?,?-(SELECT total as kwh_diff from energy_data  WHERE ip = ? order by timestamp desc limit 1))''', [plugip,today.isoformat(' '),c,p,t,v,t,plugip])
+					cursor.execute('''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''', [plugip,today.isoformat(' '),c,p,t,v])
 					db.commit()
 					db.close()
 
@@ -313,7 +304,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		elif command == 'getEnergyData':
 			db = sqlite3.connect(self.db_path)
 			cursor = db.cursor()
-			cursor.execute('''SELECT timestamp, current, power, total, voltage, kwh_diff * ? FROM energy_data WHERE ip=? ORDER BY timestamp DESC LIMIT ?,?''', (data["cost_rate"], data["ip"],data["record_offset"],data["record_limit"]))
+			cursor.execute('''SELECT timestamp, current, power, total, voltage FROM energy_data WHERE ip=? ORDER BY timestamp DESC LIMIT ?,?''', (data["ip"],data["record_offset"],data["record_limit"]))
 			response = {'energy_data' : cursor.fetchall()}
 			db.close()
 			self._logger.info(response)
