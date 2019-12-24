@@ -312,7 +312,8 @@ $(function() {
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									xaxis: {
-										showticklabels: false
+										showticklabels: false,
+										anchor: 'x'
 									},
 									yaxis: {
 										title: 'Total (kWh)',
@@ -321,7 +322,8 @@ $(function() {
 										tickfont: {
 											size: 10
 										},
-										tickformat: '.2f'
+										tickformat: '.2f',
+										anchor: 'y'
 									},
 									xaxis2: {
 										anchor: 'y2'
