@@ -102,13 +102,13 @@ $(function() {
 
 		self.get_cost = function(data){ // make computedObservable()?
 			if("total" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total == "function"){
-				return (data.emeter.get_realtime.total() * self.settings.settings.plugins.tplinksmartplug.cost_rate());
+				return (data.emeter.get_realtime.total() * self.settings.settings.plugins.tplinksmartplug.cost_rate()).toFixed(2);
 			} else if ("total_wh" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total_wh == "function") {
-				return ((data.emeter.get_realtime.total_wh()/1000) * self.settings.settings.plugins.tplinksmartplug.cost_rate());
+				return ((data.emeter.get_realtime.total_wh()/1000) * self.settings.settings.plugins.tplinksmartplug.cost_rate()).toFixed(2);
 			} else if("total" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total !== "function"){
-				return (data.emeter.get_realtime.total * self.settings.settings.plugins.tplinksmartplug.cost_rate());
+				return (data.emeter.get_realtime.total * self.settings.settings.plugins.tplinksmartplug.cost_rate()).toFixed(2);
 			} else if ("total_wh" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total_wh !== "function") {
-				return ((data.emeter.get_realtime.total_wh/1000) * self.settings.settings.plugins.tplinksmartplug.cost_rate());
+				return ((data.emeter.get_realtime.total_wh/1000) * self.settings.settings.plugins.tplinksmartplug.cost_rate()).toFixed(2);
 			} else {
 				return "-"
 			}
@@ -285,9 +285,9 @@ $(function() {
 				cost_rate: self.settings.settings.plugins.tplinksmartplug.cost_rate(),
 				contentType: "application/json; charset=UTF-8"
 				}).done(function(data){
-						console.log('Energy Data retrieved');
-						console.log(data);
-						console.log(this.cost_rate);
+						// console.log('Energy Data retrieved');
+						// console.log(data);
+						// console.log(this.cost_rate);
 
 						//update plotly graph here.
 						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
@@ -308,7 +308,6 @@ $(function() {
 							//trace_voltage.x.push(row[0]);
 							//trace_voltage.y.push(row[4]);
 						});
-console.log(trace_cost);
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									xaxis: {
