@@ -313,7 +313,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		elif command == 'getEnergyData':
 			db = sqlite3.connect(self.db_path)
 			cursor = db.cursor()
-			cursor.execute('''SELECT timestamp, current, power, total, voltage FROM energy_data WHERE ip=? ORDER BY timestamp DESC LIMIT ?,?''', (data["ip"],data["record_offset"],data["record_limit"],))
+			cursor.execute('''SELECT timestamp, current, power, total, voltage, kwh_diff * ? FROM energy_data WHERE ip=? ORDER BY timestamp DESC LIMIT ?,?''', (data["cost_rate"], data["ip"],data["record_offset"],data["record_limit"]))
 			response = {'energy_data' : cursor.fetchall()}
 			db.close()
 			self._logger.info(response)

@@ -266,7 +266,8 @@ $(function() {
 					command: "getEnergyData",
 					ip: self.plotted_graph_ip(),
 					record_limit: self.plotted_graph_records(),
-					record_offset: self.plotted_graph_records_offset()
+					record_offset: self.plotted_graph_records_offset(),
+					cost_rate: self.settings.settings.plugins.tplinksmartplug.cost_rate()
 				}),
 				contentType: "application/json; charset=UTF-8"
 				}).done(function(data){
@@ -277,7 +278,8 @@ $(function() {
 						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
 						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'}; 
 						var trace_total = {x:[],y:[],mode:'lines+markers',name:'Total (kWh)'};
-						//var trace_voltage = {x:[],y:[],mode:'lines+markers',name:'Voltage (V)',yaxis: 'y3'};
+						//var trace_voltage = {x:[],y:[],mode:'lines+markers',name:'Voltage (V)',yaxis: 'y3'};;
+						var trace_cost = {x:[],y:[],mode:'lines+markers',name:'Cost'}
 
 						ko.utils.arrayForEach(data.energy_data, function(row){
 							trace_current.x.push(row[0]);
@@ -286,6 +288,8 @@ $(function() {
 							trace_power.y.push(row[2]);
 							trace_total.x.push(row[0]);
 							trace_total.y.push(row[3]);
+							trace_cost.x.push(row[0]);
+							trace_cost.y.push(row[5]);
 							//trace_voltage.x.push(row[0]);
 							//trace_voltage.y.push(row[4]);
 						});
@@ -293,7 +297,8 @@ $(function() {
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									xaxis: {
-										showticklabels: false
+										showticklabels: false,
+										anchor: 'x'
 									},
 									yaxis: {
 										title: 'Total (kWh)',
@@ -302,7 +307,8 @@ $(function() {
 										tickfont: {
 											size: 10
 										},
-										tickformat: '.2f'
+										tickformat: '.2f',
+										anchor: 'y'
 									},
 									xaxis2: {
 										anchor: 'y2'
@@ -333,9 +339,26 @@ $(function() {
 											size: 10
 										},
 										tickformat: '.2f'
+									},
+									xaxis4: {
+										overlaying: 'x',
+										anchor: 'y4',
+										showticklabels: false
+									},
+									yaxis4: {
+										overlaying: 'y',
+										side: 'right',
+										title: 'Cost',
+										hoverformat: '.3f',
+										anchor: 'x4',
+										tickangle: -45,
+										tickfont: {
+											size: 10
+										},
+										tickformat: '.2f'
 									}};
 
-						var plot_data = [trace_total,trace_current,trace_power/* ,trace_voltage */]
+						var plot_data = [trace_total,trace_current,trace_power,trace_cost/* ,trace_voltage */]
 						Plotly.react('tplinksmartplug_energy_graph',plot_data,layout);
 					});
 			}
