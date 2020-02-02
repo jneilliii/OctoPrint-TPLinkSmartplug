@@ -48,6 +48,7 @@ $(function() {
 		self.plotted_graph_records = ko.observable(10);
 		self.plotted_graph_records_offset = ko.observable(0);
 		self.dictSmartplugs = ko.observableDictionary();
+		self.refreshVisible = ko.observable(true);
 		self.filteredSmartplugs = ko.computed(function(){
 			return ko.utils.arrayFilter(self.dictSmartplugs.items(), function(item) {
 						return "err_code" in item.value().emeter.get_realtime;
@@ -112,6 +113,18 @@ $(function() {
 			} else {
 				return "-"
 			}
+		}
+
+		self.onStartup = function() {
+			var sidebar_tab = $('#sidebar_plugin_tplinksmartplug');
+
+			sidebar_tab.on('show', function() {
+				self.refreshVisible(true);
+			});
+
+			sidebar_tab.on('hide', function() {
+				self.refreshVisible(false);
+			});
 		}
 
 		self.onBeforeBinding = function() {
