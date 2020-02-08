@@ -49,6 +49,7 @@ $(function() {
 		self.plotted_graph_records_offset = ko.observable(0);
 		self.dictSmartplugs = ko.observableDictionary();
 		self.refreshVisible = ko.observable(true);
+		self.automaticShutdownEnabled = ko.observable(false);
 		self.filteredSmartplugs = ko.computed(function(){
 			return ko.utils.arrayFilter(self.dictSmartplugs.items(), function(item) {
 						return "err_code" in item.value().emeter.get_realtime;
@@ -72,6 +73,88 @@ $(function() {
 				return false;
 			return true;
 		})
+
+		self.toggleShutdownTitle = ko.pureComputed(function() {
+			return self.automaticShutdownEnabled() ? 'Disable Automatic Power Off' : 'Enable Automatic Power Off';
+		})
+
+		// Hack to remove automatically added Cancel button
+		// See https://github.com/sciactive/pnotify/issues/141
+		PNotify.prototype.options.confirm.buttons = [];
+		self.timeoutPopupText = gettext('Powering off in ');
+		self.timeoutPopupOptions = {
+			title: gettext('Automatic Power Off'),
+			type: 'notice',
+			icon: true,
+			hide: false,
+			confirm: {
+				confirm: true,
+				buttons: [{
+					text: 'Cancel Power Off',
+					addClass: 'btn-block btn-danger',
+					promptTrigger: true,
+					click: function(notice, value){
+						notice.remove();
+						notice.get().trigger("pnotify.cancel", [notice, value]);
+					}
+				}]
+			},
+			buttons: {
+				closer: false,
+				sticker: false,
+			},
+			history: {
+				history: false
+			}
+		};
+
+		self.onAutomaticShutdownEvent = function() {
+			if (self.automaticShutdownEnabled()) {
+				$.ajax({
+					url: API_BASEURL + "plugin/tplinksmartplug",
+					type: "POST",
+					dataType: "json",
+					data: JSON.stringify({
+						command: "enableAutomaticShutdown"
+					}),
+					contentType: "application/json; charset=UTF-8"
+				})
+			} else {
+				$.ajax({
+					url: API_BASEURL + "plugin/tplinksmartplug",
+					type: "POST",
+					dataType: "json",
+					data: JSON.stringify({
+						command: "disableAutomaticShutdown"
+					}),
+					contentType: "application/json; charset=UTF-8"
+				})
+			}
+		}
+
+		self.automaticShutdownEnabled.subscribe(self.onAutomaticShutdownEvent, self);
+
+		self.onToggleAutomaticShutdown = function(data) {
+			if (self.automaticShutdownEnabled()) {
+				self.automaticShutdownEnabled(false);
+			} else {
+				self.automaticShutdownEnabled(true);
+			}
+		}
+
+		self.abortShutdown = function(abortShutdownValue) {
+			self.timeoutPopup.remove();
+			self.timeoutPopup = undefined;
+			$.ajax({
+				url: API_BASEURL + "plugin/tplinksmartplug",
+				type: "POST",
+				dataType: "json",
+				data: JSON.stringify({
+					command: "abortAutomaticShutdown"
+				}),
+				contentType: "application/json; charset=UTF-8"
+			})
+		}
 
 		//self.monitorarray = ko.computed(function(){return ko.toJSON(self.arrSmartplugs);}).subscribe(function(){console.log('monitored array');console.log(ko.toJSON(self.dictSmartplugs));})
 		self.get_power = function(data){ // make computedObservable()?
@@ -217,6 +300,27 @@ $(function() {
 			}
 			if(data.updatePlot && window.location.href.indexOf('tplinksmartplug') > 0){
 				self.plotEnergyData();
+			}
+
+			if(data.automaticShutdownEnabled) {
+				self.automaticShutdownEnabled(data.automaticShutdownEnabled);
+
+				if (data.type == "timeout") {
+					if ((data.timeout_value != null) && (data.timeout_value > 0)) {
+						self.timeoutPopupOptions.text = self.timeoutPopupText + data.timeout_value;
+						if (typeof self.timeoutPopup != "undefined") {
+							self.timeoutPopup.update(self.timeoutPopupOptions);
+						} else {
+							self.timeoutPopup = new PNotify(self.timeoutPopupOptions);
+							self.timeoutPopup.get().on('pnotify.cancel', function() {self.abortShutdown(true);});
+						}
+					} else {
+						if (typeof self.timeoutPopup != "undefined") {
+							self.timeoutPopup.remove();
+							self.timeoutPopup = undefined;
+						}
+					}
+				}
 			}
 		};
 
