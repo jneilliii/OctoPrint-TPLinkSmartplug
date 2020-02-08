@@ -167,8 +167,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_assets(self):
 		return dict(
-			js=["js/tplinksmartplug.js","js/knockout-bootstrap.min.js","js/ko.observableDictionary.js","js/plotly-latest.min.js"],
-			css=["css/tplinksmartplug.css"]
+			js=["js/jquery-ui.min.js","js/knockout-sortable.js","js/fontawesome-iconpicker.js","js/ko.iconpicker.js","js/tplinksmartplug.js","js/knockout-bootstrap.min.js","js/ko.observableDictionary.js","js/plotly-latest.min.js"],
+			css=["css/font-awesome.min.css","css/font-awesome-v4-shims.min.css","css/fontawesome-iconpicker.css","css/tplinksmartplug.css"]
 		)
 
 	##~~ TemplatePlugin mixin
