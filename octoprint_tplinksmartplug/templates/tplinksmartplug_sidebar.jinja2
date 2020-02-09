@@ -1,10 +1,12 @@
+<!-- ko if: show_sidebar -->
 <div id="tplinksmartplugs" class="row-fluid" data-bind="foreach: filteredSmartplugs">
 	<div data-bind="with: value">
 		<div class="row-fluid" data-bind="if: emeter.get_realtime.err_code == 0,css: currentState">
 			Plug: <strong data-bind="text: label"></strong><br/>
 			Current Power: <strong data-bind="text: $root.get_power($data)"></strong> W<br/>
-			Total Consumption: <strong data-bind="text: $root.get_kwh($data)"></strong> kWh
+			Total Consumption: <strong data-bind="text: $root.get_kwh($data)"></strong> kWh<br/>
+			Cost: <strong data-bind="text: $root.get_cost($data)"></strong>
 		</div>
 	</div>
 </div>
-<button class="btn btn-light btn-lg btn-block" data-bind="click: function() { checkStatuses(); }, enable: allPlugsDisabled()" title="Refresh"><i class="fa fa-refresh"></i> Refresh</button>
+<!-- /ko -->

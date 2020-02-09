@@ -4,25 +4,27 @@
 		<tr>
 			<td>{{ _('Plug') }}</td>
 			<td style="text-align:center">{{ _('Options') }}</td>
-			<td style="text-align:center"><a href="#" class="btn btn-mini icon-plus" data-bind="click: addPlug"></a></td>
+			<td style="text-align:center"><a href="#" class="btn btn-mini" data-bind="click: addPlug"><i class="fas fa-plus" aria-hidden="true"></i></a></td>
 		</tr>
 	</thead>
-	<tbody data-bind="foreach: settings.settings.plugins.tplinksmartplug.arrSmartplugs">
+	<tbody data-bind="sortable: { data: settings.settings.plugins.tplinksmartplug.arrSmartplugs, options: { cancel: '.unsortable', handle: '.movePlug'} }">
 		<tr data-bind="attr: {title: ip}">
 			<td><span data-bind="text: label" /></td>
 			<td style="text-align:center">
-				<i class="icon" data-bind="css: {'icon-check': displayWarning(),'icon-check-empty': !displayWarning()}" title="Warning Prompt" />
-				<i class="icon" data-bind="css: {'icon-check': warnPrinting(),'icon-check-empty': !warnPrinting()}" title="Warn While Printing" />
-				<i class="icon" data-bind="css: {'icon-check': thermal_runaway(),'icon-check-empty': !thermal_runaway()}" title="Thermal Runaway" />
-				<i class="icon" data-bind="css: {'icon-check': autoConnect(),'icon-check-empty': !autoConnect()}" title="Auto Connect" />
-				<i class="icon" data-bind="css: {'icon-check': autoDisconnect(),'icon-check-empty': !autoDisconnect()}" title="Auto Disconnect" />
-				<i class="icon" data-bind="css: {'icon-check': gcodeEnabled(),'icon-check-empty': !gcodeEnabled()}" title="GCODE Trigger" />
-				<i class="icon" data-bind="css: {'icon-check': sysCmdOn(),'icon-check-empty': !sysCmdOn()}" title="Run System Command On" />
-				<i class="icon" data-bind="css: {'icon-check': sysCmdOff(),'icon-check-empty': !sysCmdOff()}" title="Run System Command Off" /></td>
+				<i class="far" data-bind="css: {'fa-check-square': automaticShutdownEnabled(),'fa-square': !automaticShutdownEnabled()}" title="Automatic Power Off Enabled" />
+				<i class="far" data-bind="css: {'fa-check-square': displayWarning(),'fa-square': !displayWarning()}" title="Warning Prompt" />
+				<i class="far" data-bind="css: {'fa-check-square': warnPrinting(),'fa-square': !warnPrinting()}" title="Warn While Printing" />
+				<i class="far" data-bind="css: {'fa-check-square': thermal_runaway(),'fa-square': !thermal_runaway()}" title="Thermal Runaway" />
+				<i class="far" data-bind="css: {'fa-check-square': autoConnect(),'fa-square': !autoConnect()}" title="Auto Connect" />
+				<i class="far" data-bind="css: {'fa-check-square': autoDisconnect(),'fa-square': !autoDisconnect()}" title="Auto Disconnect" />
+				<i class="far" data-bind="css: {'fa-check-square': gcodeEnabled(),'fa-square': !gcodeEnabled()}" title="GCODE Trigger" />
+				<i class="far" data-bind="css: {'fa-check-square': sysCmdOn(),'fa-square': !sysCmdOn()}" title="Run System Command On" />
+				<i class="far" data-bind="css: {'fa-check-square': sysCmdOff(),'fa-square': !sysCmdOff()}" title="Run System Command Off" /></td>
 			<td style="text-align:center">
 				<div class="btn-group">
-					<a href="#" class="btn btn-mini icon-pencil" data-bind="click: $root.editPlug"></a>
-					<a href="#" class="btn btn-mini icon-trash" data-bind="click: $root.removePlug, visible: $root.settings.settings.plugins.tplinksmartplug.arrSmartplugs().length > 1"></a>
+					<a href="#" class="btn btn-mini movePlug"><i class="fas fa-arrows-alt" aria-hidden="true"></i></a>
+					<a href="#" class="btn btn-mini" data-bind="click: $root.editPlug"><i class="fas fa-pencil-alt" aria-hidden="true"></i></a>
+					<a href="#" class="btn btn-mini btn-danger" data-bind="click: $root.removePlug"><i class="fas fa-times" aria-hidden="true"></i></a>
 				</div>
 				</td>
 		</tr>
@@ -83,6 +85,28 @@
 		<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.pollingInterval" />
 	</div>
 </div>
+<div class="control-group">
+	<div class="controls">
+		<label class="control-label">{{ _('Cost per kWh') }}</label>
+		<input type="number" min="0" step="0.001" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.cost_rate" />
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label">Cancel Automatic Power Off Timer</label>
+	<div class="controls">
+		<div class="input-append">
+			<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.abortTimeout">
+			<span class="add-on">sec</span>
+		</div>
+	</div>
+</div>
+<div class="control-group">
+	<div class="controls">
+		<label class="checkbox">
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.rememberCheckBox"> Remember "Automatic Power Off"
+		</label>
+	</div>
+</div>
 
 <div id="TPLinkPlugEditor" data-bind="with: selectedPlug" class="modal hide fade">
 	<div class="modal-header">
@@ -93,8 +117,8 @@
 		<table class="table table-condensed">
 			<tr>
 				<td><div class="controls"><label class="control-label">{{ _('IP') }}</label><input type="text" class="input-block-level" data-bind="value: ip" /><div></td>
-				<td><div class="controls"><label class="control-label">{{ _('Label') }}</label><input type="text" class="input input-small" data-bind="value: label" /></div></td>
-				<td><div class="controls"><label class="control-label"><a href="https://fontawesome.com/v3.2.1/icons/" target="_blank">{{ _('Icon Class') }}</a></label><input type="text" class="input-block-level" data-bind="value: icon" /><div></td>
+				<td><div class="controls"><label class="control-label">{{ _('Icon') }}</label><input type="text" class="input-block-level" data-bind="value: icon, iconpicker: icon,iconpickerOptions: {hideOnSelect: true, collision: true}" /><div></td>
+				<td><div class="controls"><label class="control-label">{{ _('Label') }}</label><input type="text" class="input-block-level" data-bind="value: label" /></div></td>
 			</tr>
 			<tr>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: displayWarning"/> Warning Prompt</label></div></td>
@@ -102,6 +126,7 @@
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: thermal_runaway"/> Thermal Runaway</label></div></td>
 			</tr>
 			<tr>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: automaticShutdownEnabled"/> Off on Print Complete</label></div></td>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_error"/> Off on Error</label></div></td>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_disconnect"/> Off on Disconnect</label></div></td>
 			</tr>

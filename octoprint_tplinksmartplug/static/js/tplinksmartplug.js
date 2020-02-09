@@ -5,35 +5,6 @@
  * License: AGPLv3
  */
 $(function() {
-/* 	function plugViewModel() {
-		var self = this;
-		self.ip = ko.observable(ip);
-		self.label = ko.observable(label);
-		self.icon = ko.observable(icon);
-		self.displayWarning = ko.observable(displayWarning);
-		self.warnPrinting = ko.observable(warnPrinting);
-		self.gcodeEnabled = ko.observable(gcodeEnabled);
-		self.gcodeOnDelay = ko.observable(gcodeOnDelay);
-		self.gcodeOffDelay = ko.observable(gcodeOffDelay);
-		self.autoConnect = ko.observable(autoConnect);
-		self.autoConnectDelay = ko.observable(autoConnectDelay);
-		self.autoDisconnect = ko.observable(autoDisconnect);
-		self.autoDisconnectDelay = ko.observable(autoDisconnectDelay);
-		self.sysCmdOn = ko.observable(sysCmdOn);
-		self.sysRunCmdOn = ko.observable(sysRunCmdOn);
-		self.sysCmdOnDelay = ko.observable(sysCmdOnDelay);
-		self.sysCmdOff = ko.observable(sysCmdOff);
-		self.sysRunCmdOff = ko.observable(sysRunCmdOff);
-		self.sysCmdOffDelay = ko.observable(sysCmdOffDelay);
-		self.currentState = ko.observable(currentState);
-		self.btnColor = ko.observable(btnColor);
-		self.useCountdownRules = ko.observable(useCountdownRules);
-		self.countdownOnDelay = ko.observable(countdownOnDelay);
-		self.countdownOffDelay = ko.observable(countdownOffDelay);
-		self.emeter = {get_realtime = {}};
-		self.thermal_runaway = ko.observable(thermal_runaway)
-	} */
-
 	function tplinksmartplugViewModel(parameters) {
 		var self = this;
 
@@ -48,16 +19,14 @@ $(function() {
 		self.plotted_graph_records = ko.observable(10);
 		self.plotted_graph_records_offset = ko.observable(0);
 		self.dictSmartplugs = ko.observableDictionary();
+		self.refreshVisible = ko.observable(true);
+		self.automaticShutdownEnabled = ko.observable(false);
 		self.filteredSmartplugs = ko.computed(function(){
 			return ko.utils.arrayFilter(self.dictSmartplugs.items(), function(item) {
 						return "err_code" in item.value().emeter.get_realtime;
 					});
 		});
-		self.energySmartplugs = ko.computed(function(){
-			return ko.utils.arrayFilter(self.arrSmartplugs(), function(item) {
-						return "err_code" in item.emeter.get_realtime;
-					});
-		});
+
 		self.show_sidebar = ko.computed(function(){
 			return self.filteredSmartplugs().length > 0;
 		});
@@ -72,7 +41,88 @@ $(function() {
 			return true;
 		})
 
-		//self.monitorarray = ko.computed(function(){return ko.toJSON(self.arrSmartplugs);}).subscribe(function(){console.log('monitored array');console.log(ko.toJSON(self.dictSmartplugs));})
+		self.toggleShutdownTitle = ko.pureComputed(function() {
+			return self.automaticShutdownEnabled() ? 'Disable Automatic Power Off' : 'Enable Automatic Power Off';
+		})
+
+		// Hack to remove automatically added Cancel button
+		// See https://github.com/sciactive/pnotify/issues/141
+		PNotify.prototype.options.confirm.buttons = [];
+		self.timeoutPopupText = gettext('Powering off in ');
+		self.timeoutPopupOptions = {
+			title: gettext('Automatic Power Off'),
+			type: 'notice',
+			icon: true,
+			hide: false,
+			confirm: {
+				confirm: true,
+				buttons: [{
+					text: 'Cancel Power Off',
+					addClass: 'btn-block btn-danger',
+					promptTrigger: true,
+					click: function(notice, value){
+						notice.remove();
+						notice.get().trigger("pnotify.cancel", [notice, value]);
+					}
+				}]
+			},
+			buttons: {
+				closer: false,
+				sticker: false,
+			},
+			history: {
+				history: false
+			}
+		};
+
+		self.onAutomaticShutdownEvent = function() {
+			if (self.automaticShutdownEnabled()) {
+				$.ajax({
+					url: API_BASEURL + "plugin/tplinksmartplug",
+					type: "POST",
+					dataType: "json",
+					data: JSON.stringify({
+						command: "enableAutomaticShutdown"
+					}),
+					contentType: "application/json; charset=UTF-8"
+				})
+			} else {
+				$.ajax({
+					url: API_BASEURL + "plugin/tplinksmartplug",
+					type: "POST",
+					dataType: "json",
+					data: JSON.stringify({
+						command: "disableAutomaticShutdown"
+					}),
+					contentType: "application/json; charset=UTF-8"
+				})
+			}
+		}
+
+		self.automaticShutdownEnabled.subscribe(self.onAutomaticShutdownEvent, self);
+
+		self.onToggleAutomaticShutdown = function(data) {
+			if (self.automaticShutdownEnabled()) {
+				self.automaticShutdownEnabled(false);
+			} else {
+				self.automaticShutdownEnabled(true);
+			}
+		}
+
+		self.abortShutdown = function(abortShutdownValue) {
+			self.timeoutPopup.remove();
+			self.timeoutPopup = undefined;
+			$.ajax({
+				url: API_BASEURL + "plugin/tplinksmartplug",
+				type: "POST",
+				dataType: "json",
+				data: JSON.stringify({
+					command: "abortAutomaticShutdown"
+				}),
+				contentType: "application/json; charset=UTF-8"
+			})
+		}
+
 		self.get_power = function(data){ // make computedObservable()?
 			if("power" in data.emeter.get_realtime && typeof data.emeter.get_realtime.power == "function"){
 				return data.emeter.get_realtime.power().toFixed(2);
@@ -100,11 +150,41 @@ $(function() {
 			}
 		}
 
+		self.get_cost = function(data){ // make computedObservable()?
+			if("total" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total == "function"){
+				return (data.emeter.get_realtime.total() * self.settings.settings.plugins.tplinksmartplug.cost_rate()).toFixed(2);
+			} else if ("total_wh" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total_wh == "function") {
+				return ((data.emeter.get_realtime.total_wh()/1000) * self.settings.settings.plugins.tplinksmartplug.cost_rate()).toFixed(2);
+			} else if("total" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total !== "function"){
+				return (data.emeter.get_realtime.total * self.settings.settings.plugins.tplinksmartplug.cost_rate()).toFixed(2);
+			} else if ("total_wh" in data.emeter.get_realtime && typeof data.emeter.get_realtime.total_wh !== "function") {
+				return ((data.emeter.get_realtime.total_wh/1000) * self.settings.settings.plugins.tplinksmartplug.cost_rate()).toFixed(2);
+			} else {
+				return "-"
+			}
+		}
+
+		self.onStartup = function() {
+			var sidebar_tab = $('#sidebar_plugin_tplinksmartplug');
+
+			sidebar_tab.on('show', function() {
+				self.refreshVisible(true);
+			});
+
+			sidebar_tab.on('hide', function() {
+				self.refreshVisible(false);
+			});
+			sidebar_tab.removeClass('overflow_visible in').addClass('collapse').siblings('div.accordion-heading').children('a.accordion-toggle').addClass('collapsed');
+		}
+
 		self.onBeforeBinding = function() {
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 		}
 
 		self.onAfterBinding = function() {
+			self.plotted_graph_ip.subscribe(self.plotEnergyData, self);
+			self.plotted_graph_records.subscribe(self.plotEnergyData, self);
+			self.plotted_graph_records_offset.subscribe(self.plotEnergyData, self);
 			self.checkStatuses();
 		}
 
@@ -112,10 +192,10 @@ $(function() {
 			var plugs_updated = (ko.toJSON(self.arrSmartplugs()) !== ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 			if(plugs_updated){
-				console.log('onEventSettingsUpdated:');
+/* 				console.log('onEventSettingsUpdated:');
 				console.log('arrSmartplugs: ' + ko.toJSON(self.arrSmartplugs()));
 				console.log('settings.settings.plugins.tplinksmartplug.arrSmartplugs: ' + ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
-				console.log('arrSmartplugs changed, checking statuses');
+				console.log('arrSmartplugs changed, checking statuses'); */
 				self.checkStatuses();
 			}
 		}
@@ -170,7 +250,8 @@ $(function() {
 								'emeter':{get_realtime:{}},
 								'thermal_runaway':ko.observable(false),
 								'event_on_error':ko.observable(false),
-								'event_on_disconnect':ko.observable(false)});
+								'event_on_disconnect':ko.observable(false),
+								'automaticShutdownEnabled':ko.observable(false)});
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
 		}
@@ -184,12 +265,32 @@ $(function() {
 				return;
 			}
 
-			if(data.currentState || data.check_status){
-				// console.log('Websocket message received, checking status of ' + data.ip);
+			if(/* data.currentState || */ data.check_status){
 				self.checkStatus(data.ip);
 			}
 			if(data.updatePlot && window.location.href.indexOf('tplinksmartplug') > 0){
 				self.plotEnergyData();
+			}
+
+			if(data.automaticShutdownEnabled) {
+				self.automaticShutdownEnabled(data.automaticShutdownEnabled);
+
+				if (data.type == "timeout") {
+					if ((data.timeout_value != null) && (data.timeout_value > 0)) {
+						self.timeoutPopupOptions.text = self.timeoutPopupText + data.timeout_value;
+						if (typeof self.timeoutPopup != "undefined") {
+							self.timeoutPopup.update(self.timeoutPopupOptions);
+						} else {
+							self.timeoutPopup = new PNotify(self.timeoutPopupOptions);
+							self.timeoutPopup.get().on('pnotify.cancel', function() {self.abortShutdown(true);});
+						}
+					} else {
+						if (typeof self.timeoutPopup != "undefined") {
+							self.timeoutPopup.remove();
+							self.timeoutPopup = undefined;
+						}
+					}
+				}
 			}
 		};
 
@@ -222,8 +323,7 @@ $(function() {
 				}),
 				contentType: "application/json; charset=UTF-8"
 			}).done(function(data){
-					//console.log('Turn on command completed.');
-					//console.log(data);
+					self.updateDictionary(data);
 					self.processing.remove(data.ip);
 				});
 		};
@@ -249,14 +349,12 @@ $(function() {
 			}),
 			contentType: "application/json; charset=UTF-8"
 			}).done(function(data){
-					//console.log('Turn off command completed.');
-					//console.log(data);
+					self.updateDictionary(data);
 					self.processing.remove(data.ip);
 				});
 		}
 
 		self.plotEnergyData = function(data) {
-			//console.log(data);
 			if(self.plotted_graph_ip()) {
 				$.ajax({
 				url: API_BASEURL + "plugin/tplinksmartplug",
@@ -268,16 +366,13 @@ $(function() {
 					record_limit: self.plotted_graph_records(),
 					record_offset: self.plotted_graph_records_offset()
 				}),
+				cost_rate: self.settings.settings.plugins.tplinksmartplug.cost_rate(),
 				contentType: "application/json; charset=UTF-8"
 				}).done(function(data){
-						//console.log('Energy Data retrieved');
-						//console.log(data);
-
-						//update plotly graph here.
 						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
 						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'}; 
 						var trace_total = {x:[],y:[],mode:'lines+markers',name:'Total (kWh)'};
-						//var trace_voltage = {x:[],y:[],mode:'lines+markers',name:'Voltage (V)',yaxis: 'y3'};
+						var trace_cost = {x:[],y:[],mode:'lines+markers',name:'Cost'}
 
 						ko.utils.arrayForEach(data.energy_data, function(row){
 							trace_current.x.push(row[0]);
@@ -286,14 +381,16 @@ $(function() {
 							trace_power.y.push(row[2]);
 							trace_total.x.push(row[0]);
 							trace_total.y.push(row[3]);
-							//trace_voltage.x.push(row[0]);
-							//trace_voltage.y.push(row[4]);
+							trace_cost.x.push(row[0]);
+							trace_cost.y.push(row[3]*self.settings.settings.plugins.tplinksmartplug.cost_rate());
 						});
-
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
+									autosize: true,
+									showlegend: false,
 									xaxis: {
-										showticklabels: false
+										showticklabels: false,
+										anchor: 'x'
 									},
 									yaxis: {
 										title: 'Total (kWh)',
@@ -302,7 +399,8 @@ $(function() {
 										tickfont: {
 											size: 10
 										},
-										tickformat: '.2f'
+										tickformat: '.2f',
+										anchor: 'y'
 									},
 									xaxis2: {
 										anchor: 'y2'
@@ -333,13 +431,66 @@ $(function() {
 											size: 10
 										},
 										tickformat: '.2f'
+									},
+									xaxis4: {
+										overlaying: 'x',
+										anchor: 'y4',
+										showticklabels: false
+									},
+									yaxis4: {
+										overlaying: 'y',
+										side: 'right',
+										title: 'Cost',
+										hoverformat: '.3f',
+										anchor: 'x4',
+										tickangle: -45,
+										tickfont: {
+											size: 10
+										},
+										tickformat: '.2f'
 									}};
+						var options = {
+									showLink: false,
+									sendData: false,
+									displaylogo: false,
+									editable: false,
+									showTips: false
+								};
 
-						var plot_data = [trace_total,trace_current,trace_power/* ,trace_voltage */]
-						Plotly.react('tplinksmartplug_energy_graph',plot_data,layout);
+						var plot_data = [trace_total,trace_current,trace_power,trace_cost/* ,trace_voltage */]
+						if(window.location.href.indexOf('tplinksmartplug') > 0){
+							Plotly.react('tplinksmartplug_energy_graph',plot_data,layout,options);
+						}
 					});
 			}
 		}
+
+		self.legend_visible = ko.observable(false);
+
+		self.toggle_legend = function(){
+			self.legend_visible(self.legend_visible() ? false : true);
+			Plotly.relayout('tplinksmartplug_energy_graph',{showlegend: self.legend_visible()});
+		}
+
+		self.updateDictionary = function(data){
+			ko.utils.arrayForEach(self.arrSmartplugs(),function(item){
+					if(item.ip() == data.ip) {
+						item.currentState(data.currentState);
+						if(data.emeter){
+							item.emeter.get_realtime = {};
+							for (key in data.emeter.get_realtime){
+								item.emeter.get_realtime[key] = ko.observable(data.emeter.get_realtime[key]);
+							}
+							if(data.ip == self.plotted_graph_ip() && window.location.href.indexOf('tplinksmartplug') > 0){
+								self.plotEnergyData();
+							}
+						}
+						self.processing.remove(data.ip);
+					}
+				});
+				//self.dictSmartplugs.removeAll();
+				self.dictSmartplugs.pushAll(ko.toJS(self.arrSmartplugs),'ip');
+			}
 
 		self.checkStatus = function(plugIP) {
 			$.ajax({
@@ -348,32 +499,13 @@ $(function() {
 				dataType: "json",
 				data: {checkStatus:plugIP},
 				contentType: "application/json; charset=UTF-8"
-			}).done(function(data){
-				ko.utils.arrayForEach(self.arrSmartplugs(),function(item){
-						if(item.ip() == data.ip) {
-							item.currentState(data.currentState);
-							if(data.emeter){
-								item.emeter.get_realtime = {};
-								for (key in data.emeter.get_realtime){
-									//console.log(key + ' = ' + data.emeter.get_realtime[key]);
-									item.emeter.get_realtime[key] = ko.observable(data.emeter.get_realtime[key]);
-								}
-								if(data.ip == self.plotted_graph_ip() && self.settings.settings.plugins.tplinksmartplug.pollingEnabled() && window.location.href.indexOf('tplinksmartplug') > 0){
-									self.plotEnergyData();
-								}
-							}
-							self.processing.remove(data.ip);
-						}
-					});
-					self.dictSmartplugs.removeAll();
-					self.dictSmartplugs.pushAll(ko.toJS(self.arrSmartplugs));
-				});
+			}).done(self.updateDictionary);
 		}; 
 
 		self.checkStatuses = function() {
 			ko.utils.arrayForEach(self.arrSmartplugs(),function(item){
 				if(item.ip() !== "") {
-					//console.log("checking " + item.ip())
+					self.processing.push(item.ip());
 					self.checkStatus(item.ip());
 				}
 			});

@@ -25,6 +25,20 @@ div#tplinksmartplugs {
 	padding-bottom: 10px;
 }
 
+#sidebar_plugin_tplinksmartplug_wrapper > div.accordion-heading {
+	line-height: 30px;
+}
+
+#sidebar_plugin_tplinksmartplug_wrapper > div.accordion-heading > div.accordion-heading-button.btn-group {
+	padding-right: 10px;
+}
+
+#sidebar_plugin_tplinksmartplug_wrapper > div.accordion-heading > div.accordion-heading-button.btn-group > a.fa.fa-lg {
+	font-size: 18px;
+	line-height: 30px;
+	padding: 8px 8px;
+}
+
 #sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div > div.on {
 	color: #000;
 }

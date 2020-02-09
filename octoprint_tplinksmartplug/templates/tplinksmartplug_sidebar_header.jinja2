@@ -1,0 +1,4 @@
+<div class="accordion-heading-button btn-group" data-bind="visible: loginState.loggedIn()">
+	<a href="#" data-bind="enable: loginState.loggedIn(), click: onToggleAutomaticShutdown, attr: {title: toggleShutdownTitle()}, css: {'fa-toggle-off' : !automaticShutdownEnabled(), 'fa-toggle-on' : automaticShutdownEnabled()}" title="Enable Automatic Power Off" class="fa fa-lg fa-toggle-off"></a>
+	<a href="#" data-bind="click: checkStatuses" title="Refresh plug(s) current state" class="fa fa-refresh fa-lg"></a>
+</div>
