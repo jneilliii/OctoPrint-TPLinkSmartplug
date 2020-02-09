@@ -3,7 +3,7 @@
 	<div class="span5">
 		<label class="control-label">{{ _('Plug to Graph') }}</label>
 		<div class="controls">
-			<select data-bind="options: energySmartplugs,optionsText: 'label',optionsValue: 'ip',value: plotted_graph_ip"></select>
+			<select data-bind="options: filteredSmartplugs,optionsText: function(item){return item.value().label}, optionsValue: function(item){return item.value().ip}, value: plotted_graph_ip"></select>
 		</div>
 	</div>
 	<div class="span2">
@@ -16,12 +16,6 @@
 		<label class="control-label">{{ _('Offset') }}</label>
 		<div class="controls">
 			<input type="number" step="10" class="input-mini" data-bind="value: plotted_graph_records_offset"/>
-		</div>
-	</div>
-	<div class="span3">
-		<div class="controls">
-			<label class="control-label">&nbsp;</label>
-			<button class="btn btn-primary" data-bind="click: plotEnergyData">Update</button>
 		</div>
 	</div>
 </div>

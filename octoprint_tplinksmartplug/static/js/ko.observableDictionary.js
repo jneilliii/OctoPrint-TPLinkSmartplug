@@ -112,15 +112,18 @@
             return value;
         },
 
-        pushAll: function (dictionary) {
+        pushAll: function (dictionary, keySelector) {
             var self = this;
             var items = self.items();
-
             if (dictionary instanceof Array) {
                 $.each(dictionary, function (index, item) {
-                    var key = self._keySelector(item, index);
+                    var key = keySelector ? self._keySelector(item, item[keySelector]) : self._keySelector(item, index);
                     var value = self._valueSelector(item);
-                    items.push(new DictionaryItem(key, value, self));
+                    if(self.indexOf(key) == -1) {
+                        items.push(new DictionaryItem(key, value, self));
+                    } else {
+						self.set(key, value);
+					}
                 });
             }
             else {
