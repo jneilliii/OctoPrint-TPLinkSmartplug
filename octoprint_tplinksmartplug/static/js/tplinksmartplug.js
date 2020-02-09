@@ -387,6 +387,7 @@ $(function() {
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									autosize: true,
+									showlegend: false,
 									xaxis: {
 										showticklabels: false,
 										anchor: 'x'
@@ -448,13 +449,27 @@ $(function() {
 										},
 										tickformat: '.2f'
 									}};
+						var options = {
+									showLink: false,
+									sendData: false,
+									displaylogo: false,
+									editable: false,
+									showTips: false
+								};
 
 						var plot_data = [trace_total,trace_current,trace_power,trace_cost/* ,trace_voltage */]
 						if(window.location.href.indexOf('tplinksmartplug') > 0){
-							Plotly.react('tplinksmartplug_energy_graph',plot_data,layout);
+							Plotly.react('tplinksmartplug_energy_graph',plot_data,layout,options);
 						}
 					});
 			}
+		}
+
+		self.legend_visible = ko.observable(false);
+
+		self.toggle_legend = function(){
+			self.legend_visible(self.legend_visible() ? false : true);
+			Plotly.relayout('tplinksmartplug_energy_graph',{showlegend: self.legend_visible()});
 		}
 
 		self.updateDictionary = function(data){
