@@ -27,8 +27,6 @@ $(function() {
 					});
 		});
 
-		self.dictSmartplugs.items.subscribe(function(data){console.log(data)}, self);
-
 		self.show_sidebar = ko.computed(function(){
 			return self.filteredSmartplugs().length > 0;
 		});
@@ -194,10 +192,10 @@ $(function() {
 			var plugs_updated = (ko.toJSON(self.arrSmartplugs()) !== ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 			if(plugs_updated){
-				console.log('onEventSettingsUpdated:');
+/* 				console.log('onEventSettingsUpdated:');
 				console.log('arrSmartplugs: ' + ko.toJSON(self.arrSmartplugs()));
 				console.log('settings.settings.plugins.tplinksmartplug.arrSmartplugs: ' + ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
-				console.log('arrSmartplugs changed, checking statuses');
+				console.log('arrSmartplugs changed, checking statuses'); */
 				self.checkStatuses();
 			}
 		}
@@ -388,6 +386,7 @@ $(function() {
 						});
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
+									autosize: true,
 									xaxis: {
 										showticklabels: false,
 										anchor: 'x'
@@ -451,7 +450,9 @@ $(function() {
 									}};
 
 						var plot_data = [trace_total,trace_current,trace_power,trace_cost/* ,trace_voltage */]
-						Plotly.react('tplinksmartplug_energy_graph',plot_data,layout);
+						if(window.location.href.indexOf('tplinksmartplug') > 0){
+							Plotly.react('tplinksmartplug_energy_graph',plot_data,layout);
+						}
 					});
 			}
 		}
