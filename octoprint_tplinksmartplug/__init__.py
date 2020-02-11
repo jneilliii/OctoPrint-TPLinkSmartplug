@@ -175,7 +175,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_template_configs(self):
 		#templates_to_load = [dict(type="navbar", custom_bindings=True),dict(type="settings", custom_bindings=True),dict(type="sidebar", icon="plug", custom_bindings=True, data_bind="visible: show_sidebar()", template="tplinksmartplug_sidebar.jinja2", template_header="tplinksmartplug_sidebar_header.jinja2"),dict(type="tab", custom_bindings=True)]
-		templates_to_load = [dict(type="navbar", custom_bindings=True),dict(type="settings", custom_bindings=True),dict(type="sidebar", icon="plug", custom_bindings=True, data_bind="visible: arrSmartplugs().length > 0", template="tplinksmartplug_sidebar.jinja2", template_header="tplinksmartplug_sidebar_header.jinja2"),dict(type="tab", custom_bindings=True)]
+		templates_to_load = [dict(type="navbar", custom_bindings=True),dict(type="settings", custom_bindings=True),dict(type="sidebar", icon="plug", custom_bindings=True, data_bind="visible: arrSmartplugs().length > 0", template="tplinksmartplug_sidebar.jinja2", template_header="tplinksmartplug_sidebar_header.jinja2"),dict(type="tab", custom_bindings=True, data_bind="visible: show_sidebar()", template="tplinksmartplug_tab.jinja2")]
 		return templates_to_load
 
 	def on_print_progress(self, storage, path, progress):

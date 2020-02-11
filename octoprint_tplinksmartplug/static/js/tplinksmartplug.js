@@ -518,6 +518,6 @@ $(function() {
 	OCTOPRINT_VIEWMODELS.push([
 		tplinksmartplugViewModel,
 		["settingsViewModel","loginStateViewModel"],
-		["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug","#sidebar_plugin_tplinksmartplug_wrapper","#tab_plugin_tplinksmartplug"]
+		["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug","#sidebar_plugin_tplinksmartplug_wrapper","#tab_plugin_tplinksmartplug","#tab_plugin_tplinksmartplug_link"]
 	]);
 });
