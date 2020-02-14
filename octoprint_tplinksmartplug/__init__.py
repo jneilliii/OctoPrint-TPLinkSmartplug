@@ -230,7 +230,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug_ip,plug_num)
 			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"]),plug_ip,plug_num),*["count_down","add_rule","err_code"])
 			if chk == 0:
-				c = threading.Timer(int(plug["countdownOnDelay"])+5,self._plugin_manager.send_plugin_message,[self._identifier, dict(check_status=True,ip=plugip)])
+				c = threading.Timer(int(plug["countdownOffDelay"])+5,self._plugin_manager.send_plugin_message,[self._identifier, dict(check_status=True,ip=plugip)])
 				c.start()
 
 		if plug["sysCmdOff"]:
