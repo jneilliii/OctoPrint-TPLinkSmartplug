@@ -72,6 +72,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
+		if self._settings.get(["pollingEnabled"]):
+			self.poll_status = RepeatedTimer(int(self._settings.get(["pollingInterval"]))*60, self.check_statuses)
+			self.poll_status.start()
 
 	##~~ SettingsPlugin mixin
 
@@ -94,19 +97,35 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_settings_save(self, data):
 		old_debug_logging = self._settings.get_boolean(["debug_logging"])
+		old_polling_value = self._settings.get_boolean(["pollingEnabled"])
+		old_polling_timer = self._settings.get(["pollingInterval"])
+		old_automatic_power_off = self._settings.get_boolean(["automatic_power_off"])
 
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
 
 		self.abortTimeout = self._settings.get_int(["abortTimeout"])
-		self.rememberCheckBox = self._settings.get_boolean(["rememberCheckBox"])
-		self.lastCheckBoxValue = self._settings.get_boolean(["lastCheckBoxValue"])
+		self._automatic_shutdown_enabled = self._settings.get_boolean(["automatic_power_off"])
+
+		if self._automatic_shutdown_enabled != old_automatic_power_off:
+			self._plugin_manager.send_plugin_message(self._identifier, dict(automaticShutdownEnabled=self._automatic_shutdown_enabled, type="timeout", timeout_value=self._timeout_value))
 
 		new_debug_logging = self._settings.get_boolean(["debug_logging"])
+		new_polling_value = self._settings.get_boolean(["pollingEnabled"])
+		new_polling_timer = self._settings.get(["pollingInterval"])
+
 		if old_debug_logging != new_debug_logging:
 			if new_debug_logging:
 				self._tplinksmartplug_logger.setLevel(logging.DEBUG)
 			else:
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
+
+		if old_polling_value != new_polling_value or old_polling_timer != new_polling_timer:
+			if self.poll_status:
+				self.poll_status.cancel()
+
+			if new_polling_value:
+				self.poll_status = RepeatedTimer(int(self._settings.get(["pollingInterval"]))*60, self.check_statuses)
+				self.poll_status.start()
 
 	def get_settings_version(self):
 		return 11
@@ -201,7 +220,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug_ip, plug_num)
 			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"]),plug_ip,plug_num),*["count_down","add_rule","err_code"])
 			if chk == 0:
-				c = threading.Timer(int(plug["countdownOnDelay"])+5,self._plugin_manager.send_plugin_message,[self._identifier, dict(check_status=True,ip=plugip)])
+				c = threading.Timer(int(plug["countdownOnDelay"]),self._plugin_manager.send_plugin_message,[self._identifier, dict(check_status=True,ip=plugip)])
 				c.start()
 		else:
 			turn_on_cmnd = dict(system=dict(set_relay_state=dict(state=1)))
@@ -247,6 +266,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
 			return self.check_status(plugip)
+
+	def check_statuses(self):
+		for plug in self._settings.get(["arrSmartplugs"]):
+			chk = self.check_status(plug["ip"])
+			self._plugin_manager.send_plugin_message(self._identifier, chk)
 
 	def check_status(self, plugip):
 		self._tplinksmartplug_logger.debug("Checking status of %s." % plugip)
@@ -361,6 +385,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._abort_timer.cancel()
 				self._abort_timer = None
 			self._timeout_value = None
+			for plug in self._settings.get(["arrSmartplugs"]):
+				if plug["useCountdownRules"] and int(plug["countdownOffDelay"]) > 0:
+					if "/" in plug["ip"]:
+						plug_ip, plug_num = plug["ip"].split("/")
+					else:
+						plug_ip = plug["ip"]
+						plug_num = -1
+					self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug_ip,plug_num)
+					self._tplinksmartplug_logger.debug("Cleared countdown rules for %s" % plug["ip"])
 			self._tplinksmartplug_logger.debug("Power off aborted.")
 		else:
 			response = dict(ip = data.ip, currentState = "unknown")

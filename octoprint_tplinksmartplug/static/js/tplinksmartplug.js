@@ -265,9 +265,14 @@ $(function() {
 				return;
 			}
 
-			if(/* data.currentState || */ data.check_status){
+			if(data.currentState){
+				self.updateDictionary(data);
+			}
+
+			if(data.check_status){
 				self.checkStatus(data.ip);
 			}
+
 			if(data.updatePlot && window.location.href.indexOf('tplinksmartplug') > 0){
 				self.plotEnergyData();
 			}
@@ -509,9 +514,6 @@ $(function() {
 					self.checkStatus(item.ip());
 				}
 			});
-			if (self.settings.settings.plugins.tplinksmartplug.pollingEnabled() && parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval(),10) > 0) {
-				setTimeout(function() {self.checkStatuses();}, (parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval(),10) * 60000));
-			};
 		};
 	}
 

@@ -7,7 +7,7 @@
 			<td style="text-align:center"><a href="#" class="btn btn-mini" data-bind="click: addPlug"><i class="fas fa-plus" aria-hidden="true"></i></a></td>
 		</tr>
 	</thead>
-	<tbody data-bind="sortable: { data: settings.settings.plugins.tplinksmartplug.arrSmartplugs, options: { cancel: '.unsortable', handle: '.movePlug'} }">
+	<tbody data-bind="sortable: { data: settings.settings.plugins.tplinksmartplug.arrSmartplugs, options: { cancel: '.unsortable', handle: '.movePlug', axis:'y'} }">
 		<tr data-bind="attr: {title: ip}">
 			<td><span data-bind="text: label" /></td>
 			<td style="text-align:center">
