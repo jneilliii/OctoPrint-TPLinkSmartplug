@@ -36,6 +36,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._timeout_value = None
 		self._abort_timer = None
 		self._wait_for_timelapse_timer = None
+		self._countdown_active = False
 
 	##~~ StartupPlugin mixin
 
@@ -220,7 +221,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug_ip, plug_num)
 			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":1,"name":"turn on"}}}' % plug["countdownOnDelay"]),plug_ip,plug_num),*["count_down","add_rule","err_code"])
 			if chk == 0:
-				c = threading.Timer(int(plug["countdownOnDelay"]),self._plugin_manager.send_plugin_message,[self._identifier, dict(check_status=True,ip=plugip)])
+				self._countdown_active = True
+				c = threading.Timer(int(plug["countdownOnDelay"])+3,self._plugin_manager.send_plugin_message,[self._identifier, dict(check_status=True,ip=plugip)])
 				c.start()
 		else:
 			turn_on_cmnd = dict(system=dict(set_relay_state=dict(state=1)))
@@ -249,7 +251,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug_ip,plug_num)
 			chk = self.lookup(self.sendCommand(json.loads('{"count_down":{"add_rule":{"enable":1,"delay":%s,"act":0,"name":"turn off"}}}' % plug["countdownOffDelay"]),plug_ip,plug_num),*["count_down","add_rule","err_code"])
 			if chk == 0:
-				c = threading.Timer(int(plug["countdownOffDelay"])+5,self._plugin_manager.send_plugin_message,[self._identifier, dict(check_status=True,ip=plugip)])
+				self._countdown_active = True
+				c = threading.Timer(int(plug["countdownOffDelay"])+3,self._plugin_manager.send_plugin_message,[self._identifier, dict(check_status=True,ip=plugip)])
 				c.start()
 
 		if plug["sysCmdOff"]:
@@ -282,9 +285,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug(check_status_cmnd)
 			if len(plug_ip) == 2:
 				response = self.sendCommand(check_status_cmnd, plug_ip[0], plug_ip[1])
+				timer_chk = self.lookup(response, *["system","get_sysinfo","children"])[int(plug_ip[1])]["on_time"]
 			else:
 				response = self.sendCommand(check_status_cmnd, plug_ip[0])
-				
+				timer_chk = self.deep_get(response,["system","get_sysinfo","on_time"], default=0)
+
+			if timer_chk == 0 and self._countdown_active:
+				self._tplinksmartplug_logger.debug("Clearing previously active countdown timer flag")
+				self._countdown_active = False
+
 			self._tplinksmartplug_logger.debug(self.deep_get(response,["system","get_sysinfo","feature"], default=""))
 			if "ENE" in self.deep_get(response,["system","get_sysinfo","feature"], default=""):
 			# if "ENE" in self.lookup(response, *["system","get_sysinfo","feature"]):
@@ -413,8 +422,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ EventHandlerPlugin mixin
 
 	def on_event(self, event, payload):
-		if event == "PrinterStateChanged":
-			self._tplinksmartplug_logger.debug(payload["state_id"])
 		if event == "Error" and self._settings.getBoolean(["event_on_error_monitoring"]) == True:
 			self._tplinksmartplug_logger.debug("powering off due to %s event." % event)
 			for plug in self._settings.get(['arrSmartplugs']):
@@ -444,6 +451,16 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._timeout_value = None
 			self._tplinksmartplug_logger.debug("Power off aborted because starting new print.")
 			self._plugin_manager.send_plugin_message(self._identifier, dict(automaticShutdownEnabled=self._automatic_shutdown_enabled, type="timeout", timeout_value=self._timeout_value))
+		if event == Events.PRINT_STARTED and self._countdown_active:
+			for plug in self._settings.get(["arrSmartplugs"]):
+				if plug["useCountdownRules"] and int(plug["countdownOffDelay"]) > 0:
+					if "/" in plug["ip"]:
+						plug_ip, plug_num = plug["ip"].split("/")
+					else:
+						plug_ip = plug["ip"]
+						plug_num = -1
+					self.sendCommand(json.loads('{"count_down":{"delete_all_rules":null}}'),plug_ip,plug_num)
+					self._tplinksmartplug_logger.debug("Cleared countdown rules for %s" % plug["ip"])
 		if event in [Events.PRINT_DONE, Events.PRINT_FAILED] and self._automatic_shutdown_enabled:
 			self._timer_start()
 			return
