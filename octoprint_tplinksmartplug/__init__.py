@@ -14,6 +14,7 @@ import re
 import threading
 import time
 import sqlite3
+import decimal
 from datetime import datetime
 from struct import unpack
 from builtins import bytes
@@ -37,6 +38,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._abort_timer = None
 		self._wait_for_timelapse_timer = None
 		self._countdown_active = False
+		self.print_job_power = 0.0
+		self.print_job_started = False
 
 	##~~ StartupPlugin mixin
 
@@ -198,12 +201,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		templates_to_load = [dict(type="navbar", custom_bindings=True),dict(type="settings", custom_bindings=True),dict(type="sidebar", icon="plug", custom_bindings=True, data_bind="visible: arrSmartplugs().length > 0", template="tplinksmartplug_sidebar.jinja2", template_header="tplinksmartplug_sidebar_header.jinja2"),dict(type="tab", custom_bindings=True, data_bind="visible: show_sidebar()", template="tplinksmartplug_tab.jinja2")]
 		return templates_to_load
 
+	##~~ ProgressPlugin mixin
+
 	def on_print_progress(self, storage, path, progress):
 		self._tplinksmartplug_logger.debug("Checking statuses during print progress (%s)." % progress)
 		for plug in self._settings.get(["arrSmartplugs"]):
 			chk = self.lookup(plug,*["emeter","get_realtime","err_code"])
 			if chk == 0:
-				self.check_status(plug["ip"])
 				self._plugin_manager.send_plugin_message(self._identifier, dict(updatePlot=True))
 
 	##~~ SimpleApiPlugin mixin
@@ -443,7 +447,40 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			return
 		if event == Events.PRINT_FAILED and not self._printer.is_closed_or_error():
 			#Cancelled job
+			self.print_job_power = 0.0
+			self.print_job_started = False
 			return
+		if event == Events.PRINT_STARTED and self._settings.getFloat(["cost_rate"]) > 0:
+			self.print_job_started = True
+			self._tplinksmartplug_logger.debug(payload.get("path", None))
+			for plug in self._settings.get(["arrSmartplugs"]):
+				status = self.check_status(plug["ip"])
+				self.print_job_power -= float(self.deep_get(status,["emeter","get_realtime","total_wh"], default=0)) / 1000
+				self.print_job_power -= float(self.deep_get(status,["emeter","get_realtime","total"], default=0))
+				self._tplinksmartplug_logger.debug(self.print_job_power)
+
+		if event == Events.PRINT_DONE and self.print_job_started:
+			self._tplinksmartplug_logger.debug(payload)
+
+			for plug in self._settings.get(["arrSmartplugs"]):
+				status = self.check_status(plug["ip"])
+				self.print_job_power += float(self.deep_get(status,["emeter","get_realtime","total_wh"], default=0)) / 1000
+				self.print_job_power += float(self.deep_get(status,["emeter","get_realtime","total"], default=0))
+				self._tplinksmartplug_logger.debug(self.print_job_power)
+
+			hours = (payload.get("time", 0)/60)/60
+			self._tplinksmartplug_logger.debug("hours: %s" % hours)
+			power_used = self.print_job_power * hours
+			self._tplinksmartplug_logger.debug("power used: %s" % power_used)
+			power_cost = power_used * self._settings.getFloat(["cost_rate"])
+			self._tplinksmartplug_logger.debug("power total cost: %s" % power_cost)
+
+			self._storage_interface = self._file_manager._storage(payload.get("origin", "local"))
+			self._storage_interface.set_additional_metadata(payload.get("path"), "statistics", dict(lastPowerCost=dict(_default=float('{:.4f}'.format(power_cost)))), merge=True)
+
+			self.print_job_power = 0.0
+			self.print_job_started = False
+
 		if event == Events.PRINT_STARTED and self._automatic_shutdown_enabled:
 			if self._abort_timer is not None:
 				self._abort_timer.cancel()

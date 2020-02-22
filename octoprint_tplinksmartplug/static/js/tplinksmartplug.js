@@ -10,6 +10,41 @@ $(function() {
 
 		self.settings = parameters[0];
 		self.loginState = parameters[1];
+		self.filesViewModel = parameters[2];
+
+		self.filesViewModel.getAdditionalData = function(data) {
+			var output = "";
+			if (data["gcodeAnalysis"]) {
+				if (data["gcodeAnalysis"]["dimensions"]) {
+					var dimensions = data["gcodeAnalysis"]["dimensions"];
+					output += gettext("Model size") + ": " + _.sprintf("%(width).2fmm &times; %(depth).2fmm &times; %(height).2fmm", dimensions);
+					output += "<br>";
+				}
+				if (data["gcodeAnalysis"]["filament"] && typeof(data["gcodeAnalysis"]["filament"]) === "object") {
+					var filament = data["gcodeAnalysis"]["filament"];
+					if (_.keys(filament).length === 1) {
+						output += gettext("Filament") + ": " + formatFilament(data["gcodeAnalysis"]["filament"]["tool" + 0]) + "<br>";
+					} else if (_.keys(filament).length > 1) {
+						_.each(filament, function(f, k) {
+							if (!_.startsWith(k, "tool") || !f || !f.hasOwnProperty("length") || f["length"] <= 0) return;
+							output += gettext("Filament") + " (" + gettext("Tool") + " " + k.substr("tool".length)
+								+ "): " + formatFilament(f) + "<br>";
+						});
+					}
+				}
+				output += gettext("Estimated print time") + ": " + (self.settings.appearance_fuzzyTimes() ? formatFuzzyPrintTime(data["gcodeAnalysis"]["estimatedPrintTime"]) : formatDuration(data["gcodeAnalysis"]["estimatedPrintTime"])) + "<br>";
+			}
+			if (data["prints"] && data["prints"]["last"]) {
+				output += gettext("Last printed") + ": " + formatTimeAgo(data["prints"]["last"]["date"]) + "<br>";
+				if (data["prints"]["last"]["printTime"]) {
+					output += gettext("Last print time") + ": " + formatDuration(data["prints"]["last"]["printTime"]) + "<br>";
+				}
+			}
+			if (data["statistics"] && data["statistics"]["lastPowerCost"]) {
+				output += gettext("Last power cost") + ": " + data["statistics"]["lastPowerCost"]["_default"] + "<br>";
+			}
+			return output;
+		};
 
 		self.arrSmartplugs = ko.observableArray();
 		self.isPrinting = ko.observable(false);
@@ -192,10 +227,6 @@ $(function() {
 			var plugs_updated = (ko.toJSON(self.arrSmartplugs()) !== ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 			if(plugs_updated){
-/* 				console.log('onEventSettingsUpdated:');
-				console.log('arrSmartplugs: ' + ko.toJSON(self.arrSmartplugs()));
-				console.log('settings.settings.plugins.tplinksmartplug.arrSmartplugs: ' + ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
-				console.log('arrSmartplugs changed, checking statuses'); */
 				self.checkStatuses();
 			}
 		}
@@ -519,7 +550,7 @@ $(function() {
 
 	OCTOPRINT_VIEWMODELS.push([
 		tplinksmartplugViewModel,
-		["settingsViewModel","loginStateViewModel"],
+		["settingsViewModel","loginStateViewModel", "filesViewModel"],
 		["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug","#sidebar_plugin_tplinksmartplug_wrapper","#tab_plugin_tplinksmartplug","#tab_plugin_tplinksmartplug_link"]
 	]);
 });
