@@ -205,10 +205,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_print_progress(self, storage, path, progress):
 		self._tplinksmartplug_logger.debug("Checking statuses during print progress (%s)." % progress)
-		for plug in self._settings.get(["arrSmartplugs"]):
-			chk = self.lookup(plug,*["emeter","get_realtime","err_code"])
-			if chk == 0:
-				self._plugin_manager.send_plugin_message(self._identifier, dict(updatePlot=True))
+		# for plug in self._settings.get(["arrSmartplugs"]):
+			# chk = self.lookup(self.check_status(plug["ip"]),*["emeter","get_realtime","err_code"])
+			# if chk == 0:
+				# self._plugin_manager.send_plugin_message(self._identifier, dict(updatePlot=True))
+		self.check_statuses()
+		self._plugin_manager.send_plugin_message(self._identifier, dict(updatePlot=True))
 
 	##~~ SimpleApiPlugin mixin
 
