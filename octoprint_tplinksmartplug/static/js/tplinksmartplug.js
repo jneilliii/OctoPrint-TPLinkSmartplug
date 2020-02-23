@@ -92,7 +92,7 @@ $(function() {
 			confirm: {
 				confirm: true,
 				buttons: [{
-					text: 'Cancel Power Off',
+					text: gettext('Cancel Power Off'),
 					addClass: 'btn-block btn-danger',
 					promptTrigger: true,
 					click: function(notice, value){

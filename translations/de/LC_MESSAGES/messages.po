@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OctoPrint-TPLinkSmartplug 0.9.19\n"
 "Report-Msgid-Bugs-To: i18n@octoprint.org\n"
-"POT-Creation-Date: 2020-02-22 17:16-0500\n"
+"POT-Creation-Date: 2020-02-23 15:39-0500\n"
 "PO-Revision-Date: 2020-02-22 17:17-0500\n"
 "Last-Translator: Torsten Goltz <info@torstengoltz.de>\n"
 "Language: de\n"
@@ -18,6 +18,31 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.6.0\n"
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:20
+msgid "Model size"
+msgstr "Modellgröße"
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:26
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:30
+msgid "Filament"
+msgstr "Glühfaden"
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:30
+msgid "Tool"
+msgstr "Werkzeug"
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:35
+msgid "Estimated print time"
+msgstr "Geschätzte Druckzeit"
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:38
+msgid "Last printed"
+msgstr "Zuletzt gedruckt"
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:40
+msgid "Last print time"
+msgstr "Letzte Druckzeit"
 
 #: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:44
 msgid "Last power cost"
@@ -31,6 +56,10 @@ msgstr "Ausschalten in "
 msgid "Automatic Power Off"
 msgstr "autom. Ausschalten in "
 
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:95
+msgid "Cancel Power Off"
+msgstr "Abbrechen abbrechen"
+
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_navbar.jinja2:15
 msgid "Are you sure you want to proceed?"
 msgstr "Bist du sicher?"
@@ -43,6 +72,10 @@ msgstr "Abbrechen"
 msgid "Proceed"
 msgstr "Fortfahren"
 
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:1
+msgid "TP-Link Smartplug Settings"
+msgstr "TP-Link Smartplug-Einstellungen"
+
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:5
 msgid "Plug"
 msgstr "Stecker"
@@ -50,6 +83,52 @@ msgstr "Stecker"
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:6
 msgid "Options"
 msgstr "Einstellungen"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:14
+msgid "Automatic Power Off Enabled"
+msgstr "Automatisches Ausschalten aktiviert"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:15
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:124
+msgid "Warning Prompt"
+msgstr "Warnmeldung"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:16
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:125
+msgid "Warn While Printing"
+msgstr "Beim Drucken warnen"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:17
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:126
+msgid "Thermal Runaway"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:18
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:134
+msgid "Auto Connect"
+msgstr "Automatische Verbindung"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:19
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:135
+msgid "Auto Disconnect"
+msgstr "Automatische Trennung"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:20
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:148
+msgid "GCODE Trigger"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:21
+msgid "Run System Command On"
+msgstr "Führen Sie den Systembefehl ein"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:22
+msgid "Run System Command Off"
+msgstr "Führen Sie den Systembefehl aus"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:37
+msgid "Enable thermal runaway monitoring."
+msgstr "Aktivieren Sie die Überwachung des thermischen Durchgehens."
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:43
 msgid "Max Bed Temp"
@@ -59,6 +138,22 @@ msgstr "max. Heizbett Temp."
 msgid "Max Extruder Temp"
 msgstr "max. Extruder Temp."
 
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:55
+msgid "Enable error event monitoring."
+msgstr "Aktivieren Sie die Fehlerereignisüberwachung."
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:63
+msgid "Enable disconnect event monitoring."
+msgstr "Aktivieren Sie die Überwachung von Trennereignissen."
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:71
+msgid "Enable debug logging."
+msgstr "Aktivieren Sie die Debug-Protokollierung."
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:78
+msgid "Enable polling of status."
+msgstr "Aktivieren Sie die Abfrage des Status."
+
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:84
 msgid "Minutes between checks"
 msgstr "Minuten zwischen den Abfragen"
@@ -66,6 +161,22 @@ msgstr "Minuten zwischen den Abfragen"
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:90
 msgid "Cost per kWh"
 msgstr "Kosten pro kWh"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:95
+msgid "Cancel Automatic Power Off Timer"
+msgstr "Automatischen Ausschalt-Timer abbrechen"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:99
+msgid "sec"
+msgstr "sek"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:106
+msgid "Remember \"Automatic Power Off\""
+msgstr "Denken Sie an \"Automatisches Ausschalten\""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:114
+msgid "TP-Link Smartplug Editor"
+msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:119
 msgid "IP"
@@ -78,6 +189,22 @@ msgstr "Icon"
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:121
 msgid "Label"
 msgstr "Beschriftung"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:129
+msgid "Off on Print Complete"
+msgstr "Aus auf Druck abgeschlossen"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:130
+msgid "Off on Error"
+msgstr "Aus bei Fehler"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:131
+msgid "Off on Disconnect"
+msgstr "Aus ein Trennen"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:138
+msgid "Use Countdown Timers"
+msgstr "Verwenden Sie Countdown-Timer"
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:143
 msgid "On Delay Countdown"
@@ -95,10 +222,18 @@ msgstr "Verzögerung GCode EIN"
 msgid "GCODE Off Delay"
 msgstr "Verzögerung GCode AUS"
 
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:158
+msgid "Run System Command After On"
+msgstr "Führen Sie den Systembefehl nach Ein aus"
+
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:159
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:163
 msgid "Delay"
 msgstr "Verzögerung"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:162
+msgid "Run System Command Before Off"
+msgstr "Führen Sie den Systembefehl vor dem Ausschalten aus"
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:168
 msgid "Close"

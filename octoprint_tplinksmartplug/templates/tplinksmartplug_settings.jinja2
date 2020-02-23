@@ -1,4 +1,4 @@
-<h4>TP-Link Smartplug Settings</h4>
+<h4>{{ _('TP-Link Smartplug Settings') }}</h4>
 <table class="table table-condensed">
 	<thead>
 		<tr>
@@ -11,15 +11,15 @@
 		<tr data-bind="attr: {title: ip}">
 			<td><span data-bind="text: label" /></td>
 			<td style="text-align:center">
-				<i class="far" data-bind="css: {'fa-check-square': automaticShutdownEnabled(),'fa-square': !automaticShutdownEnabled()}" title="Automatic Power Off Enabled" />
-				<i class="far" data-bind="css: {'fa-check-square': displayWarning(),'fa-square': !displayWarning()}" title="Warning Prompt" />
-				<i class="far" data-bind="css: {'fa-check-square': warnPrinting(),'fa-square': !warnPrinting()}" title="Warn While Printing" />
-				<i class="far" data-bind="css: {'fa-check-square': thermal_runaway(),'fa-square': !thermal_runaway()}" title="Thermal Runaway" />
-				<i class="far" data-bind="css: {'fa-check-square': autoConnect(),'fa-square': !autoConnect()}" title="Auto Connect" />
-				<i class="far" data-bind="css: {'fa-check-square': autoDisconnect(),'fa-square': !autoDisconnect()}" title="Auto Disconnect" />
-				<i class="far" data-bind="css: {'fa-check-square': gcodeEnabled(),'fa-square': !gcodeEnabled()}" title="GCODE Trigger" />
-				<i class="far" data-bind="css: {'fa-check-square': sysCmdOn(),'fa-square': !sysCmdOn()}" title="Run System Command On" />
-				<i class="far" data-bind="css: {'fa-check-square': sysCmdOff(),'fa-square': !sysCmdOff()}" title="Run System Command Off" /></td>
+				<i class="far" data-bind="css: {'fa-check-square': automaticShutdownEnabled(),'fa-square': !automaticShutdownEnabled()}" title="{{ _('Automatic Power Off Enabled') }}" />
+				<i class="far" data-bind="css: {'fa-check-square': displayWarning(),'fa-square': !displayWarning()}" title="{{ _('Warning Prompt') }}" />
+				<i class="far" data-bind="css: {'fa-check-square': warnPrinting(),'fa-square': !warnPrinting()}" title="{{ _('Warn While Printing') }}" />
+				<i class="far" data-bind="css: {'fa-check-square': thermal_runaway(),'fa-square': !thermal_runaway()}" title="{{ _('Thermal Runaway') }}" />
+				<i class="far" data-bind="css: {'fa-check-square': autoConnect(),'fa-square': !autoConnect()}" title="{{ _('Auto Connect') }}" />
+				<i class="far" data-bind="css: {'fa-check-square': autoDisconnect(),'fa-square': !autoDisconnect()}" title="{{ _('Auto Disconnect') }}" />
+				<i class="far" data-bind="css: {'fa-check-square': gcodeEnabled(),'fa-square': !gcodeEnabled()}" title="{{ _('GCODE Trigger') }}" />
+				<i class="far" data-bind="css: {'fa-check-square': sysCmdOn(),'fa-square': !sysCmdOn()}" title="{{ _('Run System Command On') }}" />
+				<i class="far" data-bind="css: {'fa-check-square': sysCmdOff(),'fa-square': !sysCmdOff()}" title="{{ _('Run System Command Off') }}" /></td>
 			<td style="text-align:center">
 				<div class="btn-group">
 					<a href="#" class="btn btn-mini movePlug"><i class="fas fa-arrows-alt" aria-hidden="true"></i></a>
@@ -34,7 +34,7 @@
 <div class="control-group">
 	<div class="controls">
 		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring" /> Enable thermal runaway monitoring.
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring" /> {{ _('Enable thermal runaway monitoring.') }}
 		</label>
 	</div>
 </div>
@@ -52,7 +52,7 @@
 <div class="control-group">
 	<div class="controls">
 		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_error_monitoring" /> Enable error event monitoring.
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_error_monitoring" /> {{ _('Enable error event monitoring.') }}
 		</label>
 	</div>
 </div>
@@ -60,7 +60,7 @@
 <div class="control-group">
 	<div class="controls">
 		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_disconnect_monitoring" /> Enable disconnect event monitoring.
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_disconnect_monitoring" /> {{ _('Enable disconnect event monitoring.') }}
 		</label>
 	</div>
 </div>
@@ -68,14 +68,14 @@
 <div class="control-group">
 	<div class="controls">
 		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> Enable debug logging.
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> {{ _('Enable debug logging.') }}
 		</label>
 	</div>
 </div>
 <div class="control-group">
 	<div class="controls">
 		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.pollingEnabled" /> Enable polling of status.
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.pollingEnabled" /> {{ _('Enable polling of status.') }}
 		</label>
 	</div>
 </div>
@@ -92,18 +92,18 @@
 	</div>
 </div>
 <div class="control-group">
-	<label class="control-label">Cancel Automatic Power Off Timer</label>
+	<label class="control-label">{{ _('Cancel Automatic Power Off Timer') }}</label>
 	<div class="controls">
 		<div class="input-append">
 			<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.abortTimeout">
-			<span class="add-on">sec</span>
+			<span class="add-on">{{ _('sec') }}</span>
 		</div>
 	</div>
 </div>
 <div class="control-group">
 	<div class="controls">
 		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.rememberCheckBox"> Remember "Automatic Power Off"
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.rememberCheckBox"> {{ _('Remember "Automatic Power Off"') }}
 		</label>
 	</div>
 </div>
@@ -111,7 +111,7 @@
 <div id="TPLinkPlugEditor" data-bind="with: selectedPlug" class="modal hide fade">
 	<div class="modal-header">
 		<a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-		<h3>TP-Link Smartplug Editor</h3>
+		<h3>{{ _('TP-Link Smartplug Editor') }}</h3>
 	</div>
 	<div class="modal-body">
 		<table class="table table-condensed">
@@ -121,21 +121,21 @@
 				<td><div class="controls"><label class="control-label">{{ _('Label') }}</label><input type="text" class="input-block-level" data-bind="value: label" /></div></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: displayWarning"/> Warning Prompt</label></div></td>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: warnPrinting"/> Warn While Printing</label></div></td>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: thermal_runaway"/> Thermal Runaway</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: displayWarning"/> {{ _('Warning Prompt') }}</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: warnPrinting"/> {{ _('Warn While Printing') }}</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: thermal_runaway"/> {{ _('Thermal Runaway') }}</label></div></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: automaticShutdownEnabled"/> Off on Print Complete</label></div></td>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_error"/> Off on Error</label></div></td>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_disconnect"/> Off on Disconnect</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: automaticShutdownEnabled"/> {{ _('Off on Print Complete') }}</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_error"/> {{ _('Off on Error') }}</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_disconnect"/> {{ _('Off on Disconnect') }}</label></div></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoConnect"/> Auto Connect</label><input type="text" data-bind="value: autoConnectDelay,visible: autoConnect" class="input input-small" /></div></td>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoDisconnect"/> Auto Disconnect</label><input type="text" data-bind="value: autoDisconnectDelay,visible: autoDisconnect" class="input input-small" /></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoConnect"/> {{ _('Auto Connect') }}</label><input type="text" data-bind="value: autoConnectDelay,visible: autoConnect" class="input input-small" /></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoDisconnect"/> {{ _('Auto Disconnect') }}</label><input type="text" data-bind="value: autoDisconnectDelay,visible: autoDisconnect" class="input input-small" /></div></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: useCountdownRules"/> Use Countdown Timers</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: useCountdownRules"/> {{ _('Use Countdown Timers') }}</label></div></td>
 				<td></td>
 				<td></td>
 			</tr>
@@ -145,7 +145,7 @@
 				<td></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: gcodeEnabled"/> GCODE Trigger</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: gcodeEnabled"/> {{ _('GCODE Trigger') }}</label></div></td>
 				<td></td>
 				<td></td>
 			</tr>
@@ -155,11 +155,11 @@
 				<td></td>
 			</tr>
 			<tr>
-				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOn"/> Run System Command After On</label><input type="text" data-bind="value: sysRunCmdOn,visible: sysCmdOn" class="input-block-level" /></div></td>
+				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOn"/> {{ _('Run System Command After On') }}</label><input type="text" data-bind="value: sysRunCmdOn,visible: sysCmdOn" class="input-block-level" /></div></td>
 				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysCmdOn"><label class="control-label">{{ _('Delay') }}</label><input type="number" data-bind="value: sysCmdOnDelay"  class="input input-small" /></div></td>
 			</tr>
 			<tr>
-				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOff"/> Run System Command Before Off</label><input type="text" data-bind="value: sysRunCmdOff,visible: sysCmdOff" class="input-block-level" /></div></td>
+				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOff"/> {{ _('Run System Command Before Off') }}</label><input type="text" data-bind="value: sysRunCmdOff,visible: sysCmdOff" class="input-block-level" /></div></td>
 				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysCmdOff"><label class="control-label">{{ _('Delay') }}</label><input type="number" data-bind="value: sysCmdOffDelay"  class="input input-small" /></div></td>
 			</tr>
 		</table>
