@@ -1,0 +1,142 @@
+# Translations template for OctoPrint-TPLinkSmartplug.
+# Copyright (C) 2020 The OctoPrint Project
+# This file is distributed under the same license as the
+# OctoPrint-TPLinkSmartplug project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: OctoPrint-TPLinkSmartplug 0.9.19\n"
+"Report-Msgid-Bugs-To: i18n@octoprint.org\n"
+"POT-Creation-Date: 2020-02-22 17:16-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:20
+msgid "Model size"
+msgstr ""
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:26
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:30
+msgid "Filament"
+msgstr ""
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:30
+msgid "Tool"
+msgstr ""
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:35
+msgid "Estimated print time"
+msgstr ""
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:38
+msgid "Last printed"
+msgstr ""
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:40
+msgid "Last print time"
+msgstr ""
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:44
+msgid "Last power cost"
+msgstr ""
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:86
+msgid "Powering off in "
+msgstr ""
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:88
+msgid "Automatic Power Off"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_navbar.jinja2:15
+msgid "Are you sure you want to proceed?"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_navbar.jinja2:19
+msgid "Cancel"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_navbar.jinja2:20
+msgid "Proceed"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:5
+msgid "Plug"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:6
+msgid "Options"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:43
+msgid "Max Bed Temp"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:47
+msgid "Max Extruder Temp"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:84
+msgid "Minutes between checks"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:90
+msgid "Cost per kWh"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:119
+msgid "IP"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:120
+msgid "Icon"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:121
+msgid "Label"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:143
+msgid "On Delay Countdown"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:144
+msgid "Off Delay Countdown"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:153
+msgid "GCODE On Delay"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:154
+msgid "GCODE Off Delay"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:159
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:163
+msgid "Delay"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:168
+msgid "Close"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_tab.jinja2:9
+msgid "Plug to Graph"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_tab.jinja2:15
+msgid "Records"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_tab.jinja2:21
+msgid "Offset"
+msgstr ""
+

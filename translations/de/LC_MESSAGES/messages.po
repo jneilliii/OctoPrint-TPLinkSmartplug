@@ -1,0 +1,118 @@
+# German translations for OctoPrint-TPLinkSmartplug.
+# Copyright (C) 2020 The OctoPrint Project
+# This file is distributed under the same license as the
+# OctoPrint-TPLinkSmartplug project.
+# Torsten Goltz <info@torstengoltz.de>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OctoPrint-TPLinkSmartplug 0.9.19\n"
+"Report-Msgid-Bugs-To: i18n@octoprint.org\n"
+"POT-Creation-Date: 2020-02-22 17:16-0500\n"
+"PO-Revision-Date: 2020-02-22 17:17-0500\n"
+"Last-Translator: Torsten Goltz <info@torstengoltz.de>\n"
+"Language: de\n"
+"Language-Team: de <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:44
+msgid "Last power cost"
+msgstr "Energiekosten"
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:86
+msgid "Powering off in "
+msgstr "Ausschalten in "
+
+#: octoprint_tplinksmartplug/static/js/tplinksmartplug.js:88
+msgid "Automatic Power Off"
+msgstr "autom. Ausschalten in "
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_navbar.jinja2:15
+msgid "Are you sure you want to proceed?"
+msgstr "Bist du sicher?"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_navbar.jinja2:19
+msgid "Cancel"
+msgstr "Abbrechen"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_navbar.jinja2:20
+msgid "Proceed"
+msgstr "Fortfahren"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:5
+msgid "Plug"
+msgstr "Stecker"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:6
+msgid "Options"
+msgstr "Einstellungen"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:43
+msgid "Max Bed Temp"
+msgstr "max. Heizbett Temp."
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:47
+msgid "Max Extruder Temp"
+msgstr "max. Extruder Temp."
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:84
+msgid "Minutes between checks"
+msgstr "Minuten zwischen den Abfragen"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:90
+msgid "Cost per kWh"
+msgstr "Kosten pro kWh"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:119
+msgid "IP"
+msgstr "IP"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:120
+msgid "Icon"
+msgstr "Icon"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:121
+msgid "Label"
+msgstr "Beschriftung"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:143
+msgid "On Delay Countdown"
+msgstr "Verzögerung EIN"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:144
+msgid "Off Delay Countdown"
+msgstr "Verzögerung AUS"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:153
+msgid "GCODE On Delay"
+msgstr "Verzögerung GCode EIN"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:154
+msgid "GCODE Off Delay"
+msgstr "Verzögerung GCode AUS"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:159
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:163
+msgid "Delay"
+msgstr "Verzögerung"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:168
+msgid "Close"
+msgstr "Schliessen"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_tab.jinja2:9
+msgid "Plug to Graph"
+msgstr "Statistik für "
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_tab.jinja2:15
+msgid "Records"
+msgstr "Aufzeichnungen"
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_tab.jinja2:21
+msgid "Offset"
+msgstr "Versatz"
+
