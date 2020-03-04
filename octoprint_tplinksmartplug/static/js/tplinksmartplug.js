@@ -77,7 +77,7 @@ $(function() {
 		})
 
 		self.toggleShutdownTitle = ko.pureComputed(function() {
-			return self.automaticShutdownEnabled() ? 'Disable Automatic Power Off' : 'Enable Automatic Power Off';
+			return self.settings.settings.plugins.tplinksmartplug.automatic_power_off() ? 'Disable Automatic Power Off' : 'Enable Automatic Power Off';
 		})
 
 		// Hack to remove automatically added Cancel button
@@ -110,18 +110,8 @@ $(function() {
 			}
 		};
 
-		self.onAutomaticShutdownEvent = function() {
-			if (self.automaticShutdownEnabled()) {
-				$.ajax({
-					url: API_BASEURL + "plugin/tplinksmartplug",
-					type: "POST",
-					dataType: "json",
-					data: JSON.stringify({
-						command: "enableAutomaticShutdown"
-					}),
-					contentType: "application/json; charset=UTF-8"
-				})
-			} else {
+		self.onToggleAutomaticShutdown = function(data) {
+			if (self.settings.settings.plugins.tplinksmartplug.automatic_power_off()) {
 				$.ajax({
 					url: API_BASEURL + "plugin/tplinksmartplug",
 					type: "POST",
@@ -131,16 +121,16 @@ $(function() {
 					}),
 					contentType: "application/json; charset=UTF-8"
 				})
-			}
-		}
-
-		self.automaticShutdownEnabled.subscribe(self.onAutomaticShutdownEvent, self);
-
-		self.onToggleAutomaticShutdown = function(data) {
-			if (self.automaticShutdownEnabled()) {
-				self.automaticShutdownEnabled(false);
 			} else {
-				self.automaticShutdownEnabled(true);
+				$.ajax({
+					url: API_BASEURL + "plugin/tplinksmartplug",
+					type: "POST",
+					dataType: "json",
+					data: JSON.stringify({
+						command: "enableAutomaticShutdown"
+					}),
+					contentType: "application/json; charset=UTF-8"
+				})
 			}
 		}
 
@@ -308,8 +298,8 @@ $(function() {
 				self.plotEnergyData();
 			}
 
-			if(data.automaticShutdownEnabled) {
-				self.automaticShutdownEnabled(data.automaticShutdownEnabled);
+			if(data.hasOwnProperty("automaticShutdownEnabled")) {
+				self.settings.settings.plugins.tplinksmartplug.automatic_power_off(data.automaticShutdownEnabled);
 
 				if (data.type == "timeout") {
 					if ((data.timeout_value != null) && (data.timeout_value > 0)) {

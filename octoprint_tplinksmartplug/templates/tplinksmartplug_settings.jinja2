@@ -92,6 +92,13 @@
 	</div>
 </div>
 <div class="control-group">
+	<div class="controls">
+		<label class="checkbox">
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.automatic_power_off"> {{ _('Automatic Power Off') }} <i class="icon icon-info-sign" title="{{ _('Automatically power off all plugs with the option Off on Print Complete enabled.') }}"></i>
+		</label>
+	</div>
+</div>
+<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.automatic_power_off">
 	<label class="control-label">{{ _('Cancel Automatic Power Off Timer') }}</label>
 	<div class="controls">
 		<div class="input-append">
@@ -100,11 +107,20 @@
 		</div>
 	</div>
 </div>
-<div class="control-group">
+<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.automatic_power_off">
 	<div class="controls">
 		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.rememberCheckBox"> {{ _('Remember "Automatic Power Off"') }}
+		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.cooldownEnabled"> {{ _('Cooldown Enabled') }} <i class="icon icon-info-sign" title="{{ _('Currently only supported if Automatic Power Off is enabled.') }}"></i>
 		</label>
+	</div>
+</div>
+<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.cooldownEnabled && settings.settings.plugins.tplinksmartplug.automatic_power_off">
+	<label class="control-label">{{ _('Cooldown Target Temperature') }}</label>
+	<div class="controls">
+		<div class="input-append">
+			<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.cooldownThreshold">
+			<span class="add-on">{{ _('deg') }}</span>
+		</div>
 	</div>
 </div>
 
