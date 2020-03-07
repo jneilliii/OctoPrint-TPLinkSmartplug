@@ -55,7 +55,7 @@ $(function() {
 		self.plotted_graph_records_offset = ko.observable(0);
 		self.dictSmartplugs = ko.observableDictionary();
 		self.refreshVisible = ko.observable(true);
-		self.automaticShutdownEnabled = ko.observable(false);
+		self.powerOffWhenIdle = ko.observable(false);
 		self.filteredSmartplugs = ko.computed(function(){
 			return ko.utils.arrayFilter(self.dictSmartplugs.items(), function(item) {
 						return "err_code" in item.value().emeter.get_realtime;
@@ -77,7 +77,7 @@ $(function() {
 		})
 
 		self.toggleShutdownTitle = ko.pureComputed(function() {
-			return self.settings.settings.plugins.tplinksmartplug.automatic_power_off() ? 'Disable Automatic Power Off' : 'Enable Automatic Power Off';
+			return self.settings.settings.plugins.tplinksmartplug.powerOffWhenIdle() ? 'Disable Automatic Power Off' : 'Enable Automatic Power Off';
 		})
 
 		// Hack to remove automatically added Cancel button
@@ -111,7 +111,7 @@ $(function() {
 		};
 
 		self.onToggleAutomaticShutdown = function(data) {
-			if (self.settings.settings.plugins.tplinksmartplug.automatic_power_off()) {
+			if (self.settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()) {
 				$.ajax({
 					url: API_BASEURL + "plugin/tplinksmartplug",
 					type: "POST",
@@ -298,8 +298,8 @@ $(function() {
 				self.plotEnergyData();
 			}
 
-			if(data.hasOwnProperty("automaticShutdownEnabled")) {
-				self.settings.settings.plugins.tplinksmartplug.automatic_power_off(data.automaticShutdownEnabled);
+			if(data.hasOwnProperty("powerOffWhenIdle")) {
+				self.settings.settings.plugins.tplinksmartplug.powerOffWhenIdle(data.powerOffWhenIdle);
 
 				if (data.type == "timeout") {
 					if ((data.timeout_value != null) && (data.timeout_value > 0)) {

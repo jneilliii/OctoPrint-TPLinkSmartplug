@@ -31,95 +31,115 @@
 	</tbody>
 </table>
 
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring" /> {{ _('Enable thermal runaway monitoring.') }}
-		</label>
-	</div>
-</div>
-<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring">
-	<div class="controls">
-		<label class="control-label">{{ _('Max Bed Temp') }}</label>
-		<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.thermal_runaway_max_bed" />
-	</div>
-	<div class="controls">
-		<label class="control-label">{{ _('Max Extruder Temp') }}</label>
-		<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.thermal_runaway_max_extruder" />
-	</div>
-</div>
-
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_error_monitoring" /> {{ _('Enable error event monitoring.') }}
-		</label>
-	</div>
-</div>
-
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_disconnect_monitoring" /> {{ _('Enable disconnect event monitoring.') }}
-		</label>
-	</div>
-</div>
-
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> {{ _('Enable debug logging.') }}
-		</label>
-	</div>
-</div>
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.pollingEnabled" /> {{ _('Enable polling of status.') }}
-		</label>
-	</div>
-</div>
-<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.pollingEnabled">
-	<div class="controls">
-		<label class="control-label">{{ _('Minutes between checks') }}</label>
-		<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.pollingInterval" />
-	</div>
-</div>
-<div class="control-group">
-	<div class="controls">
-		<label class="control-label">{{ _('Cost per kWh') }}</label>
-		<input type="number" min="0" step="0.001" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.cost_rate" />
-	</div>
-</div>
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.automatic_power_off"> {{ _('Automatic Power Off') }} <i class="icon icon-info-sign" title="{{ _('Automatically power off all plugs with the option Off on Print Complete enabled.') }}"></i>
-		</label>
-	</div>
-</div>
-<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.automatic_power_off">
-	<label class="control-label">{{ _('Cancel Automatic Power Off Timer') }}</label>
-	<div class="controls">
-		<div class="input-append">
-			<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.abortTimeout">
-			<span class="add-on">{{ _('sec') }}</span>
+<div class="row-fluid">
+	<div class="span6">
+		<div class="control-group">
+			<div class="controls">
+				<label class="checkbox">
+				<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring" /> {{ _('Enable thermal runaway monitoring.') }}
+				</label>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">{{ _('Max Bed Temp') }}</label>
+			<div class="controls">
+				<div class="input-append">
+					<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.thermal_runaway_max_bed, enable: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring()" disabled />
+					<span class="add-on">{{ _('secs') }}</span>
+				</div>
+			</div>
+			<label class="control-label">{{ _('Max Extruder Temp') }}</label>
+			<div class="controls">
+				<div class="input-append">
+					<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.thermal_runaway_max_extruder, enable: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring()" disabled />
+					<span class="add-on">{{ _('secs') }}</span>
+				</div>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<label class="checkbox">
+				<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_error_monitoring" /> {{ _('Enable error event monitoring.') }}
+				</label>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<label class="checkbox">
+				<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_disconnect_monitoring" /> {{ _('Enable disconnect event monitoring.') }}
+				</label>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<label class="checkbox">
+				<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> {{ _('Enable debug logging.') }}
+				</label>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<label class="checkbox">
+				<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.pollingEnabled" /> {{ _('Enable polling of status.') }}
+				</label>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">{{ _('Polling Interval') }}</label>
+			<div class="controls">
+				<div class="input-append">
+					<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.pollingInterval, enable: settings.settings.plugins.tplinksmartplug.pollingEnabled" disabled />
+					<span class="add-on">{{ _('mins') }}</span>
+				</div>
+			</div>
+		</div>
+		<div class="control-group">
+			<div class="controls">
+				<label class="control-label">{{ _('Cost per kWh') }}</label>
+				<input type="number" min="0" step="0.001" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.cost_rate" />
+			</div>
 		</div>
 	</div>
-</div>
-<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.automatic_power_off">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.cooldownEnabled"> {{ _('Cooldown Enabled') }} <i class="icon icon-info-sign" title="{{ _('Currently only supported if Automatic Power Off is enabled.') }}"></i>
-		</label>
-	</div>
-</div>
-<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.cooldownEnabled && settings.settings.plugins.tplinksmartplug.automatic_power_off">
-	<label class="control-label">{{ _('Cooldown Target Temperature') }}</label>
-	<div class="controls">
-		<div class="input-append">
-			<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.cooldownThreshold">
-			<span class="add-on">{{ _('deg') }}</span>
+	<div class="span6">
+		<div class="control-group">
+			<div class="controls">
+				<label class="checkbox">
+				<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle" /> {{ _('Power Off on Idle') }} <i class="icon icon-info-sign" title="{{ _('Automatically power off all plugs with the option Off on Idle enabled after configured idle timeout, target tempoerature is reached, and timelapse is completed.') }}"></i>
+				</label>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">{{ _('Abort Power Off Timeout') }} <i class="icon icon-info-sign" title="{{ _('Pop up will be displayed for this amount of time to allow for cancelling power off of plugs.') }}"></i></label>
+			<div class="controls">
+				<div class="input-append">
+					<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.abortTimeout, enable: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()" disabled />
+					<span class="add-on">{{ _('secs') }}</span>
+				</div>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">{{ _('Idle Timeout') }} <i class="icon icon-info-sign" title="{{ _('Amount of time that will lapse before printer is considered idle and plugs will be powered off.') }}"></i></label>
+			<div class="controls">
+				<div class="input-append">
+					<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.idleTimeout, enable: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle() && settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()" disabled />
+					<span class="add-on">{{ _('mins') }}</span>
+				</div>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">{{ _('Idle Target Temperature') }} <i class="icon icon-info-sign" title="{{ _('Power off will be delayed untill all heaters reach this temperature.') }}"></i></label>
+			<div class="controls">
+				<div class="input-append">
+					<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.idleTimeoutWaitTemp, enable: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle() && settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()" disabled />
+					<span class="add-on">{{ _('deg') }}</span>
+				</div>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">{{ _('GCode Commands to Ignore for Idle') }} <i class="icon icon-info-sign" title="{{ _('Comma separated list of gcode commands to ignore for determining printer idle state.') }}"></i></label>
+			<div class="controls">
+				<input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.idleIgnoreCommands, enable: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle() && settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()" disabled />
+			</div>
 		</div>
 	</div>
 </div>
@@ -142,7 +162,7 @@
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: thermal_runaway"/> {{ _('Thermal Runaway') }}</label></div></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: automaticShutdownEnabled"/> {{ _('Off on Print Complete') }}</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: automaticShutdownEnabled"/> {{ _('Off on Idle') }}</label></div></td>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_error"/> {{ _('Off on Error') }}</label></div></td>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_disconnect"/> {{ _('Off on Disconnect') }}</label></div></td>
 			</tr>
