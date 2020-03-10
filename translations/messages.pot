@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OctoPrint-TPLinkSmartplug 0.9.19\n"
 "Report-Msgid-Bugs-To: i18n@octoprint.org\n"
-"POT-Creation-Date: 2020-02-23 15:39-0500\n"
+"POT-Creation-Date: 2020-03-09 00:17-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,32 +88,32 @@ msgid "Automatic Power Off Enabled"
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:15
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:124
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:162
 msgid "Warning Prompt"
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:16
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:125
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:163
 msgid "Warn While Printing"
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:17
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:126
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:164
 msgid "Thermal Runaway"
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:18
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:134
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:172
 msgid "Auto Connect"
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:19
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:135
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:173
 msgid "Auto Disconnect"
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:20
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:148
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:186
 msgid "GCODE Trigger"
 msgstr ""
 
@@ -125,116 +125,355 @@ msgstr ""
 msgid "Run System Command Off"
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:37
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:39
+msgid ""
+"When enabled if temperatures exceed configured maximums enabled plugs "
+"will be powered off."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:39
 msgid "Enable thermal runaway monitoring."
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:43
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:44
 msgid "Max Bed Temp"
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:47
+msgid "Maximum temperature bed can reach before automatic power off is triggered."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:48
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:55
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:127
+msgid "degs"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:51
 msgid "Max Extruder Temp"
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:55
-msgid "Enable error event monitoring."
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:54
+msgid ""
+"Maximum temperature extruders can reach before automatic power off is "
+"triggered."
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:63
-msgid "Enable disconnect event monitoring."
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:62
+msgid ""
+"When enabled if printer reports an error plugs with the option enabled "
+"will be automatically powered off."
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:71
-msgid "Enable debug logging."
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:62
+msgid "Error Event Monitoring"
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:78
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:69
+msgid ""
+"When enabled if printer becomes disconnected plugs with the option "
+"enabled will be automatically powered off."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:69
+msgid "Disconnect Event Monitoring"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:76
+msgid ""
+"When enabled the status of plugs will be checked based on the Polling "
+"Interval supplied."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:76
 msgid "Enable polling of status."
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:84
-msgid "Minutes between checks"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:81
+msgid "Polling Interval"
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:90
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:84
+msgid ""
+"How long to wait between status checks of all plugs when polling is "
+"enabled."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:85
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:118
+msgid "mins"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:91
 msgid "Cost per kWh"
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:95
-msgid "Cancel Automatic Power Off Timer"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:92
+msgid "Amount used to multiply total kWh by to estimate power cost."
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:99
-msgid "sec"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:100
+msgid ""
+"Automatically power off all plugs with the option Off on Idle enabled "
+"after configured idle timeout, target tempoerature is reached, and "
+"timelapse is completed."
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:106
-msgid "Remember \"Automatic Power Off\""
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:100
+msgid "Power Off on Idle"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:105
+msgid "Abort Power Off Timeout"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:108
+msgid ""
+"Pop up will be displayed for this amount of time to allow for cancelling "
+"power off of plugs."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:109
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:172
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:173
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:181
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:182
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:191
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:192
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:197
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:201
+msgid "secs"
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:114
-msgid "TP-Link Smartplug Editor"
+msgid "Idle Timeout"
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:119
-msgid "IP"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:117
+msgid ""
+"Amount of time that will lapse before printer is considered idle and "
+"plugs will be powered off."
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:120
-msgid "Icon"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:123
+msgid "Idle Target Temperature"
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:121
-msgid "Label"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:126
+msgid "Power off will be delayed untill all heaters reach this temperature."
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:129
-msgid "Off on Print Complete"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:132
+msgid "GCode Commands to Ignore for Idle"
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:130
-msgid "Off on Error"
-msgstr ""
-
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:131
-msgid "Off on Disconnect"
-msgstr ""
-
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:138
-msgid "Use Countdown Timers"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:134
+msgid ""
+"Comma separated list of gcode commands to ignore for determining printer "
+"idle state."
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:143
-msgid "On Delay Countdown"
+msgid "Enable custom debug logging to assist with troubleshooting."
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:144
-msgid "Off Delay Countdown"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:143
+msgid "Enable debug logging."
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:153
-msgid "GCODE On Delay"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:152
+msgid "TP-Link Smartplug Editor"
 msgstr ""
 
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:154
-msgid "GCODE Off Delay"
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:157
+msgid "IP"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:157
+msgid "IP for plug."
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:158
-msgid "Run System Command After On"
+msgid "Icon"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:158
+msgid "Icon to use for button in navbar."
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:159
-#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:163
-msgid "Delay"
+msgid "Label"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:159
+msgid "Label to display on hovering mouse over button in navbar."
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:162
-msgid "Run System Command Before Off"
+msgid ""
+"Display a onfirmation prompt when powering off plug using button in "
+"navbar."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:163
+msgid ""
+"Display a confirmation prompt when powering off plug using button in "
+"navbar while printing. "
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:164
+msgid ""
+"Automatically power off this plug when temperatures exceed configured "
+"maximum temperatures."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:167
+msgid ""
+"Automatically power off this plug when Power Off on Idle is enabled and "
+"configured timeouts and temperatures are reached."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:167
+msgid "Off on Idle"
 msgstr ""
 
 #: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:168
+msgid "Automatically power off this plug when Error Event Monitoring is enabled."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:168
+msgid "Off on Error"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:169
+msgid ""
+"Automatically power off this plug when Disconnect Event Monitoring is "
+"enabled."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:169
+msgid "Off on Disconnect"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:172
+msgid ""
+"Automatically connect to printer after powerering on this plug and "
+"waiting for configured delay."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:172
+msgid "Amount of time to wait before attempting to connect to printer."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:173
+msgid ""
+"Automatically disconnect from printer before waiting configured delay and"
+" powering off this plug."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:173
+msgid "Amount of time to wait after disconnecting."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:176
+msgid ""
+"When enabled the on and off commands will be sent to the plug using "
+"timers similar to the Kasa app. This is helpful for when you want to run "
+"a system command to cleanly shutdown your pi prior to power it off."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:176
+msgid "Use Timers"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:181
+msgid "Timer On Delay"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:181
+msgid "Amount of time for Timer to wait before powering on."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:182
+msgid "Timer Off Delay"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:182
+msgid "Amount of time for Timer to wait before powering off."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:186
+msgid ""
+"When enabled special GCODE commands can be monitored to power this plug "
+"on and off."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:191
+msgid "GCODE On Delay"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:191
+msgid ""
+"Amount of time to wait after receiving GCODE command for powering on this"
+" plug."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:192
+msgid "GCODE Off Delay"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:192
+msgid ""
+"Amount of time to wait after receiving GCODE command for powering off "
+"this plug."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:196
+msgid ""
+"Run system command after powering on this plug and waiting configured "
+"delay."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:196
+msgid "Run System Command After On"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:196
+msgid "System command to run after powering on this plug."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:197
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:201
+msgid "Delay"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:197
+msgid ""
+"Amount of time to wait before running configured system command after "
+"power on."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:200
+msgid ""
+"Run system command after powering off this plug and waiting configured "
+"delay."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:200
+msgid "Run System Command Before Off"
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:200
+msgid "System command to run after powering off this plug."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:201
+msgid ""
+"Amount of time to wait before running configured system command after "
+"power off."
+msgstr ""
+
+#: octoprint_tplinksmartplug/templates/tplinksmartplug_settings.jinja2:206
 msgid "Close"
 msgstr ""
 
