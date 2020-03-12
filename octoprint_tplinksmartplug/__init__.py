@@ -886,7 +886,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on of %s." % plugip)
 				plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 				self._tplinksmartplug_logger.debug(plug)
-				if plug["gcodeEnabled"]:
+				if plug and plug["gcodeEnabled"]:
 					t = threading.Timer(int(plug["gcodeOnDelay"]),self.gcode_turn_on,[plug])
 					t.start()
 				return
@@ -895,7 +895,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.debug("Received M81 command, attempting power off of %s." % plugip)
 				plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 				self._tplinksmartplug_logger.debug(plug)
-				if plug["gcodeEnabled"]:
+				if plug and plug["gcodeEnabled"]:
 					t = threading.Timer(int(plug["gcodeOffDelay"]),self.gcode_turn_off,[plug])
 					t.start()
 				return
@@ -910,7 +910,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug("Received @TPLINKON command, attempting power on of %s." % plugip)
 			plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 			self._tplinksmartplug_logger.debug(plug)
-			if plug["gcodeEnabled"]:
+			if plug and plug["gcodeEnabled"]:
 				t = threading.Timer(int(plug["gcodeOnDelay"]),self.gcode_turn_on,[plug])
 				t.start()
 			return None
@@ -919,7 +919,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug("Received TPLINKOFF command, attempting power off of %s." % plugip)
 			plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 			self._tplinksmartplug_logger.debug(plug)
-			if plug["gcodeEnabled"]:
+			if plug and plug["gcodeEnabled"]:
 				t = threading.Timer(int(plug["gcodeOffDelay"]),self.gcode_turn_off,[plug])
 				t.start()
 			return None
@@ -973,7 +973,7 @@ def __plugin_load__():
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {
-		"octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.processGCODE,
+		"octoprint.comm.protocol.gcode.sent": __plugin_implementation__.processGCODE,
 		"octoprint.comm.protocol.temperatures.received": __plugin_implementation__.monitor_temperatures,
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
 	}
