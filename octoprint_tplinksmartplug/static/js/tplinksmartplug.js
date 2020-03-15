@@ -10,6 +10,41 @@ $(function() {
 
 		self.settings = parameters[0];
 		self.loginState = parameters[1];
+		self.filesViewModel = parameters[2];
+
+		self.filesViewModel.getAdditionalData = function(data) {
+			var output = "";
+			if (data["gcodeAnalysis"]) {
+				if (data["gcodeAnalysis"]["dimensions"]) {
+					var dimensions = data["gcodeAnalysis"]["dimensions"];
+					output += gettext("Model size") + ": " + _.sprintf("%(width).2fmm &times; %(depth).2fmm &times; %(height).2fmm", dimensions);
+					output += "<br>";
+				}
+				if (data["gcodeAnalysis"]["filament"] && typeof(data["gcodeAnalysis"]["filament"]) === "object") {
+					var filament = data["gcodeAnalysis"]["filament"];
+					if (_.keys(filament).length === 1) {
+						output += gettext("Filament") + ": " + formatFilament(data["gcodeAnalysis"]["filament"]["tool" + 0]) + "<br>";
+					} else if (_.keys(filament).length > 1) {
+						_.each(filament, function(f, k) {
+							if (!_.startsWith(k, "tool") || !f || !f.hasOwnProperty("length") || f["length"] <= 0) return;
+							output += gettext("Filament") + " (" + gettext("Tool") + " " + k.substr("tool".length)
+								+ "): " + formatFilament(f) + "<br>";
+						});
+					}
+				}
+				output += gettext("Estimated print time") + ": " + (self.settings.appearance_fuzzyTimes() ? formatFuzzyPrintTime(data["gcodeAnalysis"]["estimatedPrintTime"]) : formatDuration(data["gcodeAnalysis"]["estimatedPrintTime"])) + "<br>";
+			}
+			if (data["prints"] && data["prints"]["last"]) {
+				output += gettext("Last printed") + ": " + formatTimeAgo(data["prints"]["last"]["date"]) + "<br>";
+				if (data["prints"]["last"]["printTime"]) {
+					output += gettext("Last print time") + ": " + formatDuration(data["prints"]["last"]["printTime"]) + "<br>";
+				}
+			}
+			if (data["statistics"] && data["statistics"]["lastPowerCost"]) {
+				output += gettext("Last power cost") + ": " + data["statistics"]["lastPowerCost"]["_default"] + "<br>";
+			}
+			return output;
+		};
 
 		self.arrSmartplugs = ko.observableArray();
 		self.isPrinting = ko.observable(false);
@@ -20,7 +55,7 @@ $(function() {
 		self.plotted_graph_records_offset = ko.observable(0);
 		self.dictSmartplugs = ko.observableDictionary();
 		self.refreshVisible = ko.observable(true);
-		self.automaticShutdownEnabled = ko.observable(false);
+		self.powerOffWhenIdle = ko.observable(false);
 		self.filteredSmartplugs = ko.computed(function(){
 			return ko.utils.arrayFilter(self.dictSmartplugs.items(), function(item) {
 						return "err_code" in item.value().emeter.get_realtime;
@@ -42,7 +77,7 @@ $(function() {
 		})
 
 		self.toggleShutdownTitle = ko.pureComputed(function() {
-			return self.automaticShutdownEnabled() ? 'Disable Automatic Power Off' : 'Enable Automatic Power Off';
+			return self.settings.settings.plugins.tplinksmartplug.powerOffWhenIdle() ? 'Disable Automatic Power Off' : 'Enable Automatic Power Off';
 		})
 
 		// Hack to remove automatically added Cancel button
@@ -57,7 +92,7 @@ $(function() {
 			confirm: {
 				confirm: true,
 				buttons: [{
-					text: 'Cancel Power Off',
+					text: gettext('Cancel Power Off'),
 					addClass: 'btn-block btn-danger',
 					promptTrigger: true,
 					click: function(notice, value){
@@ -75,18 +110,8 @@ $(function() {
 			}
 		};
 
-		self.onAutomaticShutdownEvent = function() {
-			if (self.automaticShutdownEnabled()) {
-				$.ajax({
-					url: API_BASEURL + "plugin/tplinksmartplug",
-					type: "POST",
-					dataType: "json",
-					data: JSON.stringify({
-						command: "enableAutomaticShutdown"
-					}),
-					contentType: "application/json; charset=UTF-8"
-				})
-			} else {
+		self.onToggleAutomaticShutdown = function(data) {
+			if (self.settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()) {
 				$.ajax({
 					url: API_BASEURL + "plugin/tplinksmartplug",
 					type: "POST",
@@ -96,16 +121,16 @@ $(function() {
 					}),
 					contentType: "application/json; charset=UTF-8"
 				})
-			}
-		}
-
-		self.automaticShutdownEnabled.subscribe(self.onAutomaticShutdownEvent, self);
-
-		self.onToggleAutomaticShutdown = function(data) {
-			if (self.automaticShutdownEnabled()) {
-				self.automaticShutdownEnabled(false);
 			} else {
-				self.automaticShutdownEnabled(true);
+				$.ajax({
+					url: API_BASEURL + "plugin/tplinksmartplug",
+					type: "POST",
+					dataType: "json",
+					data: JSON.stringify({
+						command: "enableAutomaticShutdown"
+					}),
+					contentType: "application/json; charset=UTF-8"
+				})
 			}
 		}
 
@@ -192,10 +217,6 @@ $(function() {
 			var plugs_updated = (ko.toJSON(self.arrSmartplugs()) !== ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
 			self.arrSmartplugs(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs());
 			if(plugs_updated){
-/* 				console.log('onEventSettingsUpdated:');
-				console.log('arrSmartplugs: ' + ko.toJSON(self.arrSmartplugs()));
-				console.log('settings.settings.plugins.tplinksmartplug.arrSmartplugs: ' + ko.toJSON(self.settings.settings.plugins.tplinksmartplug.arrSmartplugs()));
-				console.log('arrSmartplugs changed, checking statuses'); */
 				self.checkStatuses();
 			}
 		}
@@ -265,15 +286,20 @@ $(function() {
 				return;
 			}
 
-			if(/* data.currentState || */ data.check_status){
+			if(data.currentState){
+				self.updateDictionary(data);
+			}
+
+			if(data.check_status){
 				self.checkStatus(data.ip);
 			}
+
 			if(data.updatePlot && window.location.href.indexOf('tplinksmartplug') > 0){
 				self.plotEnergyData();
 			}
 
-			if(data.automaticShutdownEnabled) {
-				self.automaticShutdownEnabled(data.automaticShutdownEnabled);
+			if(data.hasOwnProperty("powerOffWhenIdle")) {
+				self.settings.settings.plugins.tplinksmartplug.powerOffWhenIdle(data.powerOffWhenIdle);
 
 				if (data.type == "timeout") {
 					if ((data.timeout_value != null) && (data.timeout_value > 0)) {
@@ -509,15 +535,12 @@ $(function() {
 					self.checkStatus(item.ip());
 				}
 			});
-			if (self.settings.settings.plugins.tplinksmartplug.pollingEnabled() && parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval(),10) > 0) {
-				setTimeout(function() {self.checkStatuses();}, (parseInt(self.settings.settings.plugins.tplinksmartplug.pollingInterval(),10) * 60000));
-			};
 		};
 	}
 
 	OCTOPRINT_VIEWMODELS.push([
 		tplinksmartplugViewModel,
-		["settingsViewModel","loginStateViewModel"],
-		["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug","#sidebar_plugin_tplinksmartplug_wrapper","#tab_plugin_tplinksmartplug"]
+		["settingsViewModel","loginStateViewModel", "filesViewModel"],
+		["#navbar_plugin_tplinksmartplug","#settings_plugin_tplinksmartplug","#sidebar_plugin_tplinksmartplug_wrapper","#tab_plugin_tplinksmartplug","#tab_plugin_tplinksmartplug_link"]
 	]);
 });

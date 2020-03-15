@@ -87,6 +87,10 @@ body #navbar_plugin_tplinksmartplug > a > span {
 	line-height: 34px;
 }
 
+#TPLinkPlugEditor div.modal-body {
+	overflow: visible !important;
+}
+
 @media (max-width: 800px) {
 	#touch body #tab_plugin_tplinksmartplug_link {
 		display:none;

@@ -1,4 +1,4 @@
-<h4>TP-Link Smartplug Settings</h4>
+<h4>{{ _('TP-Link Smartplug Settings') }}</h4>
 <table class="table table-condensed">
 	<thead>
 		<tr>
@@ -7,19 +7,19 @@
 			<td style="text-align:center"><a href="#" class="btn btn-mini" data-bind="click: addPlug"><i class="fas fa-plus" aria-hidden="true"></i></a></td>
 		</tr>
 	</thead>
-	<tbody data-bind="sortable: { data: settings.settings.plugins.tplinksmartplug.arrSmartplugs, options: { cancel: '.unsortable', handle: '.movePlug'} }">
+	<tbody data-bind="sortable: { data: settings.settings.plugins.tplinksmartplug.arrSmartplugs, options: { cancel: '.unsortable', handle: '.movePlug', axis:'y'} }">
 		<tr data-bind="attr: {title: ip}">
 			<td><span data-bind="text: label" /></td>
 			<td style="text-align:center">
-				<i class="far" data-bind="css: {'fa-check-square': automaticShutdownEnabled(),'fa-square': !automaticShutdownEnabled()}" title="Automatic Power Off Enabled" />
-				<i class="far" data-bind="css: {'fa-check-square': displayWarning(),'fa-square': !displayWarning()}" title="Warning Prompt" />
-				<i class="far" data-bind="css: {'fa-check-square': warnPrinting(),'fa-square': !warnPrinting()}" title="Warn While Printing" />
-				<i class="far" data-bind="css: {'fa-check-square': thermal_runaway(),'fa-square': !thermal_runaway()}" title="Thermal Runaway" />
-				<i class="far" data-bind="css: {'fa-check-square': autoConnect(),'fa-square': !autoConnect()}" title="Auto Connect" />
-				<i class="far" data-bind="css: {'fa-check-square': autoDisconnect(),'fa-square': !autoDisconnect()}" title="Auto Disconnect" />
-				<i class="far" data-bind="css: {'fa-check-square': gcodeEnabled(),'fa-square': !gcodeEnabled()}" title="GCODE Trigger" />
-				<i class="far" data-bind="css: {'fa-check-square': sysCmdOn(),'fa-square': !sysCmdOn()}" title="Run System Command On" />
-				<i class="far" data-bind="css: {'fa-check-square': sysCmdOff(),'fa-square': !sysCmdOff()}" title="Run System Command Off" /></td>
+				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': automaticShutdownEnabled(),'fa-square': !automaticShutdownEnabled()}, tooltip: {}" title="{{ _('Automatic Power Off Enabled') }}"></i>
+				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': displayWarning(),'fa-square': !displayWarning()}, tooltip: {}" title="{{ _('Warning Prompt') }}"></i>
+				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': warnPrinting(),'fa-square': !warnPrinting()}, tooltip: {}" title="{{ _('Warn While Printing') }}"></i>
+				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': thermal_runaway(),'fa-square': !thermal_runaway()}, tooltip: {}" title="{{ _('Thermal Runaway') }}"></i>
+				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': autoConnect(),'fa-square': !autoConnect()}, tooltip: {}" title="{{ _('Auto Connect') }}"></i>
+				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': autoDisconnect(),'fa-square': !autoDisconnect()}, tooltip: {}" title="{{ _('Auto Disconnect') }}"></i>
+				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': gcodeEnabled(),'fa-square': !gcodeEnabled()}, tooltip: {}" title="{{ _('GCODE Trigger') }}"></i>
+				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': sysCmdOn(),'fa-square': !sysCmdOn()}, tooltip: {}" title="{{ _('Run System Command On') }}"></i>
+				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': sysCmdOff(),'fa-square': !sysCmdOff()}, tooltip: {}" title="{{ _('Run System Command Off') }}"></i></td>
 			<td style="text-align:center">
 				<div class="btn-group">
 					<a href="#" class="btn btn-mini movePlug"><i class="fas fa-arrows-alt" aria-hidden="true"></i></a>
@@ -31,136 +31,200 @@
 	</tbody>
 </table>
 
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring" /> Enable thermal runaway monitoring.
-		</label>
+<div class="row-fluid">
+	<div class="span6">
+		<div class="row-fluid">
+			<div class="control-group">
+				<div class="controls">
+					<label class="checkbox">
+					<input type="checkbox" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring, tooltip: {}" title="{{ _('When enabled if temperatures exceed configured maximums enabled plugs will be powered off.') }}" /> {{ _('Enable thermal runaway monitoring.') }}
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group span6">
+				<label class="control-label">{{ _('Max Bed Temp') }}</label>
+				<div class="controls">
+					<div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Maximum temperature bed can reach before automatic power off is triggered.') }}">
+						<input type="number" min="0" class="input input-mini" data-bind="value: settings.settings.plugins.tplinksmartplug.thermal_runaway_max_bed, enable: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring()" disabled />
+						<span class="add-on">{{ _('degs') }}</span>
+					</div>
+				</div>
+			</div>
+			<div class="control-group span6">
+				<label class="control-label">{{ _('Max Extruder Temp') }}</label>
+				<div class="controls">
+					<div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Maximum temperature extruders can reach before automatic power off is triggered.') }}">
+						<input type="number" min="0" class="input input-mini" data-bind="value: settings.settings.plugins.tplinksmartplug.thermal_runaway_max_extruder, enable: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring()" disabled />
+						<span class="add-on">{{ _('degs') }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<div class="controls">
+					<label class="checkbox">
+					<input type="checkbox" title="{{ _('When enabled if printer reports an error plugs with the option enabled will be automatically powered off.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_error_monitoring, tooltip: {}" /> {{ _('Error Event Monitoring') }}
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<div class="controls">
+					<label class="checkbox">
+					<input type="checkbox" title="{{ _('When enabled if printer becomes disconnected plugs with the option enabled will be automatically powered off.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_disconnect_monitoring, tooltip: {}" /> {{ _('Disconnect Event Monitoring') }}
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<div class="controls">
+					<label class="checkbox">
+					<input type="checkbox" title="{{ _('When enabled the status of plugs will be checked based on the Polling Interval supplied.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.pollingEnabled, tooltip: {}" /> {{ _('Enable polling of status.') }}
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group span6">
+				<label class="control-label">{{ _('Polling Interval') }}</label>
+				<div class="controls">
+					<div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('How long to wait between status checks of all plugs when polling is enabled.') }}">
+						<input type="number" min="0" class="input input-mini" data-bind="value: settings.settings.plugins.tplinksmartplug.pollingInterval, enable: settings.settings.plugins.tplinksmartplug.pollingEnabled" disabled />
+						<span class="add-on">{{ _('mins') }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<label class="control-label">{{ _('Cost per kWh') }}</label>
+				<div class="controls">
+					<input type="number" min="0" step="0.001" class="input input-mini" title="{{ _('Amount used to multiply total kWh by to estimate power cost.') }}" data-toggle="tooltip" data-bind="value: settings.settings.plugins.tplinksmartplug.cost_rate, tooltip: {}" />
+				</div>
+			</div>
+		</div>
 	</div>
-</div>
-<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring">
-	<div class="controls">
-		<label class="control-label">{{ _('Max Bed Temp') }}</label>
-		<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.thermal_runaway_max_bed" />
-	</div>
-	<div class="controls">
-		<label class="control-label">{{ _('Max Extruder Temp') }}</label>
-		<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.thermal_runaway_max_extruder" />
-	</div>
-</div>
-
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_error_monitoring" /> Enable error event monitoring.
-		</label>
-	</div>
-</div>
-
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_disconnect_monitoring" /> Enable disconnect event monitoring.
-		</label>
-	</div>
-</div>
-
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging"> Enable debug logging.
-		</label>
-	</div>
-</div>
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.pollingEnabled" /> Enable polling of status.
-		</label>
-	</div>
-</div>
-<div class="control-group" data-bind="visible: settings.settings.plugins.tplinksmartplug.pollingEnabled">
-	<div class="controls">
-		<label class="control-label">{{ _('Minutes between checks') }}</label>
-		<input type="number" min="0" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.pollingInterval" />
-	</div>
-</div>
-<div class="control-group">
-	<div class="controls">
-		<label class="control-label">{{ _('Cost per kWh') }}</label>
-		<input type="number" min="0" step="0.001" class="input input-small" data-bind="value: settings.settings.plugins.tplinksmartplug.cost_rate" />
-	</div>
-</div>
-<div class="control-group">
-	<label class="control-label">Cancel Automatic Power Off Timer</label>
-	<div class="controls">
-		<div class="input-append">
-			<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.abortTimeout">
-			<span class="add-on">sec</span>
+	<div class="span6">
+		<div class="row-fluid">
+			<div class="control-group">
+				<div class="controls">
+					<label class="checkbox">
+					<input type="checkbox" title="{{ _('Automatically power off all plugs with the option Off on Idle enabled after configured idle timeout, target tempoerature is reached, and timelapse is completed.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle, tooltip: {}" /> {{ _('Power Off on Idle') }}
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group span6">
+				<label class="control-label">{{ _('Abort Power Off Timeout') }}</label>
+				<div class="controls">
+					<div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Pop up will be displayed for this amount of time to allow for cancelling power off of plugs.') }}">
+						<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.abortTimeout, enable: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()" disabled />
+						<span class="add-on">{{ _('secs') }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group span6">
+				<label class="control-label">{{ _('Idle Timeout') }}</label>
+				<div class="controls">
+					<div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Amount of time that will lapse before printer is considered idle and plugs will be powered off.') }}">
+						<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.idleTimeout, enable: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle() && settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()" disabled />
+						<span class="add-on">{{ _('mins') }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group span6">
+				<label class="control-label">{{ _('Idle Target Temperature') }}</label>
+				<div class="controls">
+					<div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Power off will be delayed untill all heaters reach this temperature.') }}">
+						<input type="number" class="input-mini text-right" data-bind="value: settings.settings.plugins.tplinksmartplug.idleTimeoutWaitTemp, enable: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle() && settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()" disabled />
+						<span class="add-on">{{ _('degs') }}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<label class="control-label">{{ _('GCode Commands to Ignore for Idle') }}</label>
+				<div class="controls" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Comma separated list of gcode commands to ignore for determining printer idle state.') }}">
+					<input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.idleIgnoreCommands, enable: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle() && settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()" disabled />
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
-<div class="control-group">
-	<div class="controls">
-		<label class="checkbox">
-		<input type="checkbox" data-bind="checked: settings.settings.plugins.tplinksmartplug.rememberCheckBox"> Remember "Automatic Power Off"
-		</label>
+<div class="row-fluid">
+	<div class="control-group">
+		<div class="controls">
+			<label class="checkbox">
+			<input type="checkbox" title="{{ _('Enable custom debug logging to assist with troubleshooting.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging, tooltip: {}"> {{ _('Enable debug logging.') }}
+			</label>
+		</div>
 	</div>
 </div>
 
 <div id="TPLinkPlugEditor" data-bind="with: selectedPlug" class="modal hide fade">
 	<div class="modal-header">
 		<a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-		<h3>TP-Link Smartplug Editor</h3>
+		<h3>{{ _('TP-Link Smartplug Editor') }}</h3>
 	</div>
 	<div class="modal-body">
 		<table class="table table-condensed">
 			<tr>
-				<td><div class="controls"><label class="control-label">{{ _('IP') }}</label><input type="text" class="input-block-level" data-bind="value: ip" /><div></td>
-				<td><div class="controls"><label class="control-label">{{ _('Icon') }}</label><input type="text" class="input-block-level" data-bind="value: icon, iconpicker: icon,iconpickerOptions: {hideOnSelect: true, collision: true}" /><div></td>
-				<td><div class="controls"><label class="control-label">{{ _('Label') }}</label><input type="text" class="input-block-level" data-bind="value: label" /></div></td>
+				<td><div class="controls"><label class="control-label">{{ _('IP') }}</label><input type="text" class="input-block-level" title="{{ _('IP address of plug on network. For multiple plug devices append /0, /1, /# that corresponds to the 0 based plug index.') }}" data-toggle="tooltip" data-bind="value: ip, tooltip: {}" /><div></td>
+				<td><div class="controls"><label class="control-label">{{ _('Icon') }}</label><input type="text" class="input-block-level" title="{{ _('Icon to use for button in navbar.') }}" data-toggle="tooltip" data-bind="value: icon, iconpicker: icon,iconpickerOptions: {hideOnSelect: true, collision: true}, tooltip: {}" /><div></td>
+				<td><div class="controls"><label class="control-label">{{ _('Label') }}</label><input type="text" class="input-block-level" title="{{ _('Label to display on hovering mouse over button in navbar.') }}" data-toggle="tooltip" data-bind="value: label, tooltip: {}" /></div></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: displayWarning"/> Warning Prompt</label></div></td>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: warnPrinting"/> Warn While Printing</label></div></td>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: thermal_runaway"/> Thermal Runaway</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Display a onfirmation prompt when powering off plug using button in navbar.') }}" data-toggle="tooltip" data-bind="checked: displayWarning, tooltip: {}"/> {{ _('Warning Prompt') }}</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Display a confirmation prompt when powering off plug using button in navbar while printing. ') }}" data-toggle="tooltip" data-bind="checked: warnPrinting, tooltip: {}"/> {{ _('Warn While Printing') }}</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically power off this plug when temperatures exceed configured maximum temperatures.') }}" data-toggle="tooltip" data-toggle="tooltip" data-bind="checked: thermal_runaway, enable: $root.settings.settings.plugins.tplinksmartplug.thermal_runaway_monitoring(), tooltip: {}"/> {{ _('Thermal Runaway') }}</label></div></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: automaticShutdownEnabled"/> Off on Print Complete</label></div></td>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_error"/> Off on Error</label></div></td>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: event_on_disconnect"/> Off on Disconnect</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically power off this plug when Power Off on Idle is enabled and configured timeouts and temperatures are reached.') }}" data-toggle="tooltip" data-bind="checked: automaticShutdownEnabled, enable: $root.settings.settings.plugins.tplinksmartplug.powerOffWhenIdle(), tooltip: {}" disabled /> {{ _('Off on Idle') }}</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically power off this plug when Error Event Monitoring is enabled.') }}" data-toggle="tooltip" data-bind="checked: event_on_error, enable: $root.settings.settings.plugins.tplinksmartplug.event_on_error_monitoring(), tooltip: {}" disabled /> {{ _('Off on Error') }}</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically power off this plug when Disconnect Event Monitoring is enabled.') }}" data-toggle="tooltip" data-bind="checked: event_on_disconnect, enable: $root.settings.settings.plugins.tplinksmartplug.event_on_disconnect_monitoring(), tooltip: {}" disabled/> {{ _('Off on Disconnect') }}</label></div></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoConnect"/> Auto Connect</label><input type="text" data-bind="value: autoConnectDelay,visible: autoConnect" class="input input-small" /></div></td>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: autoDisconnect"/> Auto Disconnect</label><input type="text" data-bind="value: autoDisconnectDelay,visible: autoDisconnect" class="input input-small" /></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically connect to printer after powerering on this plug and waiting for configured delay.') }}" data-toggle="tooltip" data-bind="checked: autoConnect, tooltip: {}"/> {{ _('Auto Connect') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Amount of time to wait before attempting to connect to printer.') }}"><input type="number" data-bind="value: autoConnectDelay,enable: autoConnect" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically disconnect from printer before waiting configured delay and powering off this plug.') }}" data-toggle="tooltip" data-bind="checked: autoDisconnect, tooltip: {}"/> {{ _('Auto Disconnect') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Amount of time to wait after disconnecting.') }}"><input type="number" data-bind="value: autoDisconnectDelay,enable: autoDisconnect" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: useCountdownRules"/> Use Countdown Timers</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('When enabled the on and off commands will be sent to the plug using timers similar to the Kasa app. This is helpful for when you want to run a system command to cleanly shutdown your pi prior to power it off.') }}" data-toggle="tooltip" data-bind="checked: useCountdownRules, tooltip: {}"/> {{ _('Use Timers') }}</label></div></td>
 				<td></td>
 				<td></td>
 			</tr>
-			<tr data-bind="visible: useCountdownRules">
-				<td><div class="controls"><label class="control-label">{{ _('On Delay Countdown') }}</label><input type="number" min="1" data-bind="value: countdownOnDelay" class="input input-small" /></div></td>
-				<td><div class="controls"><label class="control-label">{{ _('Off Delay Countdown') }}</label><input type="number" min="1" data-bind="value: countdownOffDelay" class="input input-small" /></div></td>
+			<tr>
+				<td><div class="controls"><label class="control-label">{{ _('Timer On Delay') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Amount of time for Timer to wait before powering on.') }}"><input type="number" min="1" data-bind="value: countdownOnDelay, enable: useCountdownRules()" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>
+				<td><div class="controls"><label class="control-label">{{ _('Timer Off Delay') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Amount of time for Timer to wait before powering off.') }}"><input type="number" min="1" data-bind="value: countdownOffDelay, enable: useCountdownRules()" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: gcodeEnabled"/> GCODE Trigger</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('When enabled special GCODE commands can be monitored to power this plug on and off.') }}" data-toggle="tooltip" data-bind="checked: gcodeEnabled, tooltip: {}"/> {{ _('GCODE Trigger') }}</label></div></td>
 				<td></td>
-				<td></td>
-			</tr>
-			<tr data-bind="visible: gcodeEnabled">
-				<td><div class="controls"><label class="control-label">{{ _('GCODE On Delay') }}</label><input type="number" data-bind="value: gcodeOnDelay" class="input input-small" /></div></td>
-				<td><div class="controls"><label class="control-label">{{ _('GCODE Off Delay') }}</label><input type="number" data-bind="value: gcodeOffDelay" class="input input-small" /></div></td>
 				<td></td>
 			</tr>
 			<tr>
-				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOn"/> Run System Command After On</label><input type="text" data-bind="value: sysRunCmdOn,visible: sysCmdOn" class="input-block-level" /></div></td>
-				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysCmdOn"><label class="control-label">{{ _('Delay') }}</label><input type="number" data-bind="value: sysCmdOnDelay"  class="input input-small" /></div></td>
+				<td><div class="controls"><label class="control-label">{{ _('GCODE On Delay') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Amount of time to wait after receiving GCODE command for powering on this plug.') }}"><input type="number" data-bind="value: gcodeOnDelay, enable: gcodeEnabled()" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>
+				<td><div class="controls"><label class="control-label">{{ _('GCODE Off Delay') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Amount of time to wait after receiving GCODE command for powering off this plug.') }}"><input type="number" data-bind="value: gcodeOffDelay, enable: gcodeEnabled()" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>
+				<td></td>
 			</tr>
 			<tr>
-				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" data-bind="checked: sysCmdOff"/> Run System Command Before Off</label><input type="text" data-bind="value: sysRunCmdOff,visible: sysCmdOff" class="input-block-level" /></div></td>
-				<td style="vertical-align: bottom"><div class="controls" data-bind="visible: sysCmdOff"><label class="control-label">{{ _('Delay') }}</label><input type="number" data-bind="value: sysCmdOffDelay"  class="input input-small" /></div></td>
+				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Run system command after powering on this plug and waiting configured delay.') }}" data-toggle="tooltip" data-bind="checked: sysCmdOn, tooltip: {}"/> {{ _('Run System Command After On') }}</label><input type="text" title="{{ _('System command to run after powering on this plug.') }}" data-toggle="tooltip" data-bind="value: sysRunCmdOn, enable: sysCmdOn(), tooltip: {}" class="input-block-level" disabled /></div></td>
+				<td style="vertical-align: bottom"><div class="controls" data-toggle="tooltip" data-bind="visible: sysCmdOn"><label class="control-label">{{ _('Delay') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Amount of time to wait before running configured system command after power on.') }}"><input type="number" data-bind="value: sysCmdOnDelay, enable: sysCmdOn()" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>
+			</tr>
+			<tr>
+				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Run system command after powering off this plug and waiting configured delay.') }}" data-toggle="tooltip" data-bind="checked: sysCmdOff, tooltip: {}"/> {{ _('Run System Command Before Off') }}</label><input type="text" title="{{ _('System command to run after powering off this plug.') }}" data-toggle="tooltip" data-bind="value: sysRunCmdOff, enable: sysCmdOff(), tooltip: {}" class="input-block-level" disabled /></div></td>
+				<td style="vertical-align: bottom"><div class="controls" data-toggle="tooltip" data-bind="visible: sysCmdOff"><label class="control-label">{{ _('Delay') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Amount of time to wait before running configured system command after power off.') }}"><input type="number" data-bind="value: sysCmdOffDelay, enable: sysCmdOff()" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>
 			</tr>
 		</table>
 	</div>
