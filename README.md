@@ -1,5 +1,7 @@
 # OctoPrint-TPLinkSmartplug
 
+***Warning***: Recent firmware updates for the HS103 breaks the use of this plugin with those devices. TP-Link may push the same firmware to other devices, but be warned that updating your devices firmware may break the use of this plugin.
+
 Work inspired by [OctoPrint-PSUControl](https://github.com/kantlivelong/OctoPrint-PSUControl) and [TP-Link WiFi SmartPlug Client](https://github.com/softScheck/tplink-smartplug), this plugin controls a TP-Link Smartplug via OctoPrint's nav bar. Currently known compatible models are the HS100, HS107, HS110, HS300. Other Kasa app based devices may work.
 
 ##  Screenshots
