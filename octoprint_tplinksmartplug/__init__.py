@@ -905,8 +905,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			else:
 				return
 
-		elif cmd.startswith("@TPLINKON"):
-			plugip = re.sub(r'^@TPLINKON\s?', '', cmd)
+	def processAtCommand(self, comm_instance, phase, command, parameters, tags=None, *args, **kwargs):
+		self._logger.info(command)
+		self._logger.info(parameters)
+		if command == "TPLINKON":
+			plugip = parameters
 			self._tplinksmartplug_logger.debug("Received @TPLINKON command, attempting power on of %s." % plugip)
 			plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 			self._tplinksmartplug_logger.debug(plug)
@@ -914,8 +917,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				t = threading.Timer(int(plug["gcodeOnDelay"]),self.gcode_turn_on,[plug])
 				t.start()
 			return None
-		elif cmd.startswith("@TPLINKOFF"):
-			plugip = re.sub(r'^@TPLINKOFF\s?', '', cmd)
+		if command == "TPLINKOFF":
+			plugip = parameters
 			self._tplinksmartplug_logger.debug("Received TPLINKOFF command, attempting power off of %s." % plugip)
 			plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
 			self._tplinksmartplug_logger.debug(plug)
@@ -974,6 +977,7 @@ def __plugin_load__():
 	global __plugin_hooks__
 	__plugin_hooks__ = {
 		"octoprint.comm.protocol.gcode.sent": __plugin_implementation__.processGCODE,
+		"octoprint.comm.protocol.atcommand.sending": __plugin_implementation__.processAtCommand,
 		"octoprint.comm.protocol.temperatures.received": __plugin_implementation__.monitor_temperatures,
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
 	}
