@@ -278,7 +278,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_print_progress(self, storage, path, progress):
 		self._tplinksmartplug_logger.debug("Checking statuses during print progress (%s)." % progress)
-		self.check_statuses()
+		_print_progress_timer = threading.Timer(1,self.check_statuses)
+		_print_progress_timer.start()
 		self._plugin_manager.send_plugin_message(self._identifier, dict(updatePlot=True))
 
 		if self.powerOffWhenIdle == True and not (self._skipIdleTimer == True):
