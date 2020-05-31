@@ -8,7 +8,7 @@
 		</tr>
 	</thead>
 	<tbody data-bind="sortable: { data: settings.settings.plugins.tplinksmartplug.arrSmartplugs, options: { cancel: '.unsortable', handle: '.movePlug', axis:'y'} }">
-		<tr data-bind="attr: {title: ip}">
+		<tr data-bind="attr: {title: ip}, css: {error: ip().match(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/[0-9]+)?$/) == null}">
 			<td><span data-bind="text: label" /></td>
 			<td style="text-align:center">
 				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': automaticShutdownEnabled(),'fa-square': !automaticShutdownEnabled()}, tooltip: {}" title="{{ _('Automatic Power Off Enabled') }}"></i>
@@ -180,7 +180,7 @@
 	<div class="modal-body">
 		<table class="table table-condensed">
 			<tr>
-				<td><div class="controls"><label class="control-label">{{ _('IP') }}</label><input type="text" class="input-block-level" title="{{ _('IP address of plug on network. For multiple plug devices append /0, /1, /# that corresponds to the 0 based plug index.') }}" data-toggle="tooltip" data-bind="value: ip, tooltip: {}" /><div></td>
+				<td><div class="control-group" data-bind="css: {error: ip().match(/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/[0-9]+)?$/) == null}"><div class="controls"><label class="control-label">{{ _('IP') }}</label><input type="text" class="input-block-level" title="{{ _('IP address of plug on network. For multiple plug devices append /0, /1, /# that corresponds to the 0 based plug index.') }}" data-toggle="tooltip" data-bind="textInput: ip, tooltip: {}" /><div></div></td>
 				<td><div class="controls"><label class="control-label">{{ _('Icon') }}</label><input type="text" class="input-block-level" title="{{ _('Icon to use for button in navbar.') }}" data-toggle="tooltip" data-bind="value: icon, iconpicker: icon,iconpickerOptions: {hideOnSelect: true, collision: true}, tooltip: {}" /><div></td>
 				<td><div class="controls"><label class="control-label">{{ _('Label') }}</label><input type="text" class="input-block-level" title="{{ _('Label to display on hovering mouse over button in navbar.') }}" data-toggle="tooltip" data-bind="value: label, tooltip: {}" /></div></td>
 			</tr>
