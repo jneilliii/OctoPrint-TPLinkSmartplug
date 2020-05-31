@@ -473,8 +473,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			#SELECT * FROM energy_data WHERE ip = '192.168.0.102' LIMIT 0,30
 		elif command == 'enableAutomaticShutdown':
 			self.powerOffWhenIdle = True
+			self._reset_idle_timer()
 		elif command == 'disableAutomaticShutdown':
 			self.powerOffWhenIdle = False
+			self._stop_idle_timer()
+			if self._abort_timer is not None:
+				self._abort_timer.cancel()
+				self._abort_timer = None
+			self._timeout_value = None
 		elif command == 'abortAutomaticShutdown':
 			if self._abort_timer is not None:
 				self._abort_timer.cancel()
@@ -595,6 +601,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if self._timelapse_active and event == Events.MOVIE_DONE or event == Events.MOVIE_FAILED:
 			self._tplinksmartplug_logger.debug("Timelapse generation finished: %s. Return Code: %s" % (payload.get("movie_basename", ""), payload.get("returncode", "completed")))
 			self._timelapse_active = False
+
+		if event in [Events.FILE_ADDED, Events.POWER_ON, Events.POWER_OFF, Events.UPLOAD, Events.FILE_SELECTED, Events.PRINT_STARTED, ]:
+			self._logger.info("%s: %s" % (event, payload));
 
 	##~~ Idle Timeout
 
@@ -881,7 +890,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._plugin_manager.send_plugin_message(self._identifier, chk)
 
 	def processGCODE(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
-		if gcode:
+		if self.powerOffWhenIdle and not (gcode in self._idleIgnoreCommandsArray):
+			self._waitForHeaters = False
+			self._reset_idle_timer()
+
+		if gcode not in ["M80","M81"]:
+			return
+
+		if gcode == "M80":
 			if cmd.startswith("M80"):
 				plugip = re.sub(r'^M80\s?', '', cmd)
 				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on of %s." % plugip)
@@ -899,11 +915,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				if plug and plug["gcodeEnabled"]:
 					t = threading.Timer(int(plug["gcodeOffDelay"]),self.gcode_turn_off,[plug])
 					t.start()
-				return
-			elif self.powerOffWhenIdle and not (gcode in self._idleIgnoreCommandsArray):
-				self._waitForHeaters = False
-				self._reset_idle_timer()
-			else:
 				return
 
 	def processAtCommand(self, comm_instance, phase, command, parameters, tags=None, *args, **kwargs):
@@ -977,7 +988,7 @@ def __plugin_load__():
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {
-		"octoprint.comm.protocol.gcode.sent": __plugin_implementation__.processGCODE,
+		"octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.processGCODE,
 		"octoprint.comm.protocol.atcommand.sending": __plugin_implementation__.processAtCommand,
 		"octoprint.comm.protocol.temperatures.received": __plugin_implementation__.monitor_temperatures,
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
