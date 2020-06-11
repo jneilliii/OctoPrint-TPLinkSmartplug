@@ -117,6 +117,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			db.commit()
 			db.close()
 
+	def on_after_startup(self):
+		self._logger.info("TPLinkSmartplug loaded!")
+		if self._settings.get(["pollingEnabled"]):
+			self.poll_status = RepeatedTimer(int(self._settings.get(["pollingInterval"]))*60, self.check_statuses)
+			self.poll_status.start()
+
 		self.abortTimeout = self._settings.get_int(["abortTimeout"])
 		self._tplinksmartplug_logger.debug("abortTimeout: %s" % self.abortTimeout)
 
@@ -131,13 +137,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.idleTimeoutWaitTemp = self._settings.get_int(["idleTimeoutWaitTemp"])
 		self._tplinksmartplug_logger.debug("idleTimeoutWaitTemp: %s" % self.idleTimeoutWaitTemp)
 
-		self._start_idle_timer()
-
-	def on_after_startup(self):
-		self._logger.info("TPLinkSmartplug loaded!")
-		if self._settings.get(["pollingEnabled"]):
-			self.poll_status = RepeatedTimer(int(self._settings.get(["pollingInterval"]))*60, self.check_statuses)
-			self.poll_status.start()
+		self._reset_idle_timer()
 
 	##~~ SettingsPlugin mixin
 
@@ -184,7 +184,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		if self.powerOffWhenIdle == True:
 			self._tplinksmartplug_logger.debug("Settings saved, Automatic Power Off Endabled, starting idle timer...")
-			self._start_idle_timer()
+			self._reset_idle_timer()
 
 		new_debug_logging = self._settings.get_boolean(["debug_logging"])
 		new_polling_value = self._settings.get_boolean(["pollingEnabled"])
@@ -270,7 +270,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ TemplatePlugin mixin
 
 	def get_template_configs(self):
-		#templates_to_load = [dict(type="navbar", custom_bindings=True),dict(type="settings", custom_bindings=True),dict(type="sidebar", icon="plug", custom_bindings=True, data_bind="visible: show_sidebar()", template="tplinksmartplug_sidebar.jinja2", template_header="tplinksmartplug_sidebar_header.jinja2"),dict(type="tab", custom_bindings=True)]
 		templates_to_load = [dict(type="navbar", custom_bindings=True),dict(type="settings", custom_bindings=True),dict(type="sidebar", icon="plug", custom_bindings=True, data_bind="visible: arrSmartplugs().length > 0", template="tplinksmartplug_sidebar.jinja2", template_header="tplinksmartplug_sidebar_header.jinja2"),dict(type="tab", custom_bindings=True, data_bind="visible: show_sidebar()", template="tplinksmartplug_tab.jinja2")]
 		return templates_to_load
 
@@ -354,6 +353,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		self._tplinksmartplug_logger.debug(chk)
 		if chk == 0:
+			self._stop_idle_timer()
 			return self.check_status(plugip)
 
 	def check_statuses(self):
@@ -533,6 +533,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 						self._plugin_manager.send_plugin_message(self._identifier, response)
 		# Client Opened Event
 		if event == Events.CLIENT_OPENED:
+			if self._settings.get_boolean(["powerOffWhenIdle"]):
+				self._reset_idle_timer()
 			self._plugin_manager.send_plugin_message(self._identifier, dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout", timeout_value=self._timeout_value))
 			return
 		# Cancelled Print Interpreted Event
