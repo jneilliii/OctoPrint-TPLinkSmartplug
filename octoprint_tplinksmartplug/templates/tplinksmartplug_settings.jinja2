@@ -12,6 +12,7 @@
 			<td><span data-bind="text: label" /></td>
 			<td style="text-align:center">
 				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': automaticShutdownEnabled(),'fa-square': !automaticShutdownEnabled()}, tooltip: {}" title="{{ _('Automatic Power Off Enabled') }}"></i>
+				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': event_on_upload(),'fa-square': !event_on_upload()}, tooltip: {}" title="{{ _('Automatic Power On Enabled') }}"></i>
 				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': displayWarning(),'fa-square': !displayWarning()}, tooltip: {}" title="{{ _('Warning Prompt') }}"></i>
 				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': warnPrinting(),'fa-square': !warnPrinting()}, tooltip: {}" title="{{ _('Warn While Printing') }}"></i>
 				<i class="far" data-toggle="tooltip" data-bind="css: {'fa-check-square': thermal_runaway(),'fa-square': !thermal_runaway()}, tooltip: {}" title="{{ _('Thermal Runaway') }}"></i>
@@ -76,6 +77,15 @@
 				<div class="controls">
 					<label class="checkbox">
 					<input type="checkbox" title="{{ _('When enabled if printer becomes disconnected plugs with the option enabled will be automatically powered off.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_disconnect_monitoring, tooltip: {}" /> {{ _('Disconnect Event Monitoring') }}
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<div class="controls">
+					<label class="checkbox">
+					<input type="checkbox" title="{{ _('When enabled if a file is uploaded plugs with the option enabled will be automatically powered on.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_upload_monitoring, tooltip: {}" /> {{ _('Upload Event Monitoring') }}
 					</label>
 				</div>
 			</div>
@@ -193,6 +203,7 @@
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically power off this plug when Power Off on Idle is enabled and configured timeouts and temperatures are reached.') }}" data-toggle="tooltip" data-bind="checked: automaticShutdownEnabled, enable: $root.settings.settings.plugins.tplinksmartplug.powerOffWhenIdle(), tooltip: {}" disabled /> {{ _('Off on Idle') }}</label></div></td>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically power off this plug when Error Event Monitoring is enabled.') }}" data-toggle="tooltip" data-bind="checked: event_on_error, enable: $root.settings.settings.plugins.tplinksmartplug.event_on_error_monitoring(), tooltip: {}" disabled /> {{ _('Off on Error') }}</label></div></td>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically power off this plug when Disconnect Event Monitoring is enabled.') }}" data-toggle="tooltip" data-bind="checked: event_on_disconnect, enable: $root.settings.settings.plugins.tplinksmartplug.event_on_disconnect_monitoring(), tooltip: {}" disabled/> {{ _('Off on Disconnect') }}</label></div></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically power on this plug when Upload Event Monitoring is enabled.') }}" data-toggle="tooltip" data-bind="checked: event_on_upload, enable: $root.settings.settings.plugins.tplinksmartplug.event_on_upload_monitoring(), tooltip: {}" disabled/> {{ _('On if File Uploaded') }}</label></div></td>
 			</tr>
 			<tr>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically connect to printer after powerering on this plug and waiting for configured delay.') }}" data-toggle="tooltip" data-bind="checked: autoConnect, tooltip: {}"/> {{ _('Auto Connect') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Amount of time to wait before attempting to connect to printer.') }}"><input type="number" data-bind="value: autoConnectDelay,enable: autoConnect" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>

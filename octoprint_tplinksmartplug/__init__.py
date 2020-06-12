@@ -152,6 +152,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			thermal_runaway_max_extruder = 0,
 			event_on_error_monitoring = False,
 			event_on_disconnect_monitoring = False,
+			event_on_upload_monitoring = False,
 			cost_rate = 0,
 			abortTimeout = 30,
 			powerOffWhenIdle = False,
@@ -205,7 +206,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self.poll_status.start()
 
 	def get_settings_version(self):
-		return 11
+		return 12
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -256,6 +257,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			arrSmartplugs_new = []
 			for plug in self._settings.get(['arrSmartplugs']):
 				plug["automaticShutdownEnabled"] = False
+				arrSmartplugs_new.append(plug)
+			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
+
+		if current is not None and current < 12:
+			arrSmartplugs_new = []
+			for plug in self._settings.get(['arrSmartplugs']):
+				plug["event_on_upload"] = False
 				arrSmartplugs_new.append(plug)
 			self._settings.set(["arrSmartplugs"],arrSmartplugs_new)
 
@@ -594,6 +602,16 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if self._timelapse_active and event == Events.MOVIE_DONE or event == Events.MOVIE_FAILED:
 			self._tplinksmartplug_logger.debug("Timelapse generation finished: %s. Return Code: %s" % (payload.get("movie_basename", ""), payload.get("returncode", "completed")))
 			self._timelapse_active = False
+		# File Uploaded Event
+		if event == Events.UPLOAD and self._settings.getBoolean(["event_on_upload_monitoring"]):
+			self._tplinksmartplug_logger.debug("File uploaded: %s. Turning printer on." % payload.get("name", ""))
+			for plug in self._settings.get(['arrSmartplugs']):
+				if plug["event_on_upload"] == True:
+					self._tplinksmartplug_logger.debug("powering on %s due to %s event." % (plug["ip"], event))
+					response = self.turn_on(plug["ip"])
+					if response["currentState"] == "on":
+						self._plugin_manager.send_plugin_message(self._identifier, response)
+
 
 	##~~ Idle Timeout
 
