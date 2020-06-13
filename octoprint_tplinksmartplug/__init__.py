@@ -605,12 +605,20 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		# File Uploaded Event
 		if event == Events.UPLOAD and self._settings.getBoolean(["event_on_upload_monitoring"]):
 			self._tplinksmartplug_logger.debug("File uploaded: %s. Turning enabled plugs on." % payload.get("name", ""))
+			self._tplinksmartplug_logger.debug(payload)
 			for plug in self._settings.get(['arrSmartplugs']):
-				if plug["event_on_upload"] == True and plug["currentState"] == "off":
+				self._tplinksmartplug_logger.debug(plug)
+				if plug["event_on_upload"] == True and not self._printer.is_ready():
 					self._tplinksmartplug_logger.debug("powering on %s due to %s event." % (plug["ip"], event))
 					response = self.turn_on(plug["ip"])
 					if response["currentState"] == "on":
+						self._tplinksmartplug_logger.debug("power on successful for %s attempting connection in %s seconds" % (plug["ip"], plug.get("autoConnectDelay","0")))
 						self._plugin_manager.send_plugin_message(self._identifier, response)
+						if payload.get("path", False) != False and payload.get("target") == "local":
+							time.sleep(int(plug.get("autoConnectDelay","0"))+1)
+							if self._printer.is_ready() != False:
+								self._tplinksmartplug_logger.debug("printer connected starting print of %s" % (payload.get("path", "")))
+								self._printer.select_file(payload.get("path"), False, printAfterSelect=True)
 
 
 		if event in [Events.FILE_ADDED, Events.POWER_ON, Events.POWER_OFF, Events.UPLOAD, Events.FILE_SELECTED, Events.PRINT_STARTED, ]:
