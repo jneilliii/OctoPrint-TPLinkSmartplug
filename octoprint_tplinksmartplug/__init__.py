@@ -184,7 +184,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._plugin_manager.send_plugin_message(self._identifier, dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout", timeout_value=self._timeout_value))
 
 		if self.powerOffWhenIdle == True:
-			self._tplinksmartplug_logger.debug("Settings saved, Automatic Power Off Endabled, starting idle timer...")
+			self._tplinksmartplug_logger.debug("Settings saved, Automatic Power Off Enabled, starting idle timer...")
 			self._reset_idle_timer()
 
 		new_debug_logging = self._settings.get_boolean(["debug_logging"])
@@ -530,15 +530,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 					response = self.turn_off(plug["ip"])
 					if response["currentState"] == "off":
 						self._plugin_manager.send_plugin_message(self._identifier, response)
-		# Disconnected Event
-		if event == Events.DISCONNECTED and self._settings.getBoolean(["event_on_disconnect_monitoring"]) == True:
-			self._tplinksmartplug_logger.debug("powering off due to %s event." % event)
-			for plug in self._settings.get(['arrSmartplugs']):
-				if plug["event_on_disconnect"] == True:
-					self._tplinksmartplug_logger.debug("powering off %s due to %s event." % (plug["ip"], event))
-					response = self.turn_off(plug["ip"])
-					if response["currentState"] == "off":
-						self._plugin_manager.send_plugin_message(self._identifier, response)
 		# Client Opened Event
 		if event == Events.CLIENT_OPENED:
 			if self._settings.get_boolean(["powerOffWhenIdle"]):
@@ -613,9 +604,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._timelapse_active = False
 		# File Uploaded Event
 		if event == Events.UPLOAD and self._settings.getBoolean(["event_on_upload_monitoring"]):
-			self._tplinksmartplug_logger.debug("File uploaded: %s. Turning printer on." % payload.get("name", ""))
+			self._tplinksmartplug_logger.debug("File uploaded: %s. Turning enabled plugs on." % payload.get("name", ""))
 			for plug in self._settings.get(['arrSmartplugs']):
-				if plug["event_on_upload"] == True:
+				if plug["event_on_upload"] == True and plug["currentState"] == "off":
 					self._tplinksmartplug_logger.debug("powering on %s due to %s event." % (plug["ip"], event))
 					response = self.turn_on(plug["ip"])
 					if response["currentState"] == "on":
