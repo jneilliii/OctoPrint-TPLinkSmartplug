@@ -918,24 +918,23 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			return
 
 		if gcode == "M80":
-			if cmd.startswith("M80"):
-				plugip = re.sub(r'^M80\s?', '', cmd)
-				self._tplinksmartplug_logger.debug("Received M80 command, attempting power on of %s." % plugip)
-				plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
-				self._tplinksmartplug_logger.debug(plug)
-				if plug and plug["gcodeEnabled"]:
-					t = threading.Timer(int(plug["gcodeOnDelay"]),self.gcode_turn_on,[plug])
-					t.start()
-				return
-			elif cmd.startswith("M81"):
-				plugip = re.sub(r'^M81\s?', '', cmd)
-				self._tplinksmartplug_logger.debug("Received M81 command, attempting power off of %s." % plugip)
-				plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
-				self._tplinksmartplug_logger.debug(plug)
-				if plug and plug["gcodeEnabled"]:
-					t = threading.Timer(int(plug["gcodeOffDelay"]),self.gcode_turn_off,[plug])
-					t.start()
-				return
+			plugip = re.sub(r'^M80\s?', '', cmd)
+			self._tplinksmartplug_logger.debug("Received M80 command, attempting power on of %s." % plugip)
+			plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+			self._tplinksmartplug_logger.debug(plug)
+			if plug and plug["gcodeEnabled"]:
+				t = threading.Timer(int(plug["gcodeOnDelay"]),self.gcode_turn_on,[plug])
+				t.start()
+			return
+		if cmd == "M81":
+			plugip = re.sub(r'^M81\s?', '', cmd)
+			self._tplinksmartplug_logger.debug("Received M81 command, attempting power off of %s." % plugip)
+			plug = self.plug_search(self._settings.get(["arrSmartplugs"]),"ip",plugip)
+			self._tplinksmartplug_logger.debug(plug)
+			if plug and plug["gcodeEnabled"]:
+				t = threading.Timer(int(plug["gcodeOffDelay"]),self.gcode_turn_off,[plug])
+				t.start()
+			return
 
 	def processAtCommand(self, comm_instance, phase, command, parameters, tags=None, *args, **kwargs):
 		self._logger.info(command)
