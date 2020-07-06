@@ -36,6 +36,8 @@ Once installed go into settings and enter the ip address for your TP-Link Smartp
   - Always warn when checked.
 - **Warn While Printing**
   - Will only warn when printer is printing.
+- **On with Upload**
+  - When checked, this will allow connected slicers to power on the device when uploading a file.  This requires OctoPrint 1.4.1rc or higher, and does not currently support uploading through the web browser.
 - **Use Countdown Timers**
   - Uses the plug's built in countdown timer rule to postpone the power on/off by configured delay in seconds.
 - **GCODE Trigger**
