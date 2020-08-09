@@ -302,7 +302,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if self._settings.get_boolean(["progress_polling"]) is False:
 			return
 		self._tplinksmartplug_logger.debug("Checking statuses during print progress (%s)." % progress)
-		_print_progress_timer = threading.Timer(1, self.check_statuses)
+		_print_progress_timer = threading.Timer(1,self.check_statuses)
+		_print_progress_timer.daemon = True
 		_print_progress_timer.start()
 		self._plugin_manager.send_plugin_message(self._identifier, dict(updatePlot=True))
 
@@ -331,6 +332,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._countdown_active = True
 				c = threading.Timer(int(plug["countdownOnDelay"]) + 3, self._plugin_manager.send_plugin_message,
 									[self._identifier, dict(check_status=True, ip=plugip)])
+				c.daemon = True
 				c.start()
 		else:
 			turn_on_cmnd = dict(system=dict(set_relay_state=dict(state=1)))
@@ -341,9 +343,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if chk == 0:
 			if plug["autoConnect"] and self._printer.is_closed_or_error():
 				c = threading.Timer(int(plug["autoConnectDelay"]), self._printer.connect)
+				c.daemon = True
 				c.start()
 			if plug["sysCmdOn"]:
 				t = threading.Timer(int(plug["sysCmdOnDelay"]), os.system, args=[plug["sysRunCmdOn"]])
+				t.daemon = True
 				t.start()
 			if self.powerOffWhenIdle == True and plug["automaticShutdownEnabled"] == True:
 				self._tplinksmartplug_logger.debug("Resetting idle timer since plug %s was just turned on." % plugip)
@@ -374,6 +378,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		if plug["sysCmdOff"]:
 			t = threading.Timer(int(plug["sysCmdOffDelay"]), os.system, args=[plug["sysRunCmdOff"]])
+			t.daemon = True
 			t.start()
 		if plug["autoDisconnect"]:
 			self._printer.disconnect()
@@ -676,6 +681,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		if self.powerOffWhenIdle:
 			self._idleTimer = ResettableTimer(self.idleTimeout * 60, self._idle_poweroff)
+			self._idleTimer.daemon = True
 			self._idleTimer.start()
 
 	def _stop_idle_timer(self):
@@ -971,6 +977,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:
 				t = threading.Timer(int(plug["gcodeOnDelay"]) ,self.gcode_turn_on ,[plug])
+				t.daemon = True
 				t.start()
 			return
 		if gcode == "M81":
@@ -980,6 +987,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:
 				t = threading.Timer(int(plug["gcodeOffDelay"]) ,self.gcode_turn_off ,[plug])
+				t.daemon = True
 				t.start()
 			return
 
@@ -993,6 +1001,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:
 				t = threading.Timer(int(plug["gcodeOnDelay"]) ,self.gcode_turn_on ,[plug])
+				t.daemon = True
 				t.start()
 			return None
 		if command == "TPLINKOFF":
@@ -1002,6 +1011,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:
 				t = threading.Timer(int(plug["gcodeOffDelay"]) ,self.gcode_turn_off ,[plug])
+				t.daemon = True
 				t.start()
 			return None
 
@@ -1027,6 +1037,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if self._settings.get(["thermal_runaway_monitoring"]):
 			# Run inside it's own thread to prevent communication blocking
 			t = threading.Timer(0 ,self.check_temps ,[parsed_temps])
+			t.daemon = True
 			t.start()
 		return parsed_temps
 
