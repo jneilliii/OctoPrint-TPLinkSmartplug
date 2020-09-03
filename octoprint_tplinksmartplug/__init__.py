@@ -95,6 +95,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._skipIdleTimer = False
 		self.powerOffWhenIdle = False
 		self._idleTimer = None
+		self._autostart_file = None
 
 	##~~ StartupPlugin mixin
 
@@ -302,7 +303,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if self._settings.get_boolean(["progress_polling"]) is False:
 			return
 		self._tplinksmartplug_logger.debug("Checking statuses during print progress (%s)." % progress)
-		_print_progress_timer = threading.Timer(1,self.check_statuses)
+		_print_progress_timer = threading.Timer(1, self.check_statuses)
 		_print_progress_timer.daemon = True
 		_print_progress_timer.start()
 		self._plugin_manager.send_plugin_message(self._identifier, dict(updatePlot=True))
@@ -645,34 +646,29 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		if self._timelapse_active and event == Events.MOVIE_DONE or event == Events.MOVIE_FAILED:
 			self._tplinksmartplug_logger.debug("Timelapse generation finished: %s. Return Code: %s" % (
-			payload.get("movie_basename", ""), payload.get("returncode", "completed")))
+				payload.get("movie_basename", ""), payload.get("returncode", "completed")))
 			self._timelapse_active = False
+		# Printer Connected Event
+		if event == Events.CONNECTED:
+			if self._autostart_file:
+				self._tplinksmartplug_logger.debug("printer connected starting print of %s" % self._autostart_file)
+				self._printer.select_file(self._autostart_file, False, printAfterSelect=True)
+				self._autostart_file = None
 		# File Uploaded Event
 		if event == Events.UPLOAD and self._settings.getBoolean(["event_on_upload_monitoring"]):
-			if payload.get("print", False) != False:  # implemnted in OctoPrint version 1.4.1
-				self._tplinksmartplug_logger.debug(
-					"File uploaded: %s. Turning enabled plugs on." % payload.get("name", ""))
+			if payload.get("print", False):  # implemented in OctoPrint version 1.4.1
+				self._tplinksmartplug_logger.debug("File uploaded: %s. Turning enabled plugs on." % payload.get("name", ""))
 				self._tplinksmartplug_logger.debug(payload)
 				for plug in self._settings.get(['arrSmartplugs']):
 					self._tplinksmartplug_logger.debug(plug)
-					if plug["event_on_upload"] == True and not self._printer.is_ready():
+					if plug["event_on_upload"] is True and not self._printer.is_ready():
 						self._tplinksmartplug_logger.debug("powering on %s due to %s event." % (plug["ip"], event))
 						response = self.turn_on(plug["ip"])
 						if response["currentState"] == "on":
-							self._tplinksmartplug_logger.debug(
-								"power on successful for %s attempting connection in %s seconds" % (
-								plug["ip"], plug.get("autoConnectDelay", "0")))
+							self._tplinksmartplug_logger.debug("power on successful for %s attempting connection in %s seconds" % (plug["ip"], plug.get("autoConnectDelay", "0")))
 							self._plugin_manager.send_plugin_message(self._identifier, response)
-							if payload.get("path", False) != False and payload.get("target") == "local":
-								time.sleep(int(plug.get("autoConnectDelay", "0")) + 1)
-								if self._printer.is_ready() != False:
-									self._tplinksmartplug_logger.debug(
-										"printer connected starting print of %s" % (payload.get("path", "")))
-									self._printer.select_file(payload.get("path"), False, printAfterSelect=True)
-
-		if event in [Events.FILE_ADDED, Events.POWER_ON, Events.POWER_OFF, Events.UPLOAD, Events.FILE_SELECTED,
-					 Events.PRINT_STARTED, ]:
-			self._logger.info("%s: %s" % (event, payload));
+							if payload.get("path", False) and payload.get("target") == "local":
+								self._autostart_file = payload.get("path")
 
 	##~~ Idle Timeout
 
@@ -899,18 +895,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		return result.decode('latin-1')
 
 	def sendCommand(self, cmd, plugip, plug_num=-1):
-		commands = {'info'	: '{"system":{"get_sysinfo":{}}}',
-			'on'	   : '{"system":{"set_relay_state":{"state":1}}}',
-			'off'	  : '{"system":{"set_relay_state":{"state":0}}}',
-			'cloudinfo': '{"cnCloud":{"get_info":{}}}',
-			'wlanscan' : '{"netif":{"get_scaninfo":{"refresh":0}}}',
-			'time'	 : '{"time":{"get_time":{}}}',
-			'schedule' : '{"schedule":{"get_rules":{}}}',
-			'countdown': '{"count_down":{"get_rules":{}}}',
-			'antitheft': '{"anti_theft":{"get_rules":{}}}',
-			'reboot'   : '{"system":{"reboot":{"delay":1}}}',
-			'reset'	: '{"system":{"reset":{"delay":1}}}'
-		}
+		commands = {'info': '{"system":{"get_sysinfo":{}}}',
+					'on': '{"system":{"set_relay_state":{"state":1}}}',
+					'off': '{"system":{"set_relay_state":{"state":0}}}',
+					'cloudinfo': '{"cnCloud":{"get_info":{}}}',
+					'wlanscan': '{"netif":{"get_scaninfo":{"refresh":0}}}',
+					'time': '{"time":{"get_time":{}}}',
+					'schedule': '{"schedule":{"get_rules":{}}}',
+					'countdown': '{"count_down":{"get_rules":{}}}',
+					'antitheft': '{"anti_theft":{"get_rules":{}}}',
+					'reboot': '{"system":{"reboot":{"delay":1}}}',
+					'reset': '{"system":{"reset":{"delay":1}}}'
+					}
 		if re.search('/\d+$', plugip):
 			self._tplinksmartplug_logger.exception("Internal error passing unsplit %s", plugip)
 		# try to connect via ip address
@@ -919,21 +915,21 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			ip = plugip
 			self._tplinksmartplug_logger.debug("IP %s is valid." % plugip)
 		except socket.error:
-		# try to convert hostname to ip
+			# try to convert hostname to ip
 			self._tplinksmartplug_logger.debug("Invalid ip %s trying hostname." % plugip)
 			try:
 				ip = socket.gethostbyname(plugip)
 				self._tplinksmartplug_logger.debug("Hostname %s is valid." % plugip)
 			except (socket.herror, socket.gaierror):
 				self._tplinksmartplug_logger.debug("Invalid hostname %s." % plugip)
-				return {"system" :{"get_sysinfo" :{"relay_state" :3}} ,"emeter" :{"err_code": True}}
+				return {"system": {"get_sysinfo": {"relay_state": 3}}, "emeter": {"err_code": True}}
 
 		if int(plug_num) >= 0:
 			plug_ip_num = plugip + "/" + plug_num
-			cmd["context"] = dict(child_ids = [self._get_device_id(plug_ip_num)])
+			cmd["context"] = dict(child_ids=[self._get_device_id(plug_ip_num)])
 
 		try:
-			self._tplinksmartplug_logger.debug("Sending command %s to %s" % (cmd ,plugip))
+			self._tplinksmartplug_logger.debug("Sending command %s to %s" % (cmd, plugip))
 			sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			sock_tcp.connect((ip, 9999))
 			sock_tcp.send(self.encrypt(json.dumps(cmd)))
@@ -947,7 +943,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			return json.loads(self.decrypt(data[4:]))
 		except socket.error:
 			self._tplinksmartplug_logger.debug("Could not connect to %s." % plugip)
-			return {"system" :{"get_sysinfo" :{"relay_state" :3}} ,"emeter" :{"err_code": True}}
+			return {"system": {"get_sysinfo": {"relay_state": 3}}, "emeter": {"err_code": True}}
 
 	##~~ Gcode processing hook
 
@@ -967,26 +963,26 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._waitForHeaters = False
 			self._reset_idle_timer()
 
-		if gcode not in ["M80" ,"M81"]:
+		if gcode not in ["M80", "M81"]:
 			return
 
 		if gcode == "M80":
 			plugip = re.sub(r'^M80\s?', '', cmd)
 			self._tplinksmartplug_logger.debug("Received M80 command, attempting power on of %s." % plugip)
-			plug = self.plug_search(self._settings.get(["arrSmartplugs"]) ,"ip" ,plugip)
+			plug = self.plug_search(self._settings.get(["arrSmartplugs"]), "ip", plugip)
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:
-				t = threading.Timer(int(plug["gcodeOnDelay"]) ,self.gcode_turn_on ,[plug])
+				t = threading.Timer(int(plug["gcodeOnDelay"]), self.gcode_turn_on, [plug])
 				t.daemon = True
 				t.start()
 			return
 		if gcode == "M81":
 			plugip = re.sub(r'^M81\s?', '', cmd)
 			self._tplinksmartplug_logger.debug("Received M81 command, attempting power off of %s." % plugip)
-			plug = self.plug_search(self._settings.get(["arrSmartplugs"]) ,"ip" ,plugip)
+			plug = self.plug_search(self._settings.get(["arrSmartplugs"]), "ip", plugip)
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:
-				t = threading.Timer(int(plug["gcodeOffDelay"]) ,self.gcode_turn_off ,[plug])
+				t = threading.Timer(int(plug["gcodeOffDelay"]), self.gcode_turn_off, [plug])
 				t.daemon = True
 				t.start()
 			return
@@ -997,20 +993,20 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if command == "TPLINKON":
 			plugip = parameters
 			self._tplinksmartplug_logger.debug("Received @TPLINKON command, attempting power on of %s." % plugip)
-			plug = self.plug_search(self._settings.get(["arrSmartplugs"]) ,"ip" ,plugip)
+			plug = self.plug_search(self._settings.get(["arrSmartplugs"]), "ip", plugip)
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:
-				t = threading.Timer(int(plug["gcodeOnDelay"]) ,self.gcode_turn_on ,[plug])
+				t = threading.Timer(int(plug["gcodeOnDelay"]), self.gcode_turn_on, [plug])
 				t.daemon = True
 				t.start()
 			return None
 		if command == "TPLINKOFF":
 			plugip = parameters
 			self._tplinksmartplug_logger.debug("Received TPLINKOFF command, attempting power off of %s." % plugip)
-			plug = self.plug_search(self._settings.get(["arrSmartplugs"]) ,"ip" ,plugip)
+			plug = self.plug_search(self._settings.get(["arrSmartplugs"]), "ip", plugip)
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:
-				t = threading.Timer(int(plug["gcodeOffDelay"]) ,self.gcode_turn_off ,[plug])
+				t = threading.Timer(int(plug["gcodeOffDelay"]), self.gcode_turn_off, [plug])
 				t.daemon = True
 				t.start()
 			return None
@@ -1036,7 +1032,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def monitor_temperatures(self, comm, parsed_temps):
 		if self._settings.get(["thermal_runaway_monitoring"]):
 			# Run inside it's own thread to prevent communication blocking
-			t = threading.Timer(0 ,self.check_temps ,[parsed_temps])
+			t = threading.Timer(0, self.check_temps, [parsed_temps])
 			t.daemon = True
 			t.start()
 		return parsed_temps
@@ -1056,8 +1052,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			)
 		)
 
+
 __plugin_name__ = "TP-Link Smartplug"
 __plugin_pythoncompat__ = ">=2.7,<4"
+
 
 def __plugin_load__():
 	global __plugin_implementation__
