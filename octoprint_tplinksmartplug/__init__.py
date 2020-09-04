@@ -1017,6 +1017,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				t.daemon = True
 				t.start()
 			return None
+		if command == 'TPLINKIDLEON':
+			self.powerOffWhenIdle = True
+			self._reset_idle_timer()
+		if command == 'TPLINKIDLEOFF':
+			self.powerOffWhenIdle = False
+			self._stop_idle_timer()
+			if self._abort_timer is not None:
+				self._abort_timer.cancel()
+				self._abort_timer = None
+			self._timeout_value = None
+		if command in ["TPLINKIDLEON", "TPLINKIDLEOFF"]:
+			self._plugin_manager.send_plugin_message(self._identifier, dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout", timeout_value=self._timeout_value))
 
 	##~~ Temperatures received hook
 
