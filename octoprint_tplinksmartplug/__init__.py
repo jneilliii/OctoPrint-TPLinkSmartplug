@@ -96,6 +96,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.powerOffWhenIdle = False
 		self._idleTimer = None
 		self._autostart_file = None
+		self.db_path = None
 
 	##~~ StartupPlugin mixin
 
@@ -462,13 +463,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 						t = emeter_data["get_realtime"]["total"]
 					else:
 						t = ""
-					db = sqlite3.connect(self.db_path)
-					cursor = db.cursor()
-					cursor.execute(
-						'''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''',
-						[plugip, today.isoformat(' '), c, p, t, v])
-					db.commit()
-					db.close()
+					if self.db_path is not None:
+						db = sqlite3.connect(self.db_path)
+						cursor = db.cursor()
+						cursor.execute(
+							'''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''',
+							[plugip, today.isoformat(' '), c, p, t, v])
+						db.commit()
+						db.close()
 
 			if len(plug_ip) == 2:
 				chk = self.lookup(response, *["system", "get_sysinfo", "children"])
@@ -566,8 +568,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_event(self, event, payload):
 		# Startup Event
-		if event == Events.STARTUP and self._settings.getBoolean(["event_on_startup_monitoring"]) is True:
-			self._tplinksmartplug_logger.debug("powering off due to %s event." % event)
+		if event == Events.STARTUP and self._settings.get_boolean(["event_on_startup_monitoring"]) is True:
+			self._tplinksmartplug_logger.debug("powering on due to %s event." % event)
 			for plug in self._settings.get(['arrSmartplugs']):
 				if plug["event_on_startup"] is True:
 					self._tplinksmartplug_logger.debug("powering on %s due to %s event." % (plug["ip"], event))
