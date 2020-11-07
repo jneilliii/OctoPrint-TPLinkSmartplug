@@ -2,9 +2,10 @@
 from __future__ import absolute_import
 
 import octoprint.plugin
-from octoprint.server import user_permission
+from octoprint.access.permissions import Permissions, ADMIN_GROUP, USER_GROUP
 from octoprint.events import eventManager, Events
 from octoprint.util import RepeatedTimer
+from flask_babel import gettext
 import socket
 import json
 import flask
@@ -504,7 +505,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			return flask.jsonify(response)
 
 	def on_api_command(self, command, data):
-		if not user_permission.can():
+		if not Permissions.PLUGIN_TPLINKSMARTPLUG_CONTROL.can():
 			return flask.make_response("Insufficient rights", 403)
 
 		if command == 'turnOn':
@@ -560,7 +561,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._settings.save()
 		# eventManager().fire(Events.SETTINGS_UPDATED)
 		if command == "enableAutomaticShutdown" or command == "disableAutomaticShutdown" or command == "abortAutomaticShutdown":
-			self._plugin_manager.send_plugin_message(self._identifier, dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout", timeout_value=self._timeout_value))
+			self._plugin_manager.send_plugin_message(self._identifier,
+													 dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout",
+														  timeout_value=self._timeout_value))
 		else:
 			return flask.jsonify(response)
 
@@ -589,7 +592,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if event == Events.CLIENT_OPENED:
 			if self._settings.get_boolean(["powerOffWhenIdle"]):
 				self._reset_idle_timer()
-			self._plugin_manager.send_plugin_message(self._identifier, dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout", timeout_value=self._timeout_value))
+			self._plugin_manager.send_plugin_message(self._identifier,
+													 dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout",
+														  timeout_value=self._timeout_value))
 			return
 		# Cancelled Print Interpreted Event
 		if event == Events.PRINT_FAILED and not self._printer.is_closed_or_error():
@@ -603,7 +608,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug(payload.get("path", None))
 			for plug in self._settings.get(["arrSmartplugs"]):
 				status = self.check_status(plug["ip"])
-				self.print_job_power -= float(self.deep_get(status, ["emeter", "get_realtime", "total_wh"], default=0)) / 1000
+				self.print_job_power -= float(
+					self.deep_get(status, ["emeter", "get_realtime", "total_wh"], default=0)) / 1000
 				self.print_job_power -= float(self.deep_get(status, ["emeter", "get_realtime", "total"], default=0))
 				self._tplinksmartplug_logger.debug(self.print_job_power)
 
@@ -615,7 +621,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			if self._idleTimer is not None:
 				self._reset_idle_timer()
 			self._timeout_value = None
-			self._plugin_manager.send_plugin_message(self._identifier, dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout", timeout_value=self._timeout_value))
+			self._plugin_manager.send_plugin_message(self._identifier,
+													 dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout",
+														  timeout_value=self._timeout_value))
 
 		if event == Events.PRINT_STARTED and self._countdown_active:
 			for plug in self._settings.get(["arrSmartplugs"]):
@@ -633,7 +641,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 			for plug in self._settings.get(["arrSmartplugs"]):
 				status = self.check_status(plug["ip"])
-				self.print_job_power += float(self.deep_get(status, ["emeter", "get_realtime", "total_wh"], default=0)) / 1000
+				self.print_job_power += float(
+					self.deep_get(status, ["emeter", "get_realtime", "total_wh"], default=0)) / 1000
 				self.print_job_power += float(self.deep_get(status, ["emeter", "get_realtime", "total"], default=0))
 				self._tplinksmartplug_logger.debug(self.print_job_power)
 
@@ -645,7 +654,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug("power total cost: %s" % power_cost)
 
 			self._storage_interface = self._file_manager._storage(payload.get("origin", "local"))
-			self._storage_interface.set_additional_metadata(payload.get("path"), "statistics", dict(lastPowerCost=dict(_default=float('{:.4f}'.format(power_cost)))), merge=True)
+			self._storage_interface.set_additional_metadata(payload.get("path"), "statistics", dict(
+				lastPowerCost=dict(_default=float('{:.4f}'.format(power_cost)))), merge=True)
 
 			self.print_job_power = 0.0
 			self.print_job_started = False
@@ -655,7 +665,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._timelapse_active = True
 
 		if self._timelapse_active and event == Events.MOVIE_DONE or event == Events.MOVIE_FAILED:
-			self._tplinksmartplug_logger.debug("Timelapse generation finished: %s. Return Code: %s" % (payload.get("movie_basename", ""), payload.get("returncode", "completed")))
+			self._tplinksmartplug_logger.debug("Timelapse generation finished: %s. Return Code: %s" % (
+				payload.get("movie_basename", ""), payload.get("returncode", "completed")))
 			self._timelapse_active = False
 		# Printer Connected Event
 		if event == Events.CONNECTED:
@@ -666,7 +677,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		# File Uploaded Event
 		if event == Events.UPLOAD and self._settings.getBoolean(["event_on_upload_monitoring"]):
 			if payload.get("print", False):  # implemented in OctoPrint version 1.4.1
-				self._tplinksmartplug_logger.debug("File uploaded: %s. Turning enabled plugs on." % payload.get("name", ""))
+				self._tplinksmartplug_logger.debug(
+					"File uploaded: %s. Turning enabled plugs on." % payload.get("name", ""))
 				self._tplinksmartplug_logger.debug(payload)
 				for plug in self._settings.get(['arrSmartplugs']):
 					self._tplinksmartplug_logger.debug(plug)
@@ -674,7 +686,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 						self._tplinksmartplug_logger.debug("powering on %s due to %s event." % (plug["ip"], event))
 						response = self.turn_on(plug["ip"])
 						if response["currentState"] == "on":
-							self._tplinksmartplug_logger.debug("power on successful for %s attempting connection in %s seconds" % (plug["ip"], plug.get("autoConnectDelay", "0")))
+							self._tplinksmartplug_logger.debug(
+								"power on successful for %s attempting connection in %s seconds" % (
+									plug["ip"], plug.get("autoConnectDelay", "0")))
 							self._plugin_manager.send_plugin_message(self._identifier, response)
 							if payload.get("path", False) and payload.get("target") == "local":
 								self._autostart_file = payload.get("path")
@@ -1030,7 +1044,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._abort_timer = None
 			self._timeout_value = None
 		if command in ["TPLINKIDLEON", "TPLINKIDLEOFF"]:
-			self._plugin_manager.send_plugin_message(self._identifier, dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout", timeout_value=self._timeout_value))
+			self._plugin_manager.send_plugin_message(self._identifier,
+													 dict(powerOffWhenIdle=self.powerOffWhenIdle, type="timeout",
+														  timeout_value=self._timeout_value))
 
 	##~~ Temperatures received hook
 
@@ -1057,6 +1073,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			t.daemon = True
 			t.start()
 		return parsed_temps
+
+	##~~ Access Permissions Hook
+
+	def get_additional_permissions(self, *args, **kwargs):
+		return [
+			dict(key="CONTROL",
+				 name="Control Plugs",
+				 description=gettext("Allows control of configured plugs."),
+				 roles=["admin"],
+				 dangerous=True,
+				 default_groups=[ADMIN_GROUP])
+		]
 
 	##~~ Softwareupdate hook
 
@@ -1087,5 +1115,6 @@ def __plugin_load__():
 		"octoprint.comm.protocol.gcode.queuing": __plugin_implementation__.processGCODE,
 		"octoprint.comm.protocol.atcommand.sending": __plugin_implementation__.processAtCommand,
 		"octoprint.comm.protocol.temperatures.received": __plugin_implementation__.monitor_temperatures,
+		"octoprint.access.permissions": __plugin_implementation__.get_additional_permissions,
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
 	}
