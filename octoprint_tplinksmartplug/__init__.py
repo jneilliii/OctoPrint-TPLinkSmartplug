@@ -579,8 +579,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				if plug["event_on_startup"] is True:
 					self._tplinksmartplug_logger.debug("powering on %s due to %s event." % (plug["ip"], event))
 					response = self.turn_on(plug["ip"])
-					if response["currentState"] == "on":
+					if response.get("currentState", False) == "on":
 						self._plugin_manager.send_plugin_message(self._identifier, response)
+					else:
+						self._tplinksmartplug_logger.debug("powering on %s due to %s event failed." % (plug["ip"], event))
 		# Error Event
 		if event == Events.ERROR and self._settings.getBoolean(["event_on_error_monitoring"]) is True:
 			self._tplinksmartplug_logger.debug("powering off due to %s event." % event)
