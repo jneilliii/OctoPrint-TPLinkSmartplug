@@ -731,6 +731,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if self._printer.is_printing() or self._printer.is_paused():
 			return
 
+        f = open("/proc/uptime", "r")
+        uptime_seconds = float(f.readline().split()[0])
+        f.close()
+        timeout = (self._settings.get_int(["idleTimeout"]) * 60)
+        if int(uptime_seconds) <= timeout:
+            self._tplinksmartplug_logger.debug("Just booted so wait for time sync.")
+            self._reset_idle_timer()
+            return
+
 		self._tplinksmartplug_logger.debug(
 			"Idle timeout reached after %s minute(s). Turning heaters off prior to powering off plugs." % self.idleTimeout)
 		if self._wait_for_heaters():
