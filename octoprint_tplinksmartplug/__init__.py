@@ -16,6 +16,7 @@ import threading
 import time
 import sqlite3
 import decimal
+from uptime import uptime
 from datetime import datetime
 from struct import unpack
 from builtins import bytes
@@ -729,6 +730,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			return
 
 		if self._printer.is_printing() or self._printer.is_paused():
+			return
+
+		if uptime()/60 <= (self._settings.get_int(["idleTimeout"]) * 60):
+			self._tplinksmartplug_logger.debug("Just booted so wait for time sync.")
+			self._reset_idle_timer()
 			return
 
 		self._tplinksmartplug_logger.debug(
