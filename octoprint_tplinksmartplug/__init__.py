@@ -144,15 +144,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.idleTimeoutWaitTemp = self._settings.get_int(["idleTimeoutWaitTemp"])
 		self._tplinksmartplug_logger.debug("idleTimeoutWaitTemp: %s" % self.idleTimeoutWaitTemp)
 		if self._settings.get_boolean(["event_on_startup_monitoring"]) is True:
-			self._tplinksmartplug_logger.debug("powering on due to %s event." % event)
+			self._tplinksmartplug_logger.debug("powering on due to startup.")
 			for plug in self._settings.get(['arrSmartplugs']):
 				if plug["event_on_startup"] is True:
-					self._tplinksmartplug_logger.debug("powering on %s due to %s event." % (plug["ip"], event))
+					self._tplinksmartplug_logger.debug("powering on %s due to startup." % (plug["ip"]))
 					response = self.turn_on(plug["ip"])
 					if response.get("currentState", False) == "on":
 						self._plugin_manager.send_plugin_message(self._identifier, response)
 					else:
-						self._tplinksmartplug_logger.debug("powering on %s due to %s event failed." % (plug["ip"], event))
+						self._tplinksmartplug_logger.debug("powering on %s during startup failed." % (plug["ip"]))
 		self._reset_idle_timer()
 
 	##~~ SettingsPlugin mixin
