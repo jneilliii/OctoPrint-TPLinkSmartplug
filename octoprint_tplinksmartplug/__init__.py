@@ -732,9 +732,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if self._printer.is_printing() or self._printer.is_paused():
 			return
 
-		if (uptime()/60) <= (self._settings.get_int(["idleTimeout"]) * 60):
+		if (uptime()/60) <= (self._settings.get_int(["idleTimeout"])):
 			self._tplinksmartplug_logger.debug("Just booted so wait for time sync.")
-			self._tplinksmartplug_logger.debug("uptime: {}, comparison: ".format((uptime()/60), (self._settings.get_int(["idleTimeout"]) * 60)))
+			self._tplinksmartplug_logger.debug("uptime: {}, comparison: {}".format((uptime()/60), (self._settings.get_int(["idleTimeout"]))))
 			self._reset_idle_timer()
 			return
 
