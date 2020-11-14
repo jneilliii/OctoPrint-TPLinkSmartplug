@@ -581,17 +581,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ EventHandlerPlugin mixin
 
 	def on_event(self, event, payload):
-		# Startup Event
-		if event == Events.STARTUP and self._settings.get_boolean(["event_on_startup_monitoring"]) is True:
-			self._tplinksmartplug_logger.debug("powering on due to %s event." % event)
-			for plug in self._settings.get(['arrSmartplugs']):
-				if plug["event_on_startup"] is True:
-					self._tplinksmartplug_logger.debug("powering on %s due to %s event." % (plug["ip"], event))
-					response = self.turn_on(plug["ip"])
-					if response.get("currentState", False) == "on":
-						self._plugin_manager.send_plugin_message(self._identifier, response)
-					else:
-						self._tplinksmartplug_logger.debug("powering on %s due to %s event failed." % (plug["ip"], event))
 		# Error Event
 		if event == Events.ERROR and self._settings.getBoolean(["event_on_error_monitoring"]) is True:
 			self._tplinksmartplug_logger.debug("powering off due to %s event." % event)
@@ -743,8 +732,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		if self._printer.is_printing() or self._printer.is_paused():
 			return
 
-		if uptime()/60 <= (self._settings.get_int(["idleTimeout"]) * 60):
+		if (uptime()/60) <= (self._settings.get_int(["idleTimeout"]) * 60):
 			self._tplinksmartplug_logger.debug("Just booted so wait for time sync.")
+			self._tplinksmartplug_logger.debug("uptime: {}, comparison: ".format((uptime()/60), (self._settings.get_int(["idleTimeout"]) * 60)))
 			self._reset_idle_timer()
 			return
 
