@@ -16,6 +16,7 @@ import threading
 import time
 import sqlite3
 import decimal
+from uptime import uptime
 from datetime import datetime
 from struct import unpack
 from builtins import bytes
@@ -142,7 +143,16 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug("idleIgnoreCommands: %s" % self.idleIgnoreCommands)
 		self.idleTimeoutWaitTemp = self._settings.get_int(["idleTimeoutWaitTemp"])
 		self._tplinksmartplug_logger.debug("idleTimeoutWaitTemp: %s" % self.idleTimeoutWaitTemp)
-
+		if self._settings.get_boolean(["event_on_startup_monitoring"]) is True:
+			self._tplinksmartplug_logger.debug("powering on due to startup.")
+			for plug in self._settings.get(['arrSmartplugs']):
+				if plug["event_on_startup"] is True:
+					self._tplinksmartplug_logger.debug("powering on %s due to startup." % (plug["ip"]))
+					response = self.turn_on(plug["ip"])
+					if response.get("currentState", False) == "on":
+						self._plugin_manager.send_plugin_message(self._identifier, response)
+					else:
+						self._tplinksmartplug_logger.debug("powering on %s during startup failed." % (plug["ip"]))
 		self._reset_idle_timer()
 
 	##~~ SettingsPlugin mixin
@@ -369,7 +379,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			return self.check_status(plugip)
 
 	def turn_off(self, plugip):
+		timenow = datetime.now()
 		self._tplinksmartplug_logger.debug("Turning off %s." % plugip)
+		self._tplinksmartplug_logger.info("Turning off %s at %s" % (plugip, timenow))
 		plug = self.plug_search(self._settings.get(["arrSmartplugs"]), "ip", plugip)
 		self._tplinksmartplug_logger.debug(plug)
 		if "/" in plugip:
@@ -729,6 +741,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			return
 
 		if self._printer.is_printing() or self._printer.is_paused():
+			return
+
+		if (uptime()/60) <= (self._settings.get_int(["idleTimeout"])):
+			self._tplinksmartplug_logger.debug("Just booted so wait for time sync.")
+			self._tplinksmartplug_logger.debug("uptime: {}, comparison: {}".format((uptime()/60), (self._settings.get_int(["idleTimeout"]))))
+			self._reset_idle_timer()
 			return
 
 		self._tplinksmartplug_logger.debug(

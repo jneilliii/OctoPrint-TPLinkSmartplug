@@ -56,6 +56,17 @@ Once installed go into settings and enter the ip address for your TP-Link Smartp
 - **Run System Command Before Off**
   - When checked will run system command configured in **System Command Off** setting after a delay in seconds configured in **System Command Off Delay**.
   
+## Most recent changelog
+
+**[0.9.26](https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/releases/tag/0.9.26)** (11/20/2020)
+
+* add uptime check to verify system uptime is not below our timeout threshold
+* fix issues related to uptime comparison on startup
+* fix powering on during startup when doing a cold boot
+
+
+### [All releases](https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/releases)
+
 ## Get Help
 
 If you experience issues with this plugin or need assistance please use the issue tracker by clicking issues above.
