@@ -614,6 +614,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug("Print cancelled, resetting job_power to 0")
 			self.print_job_power = 0.0
 			self.print_job_started = False
+			self._autostart_file = None
 			return
 		# Print Started Event
 		if event == Events.PRINT_STARTED and self._settings.getFloat(["cost_rate"]) > 0:
@@ -672,6 +673,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 			self.print_job_power = 0.0
 			self.print_job_started = False
+			self._autostart_file = None
 
 		if self.powerOffWhenIdle == True and event == Events.MOVIE_RENDERING:
 			self._tplinksmartplug_logger.debug("Timelapse generation started: %s" % payload.get("movie_basename", ""))
