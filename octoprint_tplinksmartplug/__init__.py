@@ -509,7 +509,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			getEnergyData=["ip"],
 			enableAutomaticShutdown=[],
 			disableAutomaticShutdown=[],
-			abortAutomaticShutdown=[])
+			abortAutomaticShutdown=[],
+			getListPlug=[])
 
 	def on_api_get(self, request):
 		self._tplinksmartplug_logger.debug(request.args)
@@ -566,6 +567,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug("Power off aborted.")
 			self._tplinksmartplug_logger.debug("Restarting idle timer.")
 			self._reset_idle_timer()
+		elif command == "getListPlug":
+			return json.dumps(self._settings.get(["arrSmartplugs"]))
 		else:
 			response = dict(ip=data.ip, currentState="unknown")
 		if command == "enableAutomaticShutdown" or command == "disableAutomaticShutdown":
