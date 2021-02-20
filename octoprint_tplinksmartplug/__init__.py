@@ -99,6 +99,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._idleTimer = None
 		self._autostart_file = None
 		self.db_path = None
+		self.poll_status = None
 
 	##~~ StartupPlugin mixin
 
@@ -218,7 +219,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.setLevel(logging.INFO)
 
 		if old_polling_value != new_polling_value or old_polling_timer != new_polling_timer:
-			if self.poll_status:
+			if self.poll_status is not None:
 				self.poll_status.cancel()
 
 			if new_polling_value:
