@@ -99,6 +99,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._autostart_file = None
 		self.db_path = None
 		self.poll_status = None
+		self.power_off_queue = []
 
 	##~~ StartupPlugin mixin
 
@@ -666,7 +667,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self.print_job_started = False
 			self._autostart_file = None
 
-		if self.powerOffWhenIdle == True and event == Events.MOVIE_RENDERING:
+		if event == Events.PRINT_DONE and len(self.power_off_queue) > 0:
+			self._tplinksmartplug_logger.debug("power_off_queue: {}".format(self.power_off_queue))
+			for plug in self.power_off_queue:
+				chk = self.turn_off(plug["ip"])
+				self._plugin_manager.send_plugin_message(self._identifier, chk)
+			self.power_off_queue = []
+
+		if self.powerOffWhenIdle is True and event == Events.MOVIE_RENDERING:
 			self._tplinksmartplug_logger.debug("Timelapse generation started: %s" % payload.get("movie_basename", ""))
 			self._timelapse_active = True
 
@@ -977,8 +985,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ Gcode processing hook
 
 	def gcode_turn_off(self, plug):
-		if plug["warnPrinting"] and self._printer.is_printing():
-			self._tplinksmartplug_logger.debug("Not powering off %s because printer is printing." % plug["label"])
+		if self._printer.is_printing() and plug["warnPrinting"] is True:
+			self._tplinksmartplug_logger.debug("Not powering off %s immediately because printer is printing." % plug["label"])
+			self.power_off_queue.append(plug)
 		else:
 			chk = self.turn_off(plug["ip"])
 			self._plugin_manager.send_plugin_message(self._identifier, chk)
@@ -1019,7 +1028,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def processAtCommand(self, comm_instance, phase, command, parameters, tags=None, *args, **kwargs):
 		if command == "TPLINKON":
 			plugip = parameters
-			self._tplinksmartplug_logger.debug("Received @TPLINKON command, attempting power on of %s." % plugip)
+			self._tplinksmartplug_logger.debug("Received TPLINKON command, attempting power on of %s." % plugip)
 			plug = self.plug_search(self._settings.get(["arrSmartplugs"]), "ip", plugip)
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:

@@ -364,7 +364,7 @@ $(function() {
 				$("#TPLinkSmartPlugWarning").modal("hide");
 				self.sendTurnOff(data);
 			}
-		}; 
+		};
 
 		self.sendTurnOff = function(data) {
 			$.ajax({
@@ -398,7 +398,7 @@ $(function() {
 				contentType: "application/json; charset=UTF-8"
 				}).done(function(data){
 						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
-						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'}; 
+						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'};
 						var trace_total = {x:[],y:[],mode:'lines+markers',name:'Total (kWh)'};
 						var trace_cost = {x:[],y:[],mode:'lines+markers',name:'Cost'}
 
@@ -528,7 +528,7 @@ $(function() {
 				data: {checkStatus:plugIP},
 				contentType: "application/json; charset=UTF-8"
 			}).done(self.updateDictionary);
-		}; 
+		};
 
 		self.checkStatuses = function() {
 			ko.utils.arrayForEach(self.arrSmartplugs(),function(item){

@@ -88,7 +88,7 @@ body #navbar_plugin_tplinksmartplug > a > span {
 }
 
 #TPLinkPlugEditor div.modal-body {
-	overflow: visible !important;
+	/*overflow: visible !important;*/
 }
 
 @media (max-width: 800px) {
