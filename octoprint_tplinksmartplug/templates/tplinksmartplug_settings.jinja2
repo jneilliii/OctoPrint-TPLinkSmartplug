@@ -239,6 +239,18 @@
 				<td></td>
 			</tr>
 			<tr>
+				<td colspan="3" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Run gcode command after powering on this plug.') }}" data-toggle="tooltip" data-bind="checked: gcodeCmdOn, tooltip: {container: '#TPLinkPlugEditor'}"/> {{ _('Run GCODE Commands After On') }}</label></div></td>
+			</tr>
+            <tr>
+                <td colspan="2" style="vertical-align: bottom"><textarea type="text" title="{{ _('GCODE command to run after powering on this plug. Separate multiple commands using a ,.') }}" data-toggle="tooltip" data-bind="value: gcodeRunCmdOn, enable: gcodeCmdOn(), tooltip: {container: '#TPLinkPlugEditor'}" class="input-block-level" disabled></textarea></td>
+            </tr>
+			<tr>
+				<td colspan="3" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Run gcode command before powering off this plug.') }}" data-toggle="tooltip" data-bind="checked: gcodeCmdOff, tooltip: {container: '#TPLinkPlugEditor'}"/> {{ _('Run GCODE Commands Before Off') }}</label></div></td>
+			</tr>
+            <tr>
+                <td colspan="2" style="vertical-align: bottom"><textarea type="text" title="{{ _('GCODE command to run before powering off this plug.') }}" data-toggle="tooltip" data-bind="value: gcodeRunCmdOff, enable: gcodeCmdOff(), tooltip: {container: '#TPLinkPlugEditor'}" class="input-block-level" disabled></textarea></td>
+            </tr>
+			<tr>
 				<td colspan="2" style="vertical-align: bottom"><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Run system command after powering on this plug and waiting configured delay.') }}" data-toggle="tooltip" data-bind="checked: sysCmdOn, tooltip: {container: '#TPLinkPlugEditor'}"/> {{ _('Run System Command After On') }}</label><input type="text" title="{{ _('System command to run after powering on this plug.') }}" data-toggle="tooltip" data-bind="value: sysRunCmdOn, enable: sysCmdOn(), tooltip: {container: '#TPLinkPlugEditor'}" class="input-block-level" disabled /></div></td>
 				<td style="vertical-align: bottom"><div class="controls" data-toggle="tooltip" data-bind="visible: sysCmdOn"><label class="control-label">{{ _('Delay') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {container: '#TPLinkPlugEditor'}" title="{{ _('Amount of time to wait before running configured system command after power on.') }}"><input type="number" data-bind="value: sysCmdOnDelay, enable: sysCmdOn()" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>
 			</tr>

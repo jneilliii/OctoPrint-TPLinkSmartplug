@@ -274,7 +274,12 @@ $(function() {
 								'event_on_disconnect':ko.observable(false),
 								'automaticShutdownEnabled':ko.observable(false),
 								'event_on_upload':ko.observable(false),
-								'event_on_startup':ko.observable(false)});
+								'event_on_startup':ko.observable(false),
+                                'gcodeCmdOn': ko.observable(false),
+                                'gcodeCmdOff': ko.observable(false),
+                                'gcodeRunCmdOn': ko.observable(''),
+                                'gcodeRunCmdOff': ko.observable('')
+            });
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
 		}

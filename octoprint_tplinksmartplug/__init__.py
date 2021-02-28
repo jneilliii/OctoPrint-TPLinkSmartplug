@@ -100,6 +100,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.db_path = None
 		self.poll_status = None
 		self.power_off_queue = []
+		self._gcode_queued = False
 
 	##~~ StartupPlugin mixin
 
@@ -228,7 +229,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self.poll_status.start()
 
 	def get_settings_version(self):
-		return 14
+		return 15
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -302,6 +303,16 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				if "/" in plug["ip"]:
 					plug_ip, plug_num = plug["ip"].split("/")
 					plug["ip"] = "{}/{}".format(plug_ip, int(plug_num)+1)
+				arrSmartplugs_new.append(plug)
+			self._settings.set(["arrSmartplugs"], arrSmartplugs_new)
+
+		if current is not None and current < 15:
+			arrSmartplugs_new = []
+			for plug in self._settings.get(['arrSmartplugs']):
+				plug["gcodeCmdOn"] = False
+				plug["gcodeCmdOff"] = False
+				plug["gcodeRunCmdOn"] = ""
+				plug["gcodeRunCmdOff"] = ""
 				arrSmartplugs_new.append(plug)
 			self._settings.set(["arrSmartplugs"], arrSmartplugs_new)
 
@@ -380,6 +391,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				c = threading.Timer(int(plug["autoConnectDelay"]), self._printer.connect)
 				c.daemon = True
 				c.start()
+			if plug["gcodeCmdOn"] and self._printer.is_closed_or_error():
+				self._tplinksmartplug_logger.debug("queuing gcode on commands because printer isn't connected yet.")
+				self._gcode_queued = True
+			if plug["gcodeCmdOn"] and self._printer.is_ready() and plug["gcodeRunCmdOn"] != "":
+				self._tplinksmartplug_logger.debug("sending gcode commands to printer.")
+				self._printer.commands(plug["gcodeRunCmdOn"].split("\n"))
 			if plug["sysCmdOn"]:
 				t = threading.Timer(int(plug["sysCmdOnDelay"]), os.system, args=[plug["sysRunCmdOn"]])
 				t.daemon = True
@@ -409,7 +426,9 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._countdown_active = True
 				c = threading.Timer(int(plug["countdownOffDelay"]) + 3, self._plugin_manager.send_plugin_message, [self._identifier, dict(check_status=True, ip=plugip)])
 				c.start()
-
+		if plug["gcodeCmdOff"] and plug["gcodeRunCmdOff"] != "":
+			self._tplinksmartplug_logger.debug("sending gcode commands to printer.")
+			self._printer.commands(plug["gcodeRunCmdOff"].split("\n"))
 		if plug["sysCmdOff"]:
 			t = threading.Timer(int(plug["sysCmdOffDelay"]), os.system, args=[plug["sysRunCmdOff"]])
 			t.daemon = True
@@ -693,6 +712,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._timelapse_active = False
 		# Printer Connected Event
 		if event == Events.CONNECTED:
+			if self._gcode_queued:
+				for plug in self._settings.get(['arrSmartplugs']):
+					if plug["gcodeCmdOn"] and plug["gcodeRunCmdOn"] != "":
+						self._tplinksmartplug_logger.debug("sending gcode commands to printer.")
+						self._printer.commands(plug["gcodeRunCmdOn"].split("\n"))
+				self._gcode_queued = False
 			if self._autostart_file:
 				self._tplinksmartplug_logger.debug("printer connected starting print of %s" % self._autostart_file)
 				self._printer.select_file(self._autostart_file, False, printAfterSelect=True)
