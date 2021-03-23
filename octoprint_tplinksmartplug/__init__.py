@@ -695,7 +695,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.debug(payload)
 				for plug in self._settings.get(['arrSmartplugs']):
 					self._tplinksmartplug_logger.debug(plug)
-					if plug["event_on_upload"] is True and not self._printer.is_ready():
+					if plug["event_on_upload"] is True and self._printer.is_closed_or_error():
 						self._tplinksmartplug_logger.debug("powering on %s due to %s event." % (plug["ip"], event))
 						response = self.turn_on(plug["ip"])
 						if response["currentState"] == "on":
