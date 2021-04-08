@@ -94,6 +94,15 @@
 			<div class="control-group">
 				<div class="controls">
 					<label class="checkbox">
+					<input type="checkbox" title="{{ _('When enabled plugs with the option enabled will be automatically powered off during OctoPrint shutdown.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_shutdown_monitoring, tooltip: {}" /> {{ _('Shutdown Event Monitoring') }}
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
+				<div class="controls">
+					<label class="checkbox">
 					<input type="checkbox" title="{{ _('When enabled the status of plugs will be checked based on the Polling Interval supplied.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.pollingEnabled, tooltip: {}" /> {{ _('Enable polling of status.') }}
 					</label>
 				</div>
@@ -221,7 +230,7 @@
 			<tr>
 				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('When enabled the on and off commands will be sent to the plug using timers similar to the Kasa app. This is helpful for when you want to run a system command to cleanly shutdown your pi prior to power it off.') }}" data-toggle="tooltip" data-bind="checked: useCountdownRules, tooltip: {container: '#TPLinkPlugEditor'}"/> {{ _('Use Timers') }}</label></div></td>
 				<td></td>
-				<td></td>
+				<td><div class="controls"><label class="checkbox"><input type="checkbox" title="{{ _('Automatically power off this plug when Shutdown Event Monitoring is enabled.') }}" data-toggle="tooltip" data-bind="checked: event_on_shutdown, enable: $root.settings.settings.plugins.tplinksmartplug.event_on_shutdown_monitoring(), tooltip: {container: '#TPLinkPlugEditor'}" disabled /> {{ _('Off with Shutdown') }}</label></div></td>
 			</tr>
 			<tr>
 				<td><div class="controls"><label class="control-label">{{ _('Timer On Delay') }}</label><div class="input-append" data-toggle="tooltip" data-bind="tooltip: {container: '#TPLinkPlugEditor'}" title="{{ _('Amount of time for Timer to wait before powering on.') }}"><input type="number" min="1" data-bind="value: countdownOnDelay, enable: useCountdownRules()" class="input input-mini" disabled /><span class="add-on">{{ _('secs') }}</span></div></div></td>

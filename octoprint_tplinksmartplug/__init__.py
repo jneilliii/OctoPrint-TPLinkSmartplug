@@ -79,7 +79,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 							octoprint.plugin.SimpleApiPlugin,
 							octoprint.plugin.StartupPlugin,
 							octoprint.plugin.ProgressPlugin,
-							octoprint.plugin.EventHandlerPlugin):
+							octoprint.plugin.EventHandlerPlugin,
+							octoprint.plugin.ShutdownPlugin):
 
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
@@ -157,6 +158,15 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 						self._tplinksmartplug_logger.debug("powering on %s during startup failed." % (plug["ip"]))
 		self._reset_idle_timer()
 
+	##~~ ShutdownPlugin mixin
+
+	def on_shutdown(self):
+		if self._settings.getBoolean(["event_on_shutdown_monitoring"]):
+			for plug in self._settings.get(['arrSmartplugs']):
+				if plug["event_on_shutdown"] is True:
+					self._tplinksmartplug_logger.debug("powering off %s due to shutdown event." % plug["ip"])
+					self.turn_off(plug["ip"])
+
 	##~~ SettingsPlugin mixin
 
 	def get_settings_defaults(self):
@@ -172,6 +182,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			event_on_disconnect_monitoring=False,
 			event_on_upload_monitoring=False,
 			event_on_startup_monitoring=False,
+			event_on_shutdown_monitoring=False,
 			cost_rate=0,
 			abortTimeout=30,
 			powerOffWhenIdle=False,
@@ -229,7 +240,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self.poll_status.start()
 
 	def get_settings_version(self):
-		return 15
+		return 16
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -313,6 +324,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				plug["gcodeCmdOff"] = False
 				plug["gcodeRunCmdOn"] = ""
 				plug["gcodeRunCmdOff"] = ""
+				arrSmartplugs_new.append(plug)
+			self._settings.set(["arrSmartplugs"], arrSmartplugs_new)
+
+		if current is not None and current < 16:
+			arrSmartplugs_new = []
+			for plug in self._settings.get(['arrSmartplugs']):
+				plug["event_on_shutdown"] = False
 				arrSmartplugs_new.append(plug)
 			self._settings.set(["arrSmartplugs"], arrSmartplugs_new)
 
