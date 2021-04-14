@@ -58,11 +58,17 @@ Once installed go into settings and enter the ip address for your TP-Link Smartp
   
 ## Most recent changelog
 
-**[0.9.26](https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/releases/tag/0.9.26)** (11/20/2020)
+**[1.0.0](https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/releases/tag/1.0.0)** (04/14/2021)
 
-* add uptime check to verify system uptime is not below our timeout threshold
-* fix issues related to uptime comparison on startup
-* fix powering on during startup when doing a cold boot
+* clear _autostart_file on print done or canceled events to prevent from auto starting a file on next connect.
+* fix missing poll_status in init
+* resolve idle timeout issues related to plugs powering off with gcode commands, #254
+* change gcode trigger logic for off commands to account for printer buffer, #258
+* change index values for strip devices to match labels and the Kasa app, #243
+* add sending gcode commands before off and after on, #160, #170
+* turn on only if we are closed or errored state with upload event, thanks to @ayufan
+* added shutdown event monitoring, #263
+* add API endpoint for listing configured plugs
 
 
 ### [All releases](https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/releases)
@@ -86,6 +92,7 @@ Check out my other plugins [here](https://plugins.octoprint.org/by_author/#jneil
 - [Andrew Beeman](https://github.com/Kiendeleo)
 - [Calanish](https://github.com/calanish)
 - [Will O](https://github.com/4wrxb)
+- [Stephen Berry]{https://github.com/berrystephenw}
 
 ### Support My Efforts
 I, jneilliii, programmed this plugin for fun and do my best effort to support those that have issues with it, please return the favor and leave me a tip or become a Patron if you find this plugin helpful and want me to continue future development.
