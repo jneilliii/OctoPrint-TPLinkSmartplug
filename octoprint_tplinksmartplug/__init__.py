@@ -79,8 +79,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 							octoprint.plugin.SimpleApiPlugin,
 							octoprint.plugin.StartupPlugin,
 							octoprint.plugin.ProgressPlugin,
-							octoprint.plugin.EventHandlerPlugin,
-							octoprint.plugin.ShutdownPlugin):
+							octoprint.plugin.EventHandlerPlugin):
 
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.tplinksmartplug")
@@ -157,15 +156,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 					else:
 						self._tplinksmartplug_logger.debug("powering on %s during startup failed." % (plug["ip"]))
 		self._reset_idle_timer()
-
-	##~~ ShutdownPlugin mixin
-
-	def on_shutdown(self):
-		if self._settings.getBoolean(["event_on_shutdown_monitoring"]):
-			for plug in self._settings.get(['arrSmartplugs']):
-				if plug["event_on_shutdown"] is True:
-					self._tplinksmartplug_logger.debug("powering off %s due to shutdown event." % plug["ip"])
-					self.turn_off(plug["ip"])
 
 	##~~ SettingsPlugin mixin
 
@@ -755,6 +745,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 							self._plugin_manager.send_plugin_message(self._identifier, response)
 							if payload.get("path", False) and payload.get("target") == "local":
 								self._autostart_file = payload.get("path")
+		# Shutdown Event
+		if event == Events.SHUTDOWN and self._settings.getBoolean(["event_on_shutdown_monitoring"]):
+			for plug in self._settings.get(['arrSmartplugs']):
+				if plug["event_on_shutdown"] is True:
+					self._tplinksmartplug_logger.debug("powering off %s due to shutdown event." % plug["ip"])
+					self.turn_off(plug["ip"])
 
 	##~~ Idle Timeout
 
