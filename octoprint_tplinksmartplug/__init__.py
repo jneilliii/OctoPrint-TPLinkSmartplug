@@ -798,7 +798,11 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self._tplinksmartplug_logger.debug("Idle timeout reached after %s minute(s). Turning heaters off prior to powering off plugs." % self.idleTimeout)
 		if self._wait_for_heaters():
 			self._tplinksmartplug_logger.debug("Heaters below temperature.")
+			self._tplinksmartplug_logger.debug("Checking for timelapse running.")
 			if self._wait_for_timelapse():
+				if self._printer.is_printing() or self._printer.is_paused():
+					self._tplinksmartplug_logger.debug("Aborted power off due to print activity.")
+					return
 				self._timer_start()
 		else:
 			self._tplinksmartplug_logger.debug("Aborted power off due to activity.")
