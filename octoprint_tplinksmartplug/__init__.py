@@ -460,8 +460,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			chk = self.lookup(self.sendCommand(turn_off_cmnd, plug_ip, plug_num), *["system", "set_relay_state", "err_code"])
 
 		self._tplinksmartplug_logger.debug(chk)
-		if chk == 0:
-			return self.check_status(plugip)
+
+		return self.check_status(plugip)
 
 	def check_statuses(self):
 		for plug in self._settings.get(["arrSmartplugs"]):
