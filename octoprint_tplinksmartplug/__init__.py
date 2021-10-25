@@ -424,7 +424,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._waitForHeaters = False
 				self._reset_idle_timer()
 
-			return self.check_status(plugip)
+		return self.check_status(plugip)
 
 	def turn_off(self, plugip):
 		timenow = datetime.now()
