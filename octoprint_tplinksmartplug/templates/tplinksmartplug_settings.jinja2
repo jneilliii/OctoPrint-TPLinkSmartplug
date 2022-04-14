@@ -78,6 +78,9 @@
 					<label class="checkbox">
 					<input type="checkbox" title="{{ _('When enabled if a file is uploaded plugs with the option enabled will be automatically powered on.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_upload_monitoring, tooltip: {}" /> {{ _('Upload Event Monitoring') }}
 					</label>
+					<label class="checkbox" data-bind="visible: settings.settings.plugins.tplinksmartplug.event_on_upload_monitoring">
+					<input type="checkbox" title="{{ _('Even if the start print option isn\'t enabled in slicer.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.event_on_upload_monitoring_always, tooltip: {}, enable: settings.settings.plugins.tplinksmartplug.event_on_upload_monitoring" /> {{ _('Always on Upload') }}
+					</label>
 				</div>
 			</div>
 		</div>

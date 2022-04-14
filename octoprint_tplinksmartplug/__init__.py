@@ -173,6 +173,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			event_on_error_monitoring=False,
 			event_on_disconnect_monitoring=False,
 			event_on_upload_monitoring=False,
+			event_on_upload_monitoring_always=False,
 			event_on_startup_monitoring=False,
 			event_on_shutdown_monitoring=False,
 			cost_rate=0,
@@ -759,7 +760,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._autostart_file = None
 		# File Uploaded Event
 		if event == Events.UPLOAD and self._settings.getBoolean(["event_on_upload_monitoring"]):
-			if payload.get("print", False):  # implemented in OctoPrint version 1.4.1
+			if payload.get("print", False) or self._settings.getBoolean(["event_on_upload_monitoring_always"]):  # implemented in OctoPrint version 1.4.1
 				self._tplinksmartplug_logger.debug(
 					"File uploaded: %s. Turning enabled plugs on." % payload.get("name", ""))
 				self._tplinksmartplug_logger.debug(payload)
