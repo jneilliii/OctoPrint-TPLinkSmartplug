@@ -648,7 +648,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 					if response["currentState"] == "on":
 						self._plugin_manager.send_plugin_message(self._identifier, response)
 		# Error Event
-		if event == Events.ERROR and self._settings.getBoolean(["event_on_error_monitoring"]) is True:
+		if event == Events.ERROR and self._settings.get_boolean(["event_on_error_monitoring"]) is True:
 			self._tplinksmartplug_logger.debug("powering off due to %s event." % event)
 			for plug in self._settings.get(['arrSmartplugs']):
 				if plug["event_on_error"] is True:
@@ -759,8 +759,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._printer.select_file(self._autostart_file, False, printAfterSelect=True)
 				self._autostart_file = None
 		# File Uploaded Event
-		if event == Events.UPLOAD and self._settings.getBoolean(["event_on_upload_monitoring"]):
-			if payload.get("print", False) or self._settings.getBoolean(["event_on_upload_monitoring_always"]):  # implemented in OctoPrint version 1.4.1
+		if event == Events.UPLOAD and self._settings.get_boolean(["event_on_upload_monitoring"]):
+			if payload.get("print", False) or self._settings.get_boolean(["event_on_upload_monitoring_always"]):  # implemented in OctoPrint version 1.4.1
 				self._tplinksmartplug_logger.debug(
 					"File uploaded: %s. Turning enabled plugs on." % payload.get("name", ""))
 				self._tplinksmartplug_logger.debug(payload)
@@ -777,7 +777,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 							if payload.get("path", False) and payload.get("target") == "local":
 								self._autostart_file = payload.get("path")
 		# Shutdown Event
-		if event == Events.SHUTDOWN and self._settings.getBoolean(["event_on_shutdown_monitoring"]):
+		if event == Events.SHUTDOWN and self._settings.get_boolean(["event_on_shutdown_monitoring"]):
 			for plug in self._settings.get(['arrSmartplugs']):
 				if plug["event_on_shutdown"] is True:
 					self._tplinksmartplug_logger.debug("powering off %s due to shutdown event." % plug["ip"])
