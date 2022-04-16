@@ -673,7 +673,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._autostart_file = None
 			return
 		# Print Started Event
-		if event == Events.PRINT_STARTED and self._settings.getFloat(["cost_rate"]) > 0:
+		if event == Events.PRINT_STARTED and self._settings.get_float(["cost_rate"]) > 0:
 			self.print_job_started = True
 			self._tplinksmartplug_logger.debug(payload.get("path", None))
 			for plug in self._settings.get(["arrSmartplugs"]):
@@ -720,7 +720,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.debug("hours: %s" % hours)
 			power_used = self.print_job_power * hours
 			self._tplinksmartplug_logger.debug("power used: %s" % power_used)
-			power_cost = power_used * self._settings.getFloat(["cost_rate"])
+			power_cost = power_used * self._settings.get_float(["cost_rate"])
 			self._tplinksmartplug_logger.debug("power total cost: %s" % power_cost)
 
 			self._storage_interface = self._file_manager._storage(payload.get("origin", "local"))
