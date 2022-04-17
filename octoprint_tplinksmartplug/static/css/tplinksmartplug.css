@@ -40,7 +40,7 @@ div#tplinksmartplugs {
 }
 
 #sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div > div.on {
-	color: #000;
+	color: inherit;
 }
 
 #sidebar_plugin_tplinksmartplug > div.accordion-inner > #tplinksmartplugs > div > div.off {
