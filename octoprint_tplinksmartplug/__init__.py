@@ -1154,7 +1154,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def check_temps(self, parsed_temps):
 		thermal_runaway_triggered = False
-		for k, v in parsed_temps.items():
+		for k, v in list(parsed_temps.items()):
 			if k == "B" and v[0] > int(self._settings.get(["thermal_runaway_max_bed"])):
 				self._tplinksmartplug_logger.debug("Max bed temp reached, shutting off plugs.")
 				thermal_runaway_triggered = True
