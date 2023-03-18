@@ -2,7 +2,7 @@
 
 ***Warning***: Recent firmware version 1.1.0 for the HS100, HS110 have been reported to break the capability of this plugin to communicate with kasa devices. So far it seems to be only effecting UK version plugs, but could spread to other firmware variants.
 
-***Warning***: Recent firmware updates for the HS103 breaks the use of this plugin with those devices. TP-Link may push the same firmware to other devices, but be warned that updating your devices firmware may break the use of this plugin. It appears this can be resolved by never connecting the plug to the cloud by following the steps outlined [here](https://www.tp-link.com/us/support/faq/2707/).
+***Warning***: Recent firmware updates for the HS103 breaks the use of this plugin with those devices. TP-Link may push the same firmware to other devices, but be warned that updating your devices firmware may break the use of this plugin. It appears this can be resolved by never connecting the plug to the cloud by following the steps outlined [here](https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/master/extras/How_to_make_Kasa_smart_devices_controlled_local_only.pdf).
 
 Work inspired by [OctoPrint-PSUControl](https://github.com/kantlivelong/OctoPrint-PSUControl) and [TP-Link WiFi SmartPlug Client](https://github.com/softScheck/tplink-smartplug), this plugin controls a TP-Link Smartplug via OctoPrint's nav bar. Currently known compatible models are the HS100, HS103, HS105, HS107, HS110, HS300, KP105, KP303, KP115. Other Kasa app based devices may work. Tapo series devices will not work with this plugin, and probably never will because of their closed communication.
 
@@ -29,7 +29,7 @@ Once installed go into settings and enter the ip address for your TP-Link Smartp
 
 ## Settings Explained
 - **IP**
-  - IP or hostname of plug to control. For strip devices use the format `<ip>/<0 based socket index>`, ie 192.168.0.2/0 would control the first socket in the strip.
+  - IP or hostname of plug to control. For strip devices use the format `<ip>/<1 based socket index>`, ie 192.168.0.2/1 would control the first socket in the strip.
 - **Label**
   - Label to use for title attribute on hover over button in navbar.
 - **Icon Class**

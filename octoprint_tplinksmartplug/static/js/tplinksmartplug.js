@@ -12,38 +12,18 @@ $(function() {
 		self.loginState = parameters[1];
 		self.filesViewModel = parameters[2];
 
+        // Hijack the getAdditionalData function and add the custom data
+        let oldGetData = self.filesViewModel.getAdditionalData;
 		self.filesViewModel.getAdditionalData = function(data) {
-			var output = "";
-			if (data["gcodeAnalysis"]) {
-				if (data["gcodeAnalysis"]["dimensions"]) {
-					var dimensions = data["gcodeAnalysis"]["dimensions"];
-					output += gettext("Model size") + ": " + _.sprintf("%(width).2fmm &times; %(depth).2fmm &times; %(height).2fmm", dimensions);
-					output += "<br>";
-				}
-				if (data["gcodeAnalysis"]["filament"] && typeof(data["gcodeAnalysis"]["filament"]) === "object") {
-					var filament = data["gcodeAnalysis"]["filament"];
-					if (_.keys(filament).length === 1) {
-						output += gettext("Filament") + ": " + formatFilament(data["gcodeAnalysis"]["filament"]["tool" + 0]) + "<br>";
-					} else if (_.keys(filament).length > 1) {
-						_.each(filament, function(f, k) {
-							if (!_.startsWith(k, "tool") || !f || !f.hasOwnProperty("length") || f["length"] <= 0) return;
-							output += gettext("Filament") + " (" + gettext("Tool") + " " + k.substr("tool".length)
-								+ "): " + formatFilament(f) + "<br>";
-						});
-					}
-				}
-				output += gettext("Estimated print time") + ": " + (self.settings.appearance_fuzzyTimes() ? formatFuzzyPrintTime(data["gcodeAnalysis"]["estimatedPrintTime"]) : formatDuration(data["gcodeAnalysis"]["estimatedPrintTime"])) + "<br>";
-			}
-			if (data["prints"] && data["prints"]["last"]) {
-				output += gettext("Last printed") + ": " + formatTimeAgo(data["prints"]["last"]["date"]) + "<br>";
-				if (data["prints"]["last"]["printTime"]) {
-					output += gettext("Last print time") + ": " + formatDuration(data["prints"]["last"]["printTime"]) + "<br>";
-				}
-			}
+			var returnStr = "" + oldGetData(data);
+            if (!returnStr.endsWith('<br>')) {
+                returnStr = returnStr + "<br>";
+            }
+
 			if (data["statistics"] && data["statistics"]["lastPowerCost"]) {
-				output += gettext("Last power cost") + ": " + data["statistics"]["lastPowerCost"]["_default"] + "<br>";
+				returnStr += gettext("Last power cost") + ": " + data["statistics"]["lastPowerCost"]["_default"] + "<br>";
 			}
-			return output;
+			return returnStr;
 		};
 
 		self.arrSmartplugs = ko.observableArray();

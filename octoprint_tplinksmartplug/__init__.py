@@ -162,28 +162,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ SettingsPlugin mixin
 
 	def get_settings_defaults(self):
-		return dict(
-			debug_logging=False,
-			arrSmartplugs=[],
-			pollingInterval=15,
-			pollingEnabled=False,
-			thermal_runaway_monitoring=False,
-			thermal_runaway_max_bed=0,
-			thermal_runaway_max_extruder=0,
-			event_on_error_monitoring=False,
-			event_on_disconnect_monitoring=False,
-			event_on_upload_monitoring=False,
-			event_on_upload_monitoring_always=False,
-			event_on_startup_monitoring=False,
-			event_on_shutdown_monitoring=False,
-			cost_rate=0,
-			abortTimeout=30,
-			powerOffWhenIdle=False,
-			idleTimeout=30,
-			idleIgnoreCommands='M105',
-			idleTimeoutWaitTemp=50,
-			progress_polling=False
-		)
+		return {'debug_logging': False, 'arrSmartplugs': [], 'pollingInterval': 15, 'pollingEnabled': False,
+				'thermal_runaway_monitoring': False, 'thermal_runaway_max_bed': 0, 'thermal_runaway_max_extruder': 0,
+				'event_on_error_monitoring': False, 'event_on_disconnect_monitoring': False,
+				'event_on_upload_monitoring': False, 'event_on_upload_monitoring_always': False,
+				'event_on_startup_monitoring': False, 'event_on_shutdown_monitoring': False, 'cost_rate': 0,
+				'abortTimeout': 30, 'powerOffWhenIdle': False, 'idleTimeout': 30, 'idleIgnoreCommands': 'M105',
+				'idleTimeoutWaitTemp': 50, 'progress_polling': False, 'useDropDown': False}
 
 	def on_settings_save(self, data):
 		old_debug_logging = self._settings.get_boolean(["debug_logging"])
@@ -353,13 +338,14 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ TemplatePlugin mixin
 
 	def get_template_configs(self):
-		templates_to_load = [dict(type="navbar", custom_bindings=True), dict(type="settings", custom_bindings=True),
-							 dict(type="sidebar", icon="plug", custom_bindings=True,
-								  data_bind="visible: arrSmartplugs().length > 0",
-								  template="tplinksmartplug_sidebar.jinja2",
-								  template_header="tplinksmartplug_sidebar_header.jinja2"),
-							 dict(type="tab", custom_bindings=True, data_bind="visible: show_sidebar()",
-								  template="tplinksmartplug_tab.jinja2")]
+		templates_to_load = [{'type': "navbar", 'custom_bindings': True, 'classes': ["dropdown"]},
+							 {'type': "settings", 'custom_bindings': True},
+							 {'type': "sidebar", 'icon': "plug", 'custom_bindings': True,
+							  'data_bind': "visible: arrSmartplugs().length > 0",
+							  'template': "tplinksmartplug_sidebar.jinja2",
+							  'template_header': "tplinksmartplug_sidebar_header.jinja2"},
+							 {'type': "tab", 'custom_bindings': True, 'data_bind': "visible: show_sidebar()",
+							  'template': "tplinksmartplug_tab.jinja2"}]
 		return templates_to_load
 
 	##~~ ProgressPlugin mixin
@@ -760,7 +746,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._autostart_file = None
 		# File Uploaded Event
 		if event == Events.UPLOAD and self._settings.get_boolean(["event_on_upload_monitoring"]):
-			if payload.get("print", False) or self._settings.get_boolean(["event_on_upload_monitoring_always"]):  # implemented in OctoPrint version 1.4.1
+			if payload.get("print", False) or self._settings.get_boolean(
+					["event_on_upload_monitoring_always"]):  # implemented in OctoPrint version 1.4.1
 				self._tplinksmartplug_logger.debug(
 					"File uploaded: %s. Turning enabled plugs on." % payload.get("name", ""))
 				self._tplinksmartplug_logger.debug(payload)
@@ -1154,7 +1141,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	def check_temps(self, parsed_temps):
 		thermal_runaway_triggered = False
-		for k, v in parsed_temps.items():
+		for k, v in list(parsed_temps.items()):
 			if k == "B" and v[0] > int(self._settings.get(["thermal_runaway_max_bed"])):
 				self._tplinksmartplug_logger.debug("Max bed temp reached, shutting off plugs.")
 				thermal_runaway_triggered = True

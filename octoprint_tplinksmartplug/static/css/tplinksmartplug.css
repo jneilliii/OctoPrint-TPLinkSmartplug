@@ -1,8 +1,12 @@
-#navbar_plugin_tplinksmartplug > a > i.on {
+#navbar_plugin_tplinksmartplug > a > i.on,
+#navbar_plugin_tplinksmartplug > ul > li > a > i.on
+{
 	color: #00FF00 !important;
 }
 
-#navbar_plugin_tplinksmartplug > a > i.off {
+#navbar_plugin_tplinksmartplug > a > i.off,
+#navbar_plugin_tplinksmartplug > ul > li > a > i.off
+{
 	color: #FF0000 !important;
 }
 

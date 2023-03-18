@@ -1,6 +1,20 @@
-<!-- ko foreach: arrSmartplugs -->
-<a class="pull-right" href="#" data-toggle="tooltip" data-html="true" data-bind="click: $root.toggleRelay, visible: $root.loginState.loggedIn(), tooltip: {title: label, placement: 'bottom'}" style="float: left;"><i class="icon" data-bind="css: [currentState(), icon(),(($root.processing().indexOf(ip()) > -1) ? 'icon-spin' : '')].join(' ')"></i><span data-bind="text: label"></span></a>
+<!-- ko if: settings.settings.plugins.tplinksmartplug.useDropDown -->
+<a href="javascript:void(0)" title="TPLink SmartPlugs" class="dropdown-toggle" data-toggle="dropdown">
+    <i class="fa fa-plug"></i>
+    <b class="caret"></b>
+</a>
+<ul class="dropdown-menu" data-bind="foreach: arrSmartplugs">
+    <li>
+        <a href="#" data-toggle="tooltip" data-html="true" data-bind="click: $root.toggleRelay, visible: $root.loginState.loggedIn(), tooltip: {title: label, placement: 'bottom'}"><i class="icon" data-bind="css: [currentState(), icon(),(($root.processing().indexOf(ip()) > -1) ? 'icon-spin' : '')].join(' ')"></i> <span data-bind="text: label"></span></a>
+    </li>
+</ul>
 <!-- /ko -->
+<!-- ko if: !(settings.settings.plugins.tplinksmartplug.useDropDown()) -->
+<!-- ko foreach: arrSmartplugs -->
+    <a class="pull-right" href="#" data-toggle="tooltip" data-html="true" data-bind="click: $root.toggleRelay, visible: $root.loginState.loggedIn(), tooltip: {title: label, placement: 'bottom'}" style="float: left;"><i class="icon" data-bind="css: [currentState(), icon(),(($root.processing().indexOf(ip()) > -1) ? 'icon-spin' : '')].join(' ')"></i><span data-bind="text: label"></span></a>
+<!-- /ko -->
+<!-- /ko -->
+
 
 <div id="TPLinkSmartPlugWarning" data-bind="with: selectedPlug" class="modal hide fade">
     <div class="modal-header">
@@ -9,7 +23,7 @@
     </div>
     <div class="modal-body">
         <p>
-            <!--ko text: label()--><!--/ko--> is currently <!--ko text: currentState()--><!--/ko-->. 
+            <!--ko text: label()--><!--/ko--> is currently <!--ko text: currentState()--><!--/ko-->.
         </p>
 		<p>
             {{ _('Are you sure you want to proceed?') }}
