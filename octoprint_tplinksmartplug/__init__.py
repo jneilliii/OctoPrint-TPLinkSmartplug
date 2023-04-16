@@ -103,6 +103,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.poll_status = None
 		self.power_off_queue = []
 		self._gcode_queued = False
+		self.active_timers = {"on": {}, "off": {}}
 
 	##~~ StartupPlugin mixin
 
@@ -1060,6 +1061,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ Gcode processing hook
 
 	def gcode_turn_off(self, plug):
+		if plug["ip"] in self.active_timers["off"]:
+			self.active_timers["off"][plug["ip"]].cancel()
+			del self.active_timers["off"][plug["ip"]]
+
 		if self._printer.is_printing() and plug["warnPrinting"] is True:
 			self._tplinksmartplug_logger.debug(
 				"Not powering off %s immediately because printer is printing." % plug["label"])
@@ -1068,7 +1073,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			chk = self.turn_off(plug["ip"])
 			self._plugin_manager.send_plugin_message(self._identifier, chk)
 
+
 	def gcode_turn_on(self, plug):
+		if plug["ip"] in self.active_timers["on"]:
+			self.active_timers["on"][plug["ip"]].cancel()
+			del self.active_timers["on"][plug["ip"]]
+
 		chk = self.turn_on(plug["ip"])
 		self._plugin_manager.send_plugin_message(self._identifier, chk)
 
@@ -1108,9 +1118,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			plug = self.plug_search(self._settings.get(["arrSmartplugs"]), "ip", plugip)
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:
-				t = threading.Timer(int(plug["gcodeOnDelay"]), self.gcode_turn_on, [plug])
-				t.daemon = True
-				t.start()
+				if plugip in self.active_timers["off"]:
+					self.active_timers["off"][plugip].cancel()
+					del self.active_timers["off"][plugip]
+				self.active_timers["on"][plugip] = threading.Timer(int(plug["gcodeOnDelay"]), self.gcode_turn_on, [plug])
+				self.active_timers["on"][plugip].daemon = True
+				self.active_timers["on"][plugip].start()
 			return None
 		if command == "TPLINKOFF":
 			plugip = parameters
@@ -1118,9 +1131,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			plug = self.plug_search(self._settings.get(["arrSmartplugs"]), "ip", plugip)
 			self._tplinksmartplug_logger.debug(plug)
 			if plug and plug["gcodeEnabled"]:
-				t = threading.Timer(int(plug["gcodeOffDelay"]), self.gcode_turn_off, [plug])
-				t.daemon = True
-				t.start()
+				if plugip in self.active_timers["on"]:
+					self.active_timers["on"][plugip].cancel()
+					del self.active_timers["on"][plugip]
+				self.active_timers["off"][plugip] = threading.Timer(int(plug["gcodeOffDelay"]), self.gcode_turn_off, [plug])
+				self.active_timers["off"][plugip].daemon = True
+				self.active_timers["off"][plugip].start()
 			return None
 		if command == 'TPLINKIDLEON':
 			self.powerOffWhenIdle = True
