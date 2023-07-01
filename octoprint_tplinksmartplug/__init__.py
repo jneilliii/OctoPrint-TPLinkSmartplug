@@ -169,7 +169,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				'event_on_upload_monitoring': False, 'event_on_upload_monitoring_always': False,
 				'event_on_startup_monitoring': False, 'event_on_shutdown_monitoring': False, 'cost_rate': 0,
 				'abortTimeout': 30, 'powerOffWhenIdle': False, 'idleTimeout': 30, 'idleIgnoreCommands': 'M105',
-				'idleTimeoutWaitTemp': 50, 'progress_polling': False, 'useDropDown': False}
+				'idleIgnoreHeaters': '', 'idleTimeoutWaitTemp': 50, 'progress_polling': False, 'useDropDown': False}
 
 	def on_settings_save(self, data):
 		old_debug_logging = self._settings.get_boolean(["debug_logging"])
@@ -850,11 +850,12 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def _wait_for_heaters(self):
 		self._waitForHeaters = True
 		heaters = self._printer.get_current_temperatures()
+		ignored_heaters = self._settings.get(["idleIgnoreHeaters"]).split(',')
 
 		for heater, entry in heaters.items():
 			target = entry.get("target")
-			if target is None:
-				# heater doesn't exist in fw
+			if target is None or heater in ignored_heaters:
+				# heater doesn't exist in fw or set to be ignored
 				continue
 
 			try:
@@ -880,7 +881,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			highest_temp = 0
 			heaters_above_waittemp = []
 			for heater, entry in heaters.items():
-				if not heater.startswith("tool"):
+				if not heater.startswith("tool") or heater in ignored_heaters:
 					continue
 
 				actual = entry.get("actual")

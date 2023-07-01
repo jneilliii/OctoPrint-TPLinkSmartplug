@@ -185,6 +185,14 @@
 		</div>
 		<div class="row-fluid">
 			<div class="control-group">
+				<label class="control-label">{{ _('Heaters to Ignore for Idle') }}</label>
+				<div class="controls" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Comma separated list of heaters to ignore for idle temperature. ie, for Prusa MK4 include X.') }}">
+					<input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.idleIgnoreHeaters, enable: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle() && settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()" disabled />
+				</div>
+			</div>
+		</div>
+		<div class="row-fluid">
+			<div class="control-group">
 				<label class="control-label">{{ _('GCode Commands to Ignore for Idle') }}</label>
 				<div class="controls" data-toggle="tooltip" data-bind="tooltip: {}" title="{{ _('Comma separated list of gcode commands to ignore for determining printer idle state.') }}">
 					<input type="text" class="input-block-level" data-bind="value: settings.settings.plugins.tplinksmartplug.idleIgnoreCommands, enable: settings.settings.plugins.tplinksmartplug.powerOffWhenIdle() && settings.settings.plugins.tplinksmartplug.powerOffWhenIdle()" disabled />
