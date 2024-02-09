@@ -758,7 +758,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 			hours = (payload.get("time", 0) / 60) / 60
 			self._tplinksmartplug_logger.debug("hours: %s" % hours)
-			power_used = self.print_job_power * hours
+			power_used = self.print_job_power
 			self._tplinksmartplug_logger.debug("power used: %s" % power_used)
 			power_cost = power_used * self._settings.get_float(["cost_rate"])
 			self._tplinksmartplug_logger.debug("power total cost: %s" % power_cost)
