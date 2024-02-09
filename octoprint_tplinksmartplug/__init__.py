@@ -125,9 +125,38 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			db = sqlite3.connect(self.db_path)
 			cursor = db.cursor()
 			cursor.execute(
-				'''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp TEXT, current REAL, power REAL, total REAL, voltage REAL)''')
+				'''CREATE TABLE energy_data(id INTEGER PRIMARY KEY, ip TEXT, timestamp DATETIME, voltage REAL, current REAL, power REAL, total REAL, grandtotal REAL)''')
+		else:
+			db = sqlite3.connect(self.db_path)
+			cursor = db.cursor()
+
+		#Update 'energy_data' table schema if 'grandtotal' column not present
+		cursor.execute('''SELECT * FROM energy_data''')
+		if 'grandtotal' not in next(zip(*cursor.description)):
+			#Change type of 'timestamp' to 'DATETIME' (from 'TEXT'), add new 'grandtotal' column
+			cursor.execute('''
+				ALTER TABLE energy_data RENAME TO _energy_data''')
+			cursor.execute('''
+				CREATE TABLE energy_data (id INTEGER PRIMARY KEY, ip TEXT, timestamp DATETIME, voltage REAL, current REAL, power REAL, total REAL, grandtotal REAL)''')
+			#Copy over table, skipping non-changed values and calculating running grandtotal
+			cursor.execute('''
+				INSERT INTO energy_data (ip, timestamp, voltage, current, power, total, grandtotal) SELECT ip, timestamp, voltage, current, power, total, grandtotal FROM
+					(WITH temptable AS (SELECT *, total - LAG(total,1) OVER(ORDER BY id) AS delta, LAG(power,1) OVER(ORDER BY id) AS power1 FROM _energy_data)
+					SELECT *, ROUND(SUM(MAX(delta,0)) OVER (ORDER BY id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW),6)
+					AS grandtotal FROM temptable WHERE power > 0 OR power1 > 0 OR delta <> 0 OR delta IS NULL)''')
+
+			cursor.execute('''DROP TABLE _energy_data''')
+			#Compact database
 			db.commit()
-			db.close()
+			cursor.execute('''VACUUM''')
+
+		self.last_row = list(cursor.execute('''SELECT id, timestamp, voltage, current, power, total, grandtotal
+			FROM energy_data ORDER BY ROWID DESC LIMIT 1''').fetchone()) or [0,0,0,0,0,0,0] #Round to remove floating point imprecision
+		self.last_row = self.last_row[:2] + [round(x,6) for x in self.last_row[2:]] #Round to correct floating point imprecision in sqlite
+		self.last_row_entered = True
+		self.total_correction = self.last_row[6] - self.last_row[5] #grandtotal - total
+		db.commit()
+		db.close()
 
 	def on_after_startup(self):
 		self._logger.info("TPLinkSmartplug loaded!")
@@ -512,18 +541,43 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 						p = ""
 					if "total_wh" in emeter_data["get_realtime"]:
 						t = emeter_data["get_realtime"]["total_wh"] / 1000.0
+						emeter_data["get_realtime"]["total_wh"] += self.total_correction * 1000.0 #Add back total correction factor, so becomes grandtotal
 					elif "total" in emeter_data["get_realtime"]:
-						t = emeter_data["get_realtime"]["total"]
+						t = emeter_data["get_realtime"]["total"]					
+						emeter_data["get_realtime"]["total"] += self.total_correction  #Add back total correction factor, so becomes grandtotal
 					else:
 						t = ""
 					if self.db_path is not None:
-						db = sqlite3.connect(self.db_path)
-						cursor = db.cursor()
-						cursor.execute(
-							'''INSERT INTO energy_data(ip, timestamp, current, power, total, voltage) VALUES(?,?,?,?,?,?)''',
-							[plugip, today.isoformat(' '), c, p, t, v])
-						db.commit()
-						db.close()
+						last_p = self.last_row[4]
+						last_t = self.last_row[5]
+
+						if last_t is not None and t < last_t: #total has reset since last measurement
+							self.total_correction += t
+						gt = round(t + self.total_correction, 6) #Prevent accumulated floating-point rounding errors
+						current_row = [plugip, today.isoformat(' '), v, c, p, t, gt]
+
+						if self.last_row_entered is False and last_p == 0 and p > 0: #Go back & enter last_row on power return (if not entered already)
+							db = sqlite3.connect(self.db_path)
+							cursor = db.cursor()
+							cursor.execute(
+								'''INSERT INTO energy_data(ip, timestamp, voltage, current, power, total, grandtotal) VALUES(?,?,?,?,?,?,?)''',
+								self.last_row)
+							db.commit()
+							db.close()
+							self.last_row_entered = True
+						else:
+							self.last_row_entered = False
+
+						if t != last_t or p > 0 or last_p > 0: #Enter current_row if change in total or power is on or just turned off
+							db = sqlite3.connect(self.db_path)
+							cursor = db.cursor()
+							cursor.execute(
+								'''INSERT INTO energy_data(ip, timestamp, voltage, current, power, total, grandtotal) VALUES(?,?,?,?,?,?,?)''',
+								current_row)
+							db.commit()
+							db.close()
+
+						self.last_row = current_row
 
 			if len(plug_ip) == 2:
 				chk = self.lookup(response, *["system", "get_sysinfo", "children"])
@@ -573,7 +627,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			db = sqlite3.connect(self.db_path)
 			cursor = db.cursor()
 			cursor.execute(
-				'''SELECT timestamp, current, power, total, voltage FROM energy_data WHERE ip=? ORDER BY timestamp DESC LIMIT ?,?''',
+				'''SELECT timestamp, current, power, grandtotal, voltage FROM energy_data WHERE ip=? ORDER BY timestamp DESC LIMIT ?,?''',
 				(data["ip"], data["record_offset"], data["record_limit"]))
 			response = {'energy_data': cursor.fetchall()}
 			db.close()
@@ -705,7 +759,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 			hours = (payload.get("time", 0) / 60) / 60
 			self._tplinksmartplug_logger.debug("hours: %s" % hours)
-			power_used = self.print_job_power * hours
+			power_used = self.print_job_power
 			self._tplinksmartplug_logger.debug("power used: %s" % power_used)
 			power_cost = power_used * self._settings.get_float(["cost_rate"])
 			self._tplinksmartplug_logger.debug("power total cost: %s" % power_cost)
@@ -748,7 +802,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		# File Uploaded Event
 		if event == Events.UPLOAD and self._settings.get_boolean(["event_on_upload_monitoring"]):
 			if payload.get("print", False) or self._settings.get_boolean(
-					["event_on_upload_monitoring_always"]):  # implemented in OctoPrint version 1.4.1
+					["event_on_upload_monitoring_always"]):	 # implemented in OctoPrint version 1.4.1
 				self._tplinksmartplug_logger.debug(
 					"File uploaded: %s. Turning enabled plugs on." % payload.get("name", ""))
 				self._tplinksmartplug_logger.debug(payload)
