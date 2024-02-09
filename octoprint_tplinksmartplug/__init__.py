@@ -188,6 +188,22 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 					else:
 						self._tplinksmartplug_logger.debug("powering on %s during startup failed." % (plug["ip"]))
 		self._reset_idle_timer()
+		self.loaded = True
+
+	def on_connect(self, *args, **kwargs): #Power up on connect
+		if hasattr(self, 'loaded') is False: return None
+		if self._settings.get_boolean(["connect_on_connect_request"]) is True:
+			self._tplinksmartplug_logger.debug("powering on due to 'Connect' request.")
+			for plug in self._settings.get(['arrSmartplugs']):
+				if plug["connect_on_connect"] is True and self._printer.is_closed_or_error():
+					self._tplinksmartplug_logger.debug("powering on %s due to 'Connect' request." % (plug["ip"]))
+					response = self.turn_on(plug["ip"])
+					if response.get("currentState", False) == "on":
+						self._tplinksmartplug_logger.debug("powering on %s during 'Connect' succeeded." % (plug["ip"]))
+						self._plugin_manager.send_plugin_message(self._identifier, response)
+					else:
+						self._tplinksmartplug_logger.debug("powering on %s during 'Connect' failed." % (plug["ip"]))
+		return None
 
 	##~~ SettingsPlugin mixin
 
@@ -1286,5 +1302,6 @@ def __plugin_load__():
 		"octoprint.comm.protocol.atcommand.sending": __plugin_implementation__.processAtCommand,
 		"octoprint.comm.protocol.temperatures.received": __plugin_implementation__.monitor_temperatures,
 		"octoprint.access.permissions": __plugin_implementation__.get_additional_permissions,
-		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
+		"octoprint.printer.handle_connect": __plugin_implementation__.on_connect		
 	}
