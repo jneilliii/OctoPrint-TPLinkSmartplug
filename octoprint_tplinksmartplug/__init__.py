@@ -551,7 +551,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 						last_t = self.last_row[5]
 
 						if last_t is not None and t < last_t: #total has reset since last measurement
-							self.total_correction += t
+							self.total_correction += last_t
 						gt = round(t + self.total_correction, 6) #Prevent accumulated floating-point rounding errors
 						current_row = [plugip, today.isoformat(' '), v, c, p, t, gt]
 
