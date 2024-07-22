@@ -19,3 +19,4 @@ jobs:
         days-before-issue-close: 7
         days-before-pr-close: -1
         exempt-issue-labels: 'bug,enhancement'
+    - uses: gautamkrishnar/keepalive-workflow@v2
