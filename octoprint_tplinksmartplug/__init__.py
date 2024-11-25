@@ -173,7 +173,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.idleTimeout = self._settings.get_int(["idleTimeout"])
 		self._tplinksmartplug_logger.debug("idleTimeout: %s" % self.idleTimeout)
 		self.idleIgnoreCommands = self._settings.get(["idleIgnoreCommands"])
-		self._idleIgnoreCommandsArray = self.idleIgnoreCommands.split(',')
+		self._idleIgnoreCommandsArray = self.idleIgnoreCommands.replace(" ", "").split(',')
 		self._tplinksmartplug_logger.debug("idleIgnoreCommands: %s" % self.idleIgnoreCommands)
 		self.idleTimeoutWaitTemp = self._settings.get_int(["idleTimeoutWaitTemp"])
 		self._tplinksmartplug_logger.debug("idleTimeoutWaitTemp: %s" % self.idleTimeoutWaitTemp)
@@ -232,7 +232,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		self.idleTimeout = self._settings.get_int(["idleTimeout"])
 		self.idleIgnoreCommands = self._settings.get(["idleIgnoreCommands"])
-		self._idleIgnoreCommandsArray = self.idleIgnoreCommands.split(',')
+		self._idleIgnoreCommandsArray = self.idleIgnoreCommands.replace(" ", "").split(',')
 		self.idleTimeoutWaitTemp = self._settings.get_int(["idleTimeoutWaitTemp"])
 
 		if self.powerOffWhenIdle != old_powerOffWhenIdle:
@@ -920,7 +920,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def _wait_for_heaters(self):
 		self._waitForHeaters = True
 		heaters = self._printer.get_current_temperatures()
-		ignored_heaters = self._settings.get(["idleIgnoreHeaters"]).split(',')
+		ignored_heaters = self._settings.get(["idleIgnoreHeaters"]).replace(" ", "").split(',')
 
 		for heater, entry in heaters.items():
 			target = entry.get("target")
