@@ -104,6 +104,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.power_off_queue = []
 		self._gcode_queued = False
 		self.active_timers = {"on": {}, "off": {}}
+		self.total_correction = 0
+		self.last_row = [0,0,0,0,0,0,0]
 
 	##~~ StartupPlugin mixin
 
@@ -151,7 +153,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			cursor.execute('''VACUUM''')
 
 		self.last_row = list(cursor.execute('''SELECT id, timestamp, voltage, current, power, total, grandtotal
-			FROM energy_data ORDER BY ROWID DESC LIMIT 1''').fetchone()) or [0,0,0,0,0,0,0] #Round to remove floating point imprecision
+			FROM energy_data ORDER BY ROWID DESC LIMIT 1''').fetchone() or [0,0,0,0,0,0,0]) #Round to remove floating point imprecision
 		self.last_row = self.last_row[:2] + [round(x,6) for x in self.last_row[2:]] #Round to correct floating point imprecision in sqlite
 		self.last_row_entered = True
 		self.total_correction = self.last_row[6] - self.last_row[5] #grandtotal - total
@@ -559,7 +561,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 						t = emeter_data["get_realtime"]["total_wh"] / 1000.0
 						emeter_data["get_realtime"]["total_wh"] += self.total_correction * 1000.0 #Add back total correction factor, so becomes grandtotal
 					elif "total" in emeter_data["get_realtime"]:
-						t = emeter_data["get_realtime"]["total"]					
+						t = emeter_data["get_realtime"]["total"]
 						emeter_data["get_realtime"]["total"] += self.total_correction  #Add back total correction factor, so becomes grandtotal
 					else:
 						t = ""
@@ -1303,5 +1305,5 @@ def __plugin_load__():
 		"octoprint.comm.protocol.temperatures.received": __plugin_implementation__.monitor_temperatures,
 		"octoprint.access.permissions": __plugin_implementation__.get_additional_permissions,
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-		"octoprint.printer.handle_connect": __plugin_implementation__.on_connect		
+		"octoprint.printer.handle_connect": __plugin_implementation__.on_connect
 	}
