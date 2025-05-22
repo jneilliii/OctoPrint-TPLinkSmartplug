@@ -14,7 +14,7 @@ plugin_package = "octoprint_tplinksmartplug"
 plugin_name = "OctoPrint-TPLinkSmartplug"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "1.0.4rc6"
+plugin_version = "1.0.4rc7"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module

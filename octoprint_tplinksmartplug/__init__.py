@@ -106,6 +106,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		self.active_timers = {"on": {}, "off": {}}
 		self.total_correction = 0
 		self.last_row = [0,0,0,0,0,0,0]
+		self.last_row_entered = False
 
 	##~~ StartupPlugin mixin
 
