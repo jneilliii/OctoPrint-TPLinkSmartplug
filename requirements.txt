@@ -8,3 +8,7 @@
 
 .
 uptime
+octoprint
+flask
+setuptools
+python-kasa

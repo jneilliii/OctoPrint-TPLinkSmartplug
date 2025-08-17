@@ -245,9 +245,6 @@ $(function() {
 								'sysCmdOffDelay':ko.observable(0),
 								'currentState':ko.observable('unknown'),
 								'btnColor':ko.observable('#808080'),
-								'useCountdownRules':ko.observable(false),
-								'countdownOnDelay':ko.observable(1),
-								'countdownOffDelay':ko.observable(1),
 								'emeter':{get_realtime:{}},
 								'thermal_runaway':ko.observable(false),
 								'event_on_error':ko.observable(false),
@@ -259,7 +256,8 @@ $(function() {
 								'gcodeCmdOn': ko.observable(false),
 								'gcodeCmdOff': ko.observable(false),
 								'gcodeRunCmdOn': ko.observable(''),
-								'gcodeRunCmdOff': ko.observable('')
+								'gcodeRunCmdOff': ko.observable(''),
+								'connect_on_connect': ko.observable(false)
 			});
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
