@@ -14,7 +14,7 @@ from typing import Optional
 import flask
 import octoprint.plugin
 from flask_babel import gettext
-from kasa import Device, Discover, Credentials
+from kasa import Device, Discover, Credentials, Module
 from octoprint.access.permissions import Permissions, ADMIN_GROUP
 from octoprint.events import Events
 from octoprint.util import RepeatedTimer
@@ -279,7 +279,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self.poll_status.start()
 
 	def get_settings_version(self):
-		return 17
+		return 18
 
 	def on_settings_migrate(self, target, current=None):
 		if current is None or current < 5:
@@ -385,6 +385,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 					if device_config:
 						device_configs[plug["ip"]] = device_config
 			self._settings.set(["device_configs"], device_configs)
+			self._settings.set(["arrSmartplugs"], arr_smartplugs_new)
+
+		if current is not None and current < 18:
+			arr_smartplugs_new = []
+			for plug in self._settings.get(['arrSmartplugs']):
+				plug["receives_led_commands"] = False
+				arr_smartplugs_new.append(plug)
 			self._settings.set(["arrSmartplugs"], arr_smartplugs_new)
 
 	# ~~ AssetPlugin mixin
@@ -974,6 +981,27 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	# ~~ Utilities
 
+	def rgb2hsv(self, r, g, b):
+		r, g, b = r/255.0, g/255.0, b/255.0
+		return_val = dict()
+		mx = max(r, g, b)
+		mn = min(r, g, b)
+		df = mx-mn
+		if mx == mn:
+			return_val["hue"] = 0
+		elif mx == r:
+			return_val["hue"] = (60 * ((g-b)/df) + 360) % 360
+		elif mx == g:
+			return_val["hue"] = (60 * ((b-r)/df) + 120) % 360
+		elif mx == b:
+			return_val["hue"] = (60 * ((r-g)/df) + 240) % 360
+		if mx == 0:
+			return_val["saturation"] = 0
+		else:
+			return_val["saturation"] = df/mx * 100
+		return_val["value"] = mx
+		return return_val
+
 	def get_device_config(self, plugip: str):
 		device_configs = self._settings.get(["device_configs"])
 		config_dict = device_configs.get(plugip, None)
@@ -1008,6 +1036,28 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		except Exception as e:
 			self._tplinksmartplug_logger.error(f"Error connecting to device: {e}")
 		return None
+
+	async def set_device_led(self, device, led_values, set_color=False) -> Optional[Device]:
+		try:
+			self._tplinksmartplug_logger.debug(f"Setting led from values: {led_values}")
+			light = device.modules[Module.Light]
+			if light:
+				if not device.is_on and led_values["LEDOn"]:  # turn light on if off
+					await device.turn_on()
+				elif device.is_on and not led_values["LEDOn"]:
+					await device.turn_off()
+					await device.update()
+					return device
+				if "hsv" in device.features and set_color:
+					hsv_values = self.rgb2hsv(led_values["LEDRed"], led_values["LEDGreen"], led_values["LEDBlue"])
+					self._tplinksmartplug_logger.debug(f"Setting hsv values: {hsv_values}")
+					await light.set_hsv(int(hsv_values["hue"]), int(hsv_values["saturation"]), int(hsv_values["value"]))
+				if light.brightness != int(led_values["LEDBrightness"]):
+					await light.set_brightness(int(led_values["LEDBrightness"]))
+				await device.update()
+		except Exception as e:
+			self._tplinksmartplug_logger.error(f"Error connecting to device: {e}")
+		return device
 
 	def get_device(self, plugip: str) -> Optional[Device]:
 		try:
@@ -1077,7 +1127,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._waitForHeaters = False
 			self._reset_idle_timer()
 
-		if gcode not in ["M80", "M81"]:
+		if gcode not in ["M80", "M81", "M150", "M355"]:
 			return
 
 		if gcode == "M80":
@@ -1090,7 +1140,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				t.daemon = True
 				t.start()
 			return
-		if gcode == "M81":
+		elif gcode == "M81":
 			plugip = re.sub(r'^M81\s?', '', cmd)
 			self._tplinksmartplug_logger.debug(f"Received M81 command, attempting power off of {plugip}.")
 			plug = self.plug_search(self._settings.get(["arrSmartplugs"]), "ip", plugip)
@@ -1099,6 +1149,40 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				t = threading.Timer(int(plug["gcodeOffDelay"]), self.gcode_turn_off, [plug])
 				t.daemon = True
 				t.start()
+			return
+		elif gcode in ["M150", "M355"] and any(map(lambda plug_check: plug_check["receives_led_commands"] is True, self._settings.get(["arrSmartplugs"]))):
+			for led_device in self._settings.get(["arrSmartplugs"]):
+				if led_device["receives_led_commands"]:
+					device = self.get_device(led_device["ip"])
+					if device:
+						led_values = {'LEDRed': 255, 'LEDBlue': 255, 'LEDGreen': 255, 'LEDWhite': 255, 'LEDBrightness': 100, 'LEDOn': True}
+						cmd_split = cmd.upper().split()
+						for i in cmd_split:
+							first_char = str(i[0].upper())
+							led_data = str(i[1:].strip())
+							if not led_data.isdigit() and first_char != 'I':
+								self._tplinksmartplug_logger.debug(led_data)
+								return
+
+							if first_char == 'M':
+								continue
+							elif first_char == 'R':
+								led_values['LEDRed'] = int(led_data)
+							elif first_char == 'B':
+								led_values['LEDBlue'] = int(led_data)
+							elif first_char == 'G' or first_char == 'U':
+								led_values['LEDGreen'] = int(led_data)
+							elif first_char == "W":
+								led_values['LEDWhite'] = int(led_data)
+							elif first_char == "P":
+								led_values['LEDBrightness'] = int(float(led_data) / 255 * 100)
+							elif first_char == "S":
+								led_values['LEDOn'] = bool(int(led_data))
+							else:
+								self._tplinksmartplug_logger.debug(led_data)
+
+						self._tplinksmartplug_logger.debug(f"M150 command, attempting color change of {led_device['ip']}.")
+						self.worker.run_coroutine_threadsafe(self.set_device_led(device, led_values, set_color=(gcode == "M150")))
 			return
 
 	def process_at_command(self, comm_instance, phase, command, parameters, tags=None, *args, **kwargs):
