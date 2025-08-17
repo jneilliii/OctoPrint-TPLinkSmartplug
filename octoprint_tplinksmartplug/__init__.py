@@ -1183,6 +1183,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 						self._tplinksmartplug_logger.debug(f"M150 command, attempting color change of {led_device['ip']}.")
 						self.worker.run_coroutine_threadsafe(self.set_device_led(device, led_values, set_color=(gcode == "M150")))
+						chk = self.check_status(led_device["ip"])
+						self._plugin_manager.send_plugin_message(self._identifier, chk)
 			return
 
 	def process_at_command(self, comm_instance, phase, command, parameters, tags=None, *args, **kwargs):
