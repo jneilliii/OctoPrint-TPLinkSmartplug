@@ -95,6 +95,12 @@ body #navbar_plugin_tplinksmartplug > a > span {
 	/*overflow: visible !important;*/
 }
 
+input[type="datetime-local"].alert-error {
+    color: #b94a48;
+    background-color: #f2dede;
+    border-color: #b94a48;
+}
+
 @media (max-width: 800px) {
 	#touch body #tab_plugin_tplinksmartplug_link {
 		display:none;
