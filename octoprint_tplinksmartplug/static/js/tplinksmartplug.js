@@ -31,11 +31,14 @@ $(function() {
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
 		self.plotted_graph_ip = ko.observable(false);
-		self.plotted_graph_records = ko.observable(10);
-		self.plotted_graph_records_offset = ko.observable(0);
 		self.dictSmartplugs = ko.observableDictionary();
 		self.refreshVisible = ko.observable(true);
 		self.powerOffWhenIdle = ko.observable(false);
+
+		self.graph_start_date = ko.observable(moment().subtract(1, 'days').format('YYYY-MM-DDTHH:mm'));
+		self.graph_end_date = ko.observable(moment().format('YYYY-MM-DDTHH:mm'));
+		self.processing_api_request = ko.observable(false);
+
 		self.filteredSmartplugs = ko.computed(function(){
 			return ko.utils.arrayFilter(self.dictSmartplugs.items(), function(item) {
 						return "err_code" in item.value().emeter.get_realtime;
@@ -188,8 +191,6 @@ $(function() {
 
 		self.onAfterBinding = function() {
 			self.plotted_graph_ip.subscribe(self.plotEnergyData, self);
-			self.plotted_graph_records.subscribe(self.plotEnergyData, self);
-			self.plotted_graph_records_offset.subscribe(self.plotEnergyData, self);
 			self.checkStatuses();
 		}
 
@@ -396,6 +397,7 @@ $(function() {
 
 		self.plotEnergyData = function(data) {
 			if(self.plotted_graph_ip()) {
+			    self.processing_api_request(true);
 				$.ajax({
 				url: API_BASEURL + "plugin/tplinksmartplug",
 				type: "POST",
@@ -403,8 +405,8 @@ $(function() {
 				data: JSON.stringify({
 					command: "getEnergyData",
 					ip: self.plotted_graph_ip(),
-					record_limit: self.plotted_graph_records(),
-					record_offset: self.plotted_graph_records_offset()
+					start_date: self.graph_start_date().replace('T', ' '),
+					end_date: self.graph_end_date().replace('T', ' ')
 				}),
 				cost_rate: self.settings.settings.plugins.tplinksmartplug.cost_rate(),
 				contentType: "application/json; charset=UTF-8"
@@ -535,6 +537,11 @@ $(function() {
 						if(window.location.href.indexOf('tplinksmartplug') > 0){
 							Plotly.react('tplinksmartplug_energy_graph',plot_data,layout,options);
 						}
+						self.processing_api_request(false);
+					}).fail(function(jqXHR, textStatus, errorThrown){
+					    self.processing_api_request(false);
+					    console.error("Failed to fetch energy data:", textStatus, errorThrown, jqXHR);
+					    alert("Failed to fetch energy data. Please consult developer tools for more details.");
 					});
 			}
 		}

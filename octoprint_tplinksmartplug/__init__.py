@@ -630,10 +630,18 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			response = self.check_status("{ip}".format(**data))
 		elif command == 'getEnergyData':
 			db = sqlite3.connect(self.db_path)
+			if "start_date" in data and data["start_date"] != "":
+				start_date = data["start_date"]
+			else:
+				start_date = datetime.date.today() - timedelta(days=1)
+			if "end_date" in data and data["end_date"] != "":
+				end_date = data["end_date"]
+			else:
+				end_date = datetime.date.today() + timedelta(days=1)
 			cursor = db.cursor()
 			cursor.execute(
-				'''SELECT timestamp, current, power, grandtotal, voltage FROM energy_data WHERE ip=? ORDER BY timestamp DESC LIMIT ?,?''',
-				(data["ip"], data["record_offset"], data["record_limit"]))
+				'''SELECT timestamp, current, power, grandtotal, voltage FROM energy_data WHERE ip=? AND timestamp BETWEEN ? AND ? ORDER BY timestamp DESC''',
+				(data["ip"], start_date, end_date))
 			response = {'energy_data': cursor.fetchall()}
 			db.close()
 			self._tplinksmartplug_logger.debug(response)
