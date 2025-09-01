@@ -411,10 +411,10 @@ $(function() {
 				cost_rate: self.settings.settings.plugins.tplinksmartplug.cost_rate(),
 				contentType: "application/json; charset=UTF-8"
 				}).done(function(data){
-						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
-						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'};
-						var trace_total = {x:[],y:[],mode:'lines+markers',name:'Total (kWh)'};
-						var trace_cost = {x:[],y:[],mode:'lines+markers',name:'Cost'}
+						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis:'x2',yaxis:'y2'};
+						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis:'x3',yaxis:'y3'};
+						var trace_total = {x:[],y:[],mode:'lines+markers',name:'Total (kWh)',xaxis:'x',yaxis:'y'};
+						var trace_cost = {x:[],y:[],mode:'lines+markers',name:'Cost',xaxis:'x4',yaxis:'y4'}
 
 						ko.utils.arrayForEach(data.energy_data, function(row){
 							trace_current.x.push(row[0]);
@@ -459,7 +459,8 @@ $(function() {
 										anchor: 'y2',
 										tickcolor: foreground_color,
 							            linecolor: foreground_color,
-							            color: foreground_color
+							            color: foreground_color,
+							            matches: 'x'
 									},
 									yaxis2: {
 										title: 'Current (Amp)',
@@ -477,10 +478,10 @@ $(function() {
 									xaxis3: {
 										overlaying: 'x2',
 										anchor: 'y3',
-										showticklabels: false,
 										tickcolor: foreground_color,
 							            linecolor: foreground_color,
-							            color: foreground_color
+							            color: foreground_color,
+							            matches: 'x'
 									},
 									yaxis3: {
 										overlaying: 'y2',
@@ -503,7 +504,8 @@ $(function() {
 										showticklabels: false,
 										tickcolor: foreground_color,
 							            linecolor: foreground_color,
-							            color: foreground_color
+							            color: foreground_color,
+							            matches: 'x'
 									},
 									yaxis4: {
 										overlaying: 'y',
