@@ -452,7 +452,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			await plug_device.update()
 			return plug_device
 		except Exception as e:
-			self._tplinksmartplug_logger.error(f"Failed to turn on {plugip}: {e}")
+			self._tplinksmartplug_logger.error(f"Failed to turn on {plug_device}: {e}")
 		return None
 
 	async def turn_off_device(self, plug_device) -> Optional[Device]:
@@ -461,7 +461,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			await plug_device.update()
 			return plug_device
 		except Exception as e:
-			self._tplinksmartplug_logger.error(f"Failed to turn on {plugip}: {e}")
+			self._tplinksmartplug_logger.error(f"Failed to turn on {plug_device}: {e}")
 		return None
 
 	def turn_on(self, plugip):
