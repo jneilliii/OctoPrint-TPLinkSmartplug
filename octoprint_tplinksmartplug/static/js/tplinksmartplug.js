@@ -366,6 +366,34 @@ $(function() {
 				});
 		}
 
+		self.getDefaultBackground = function() {
+          // have to add to the document in order to use getComputedStyle
+          var div = document.createElement("div");
+          document.head.appendChild(div);
+          var bg = window.getComputedStyle(div).backgroundColor;
+          document.head.removeChild(div);
+          return bg;
+        };
+
+		self.getInheritedBackgroundColor = function(el) {
+          // get default style for current browser
+          if (!self.defaultStyle) {
+              self.defaultStyle = self.getDefaultBackground(); // typically "rgba(0, 0, 0, 0)"
+          }
+
+          // get computed color for el
+          var backgroundColor = window.getComputedStyle(el).backgroundColor;
+
+          // if we got a real value, return it
+          if (backgroundColor !== self.defaultStyle) return backgroundColor;
+
+          // if we've reached the top parent el without getting an explicit color, return default
+          if (!el.parentElement) return self.defaultStyle;
+
+          // otherwise, recurse and try again on parent element
+          return self.getInheritedBackgroundColor(el.parentElement);
+        };
+
 		self.plotEnergyData = function(data) {
 			if(self.plotted_graph_ip()) {
 				$.ajax({
@@ -396,13 +424,21 @@ $(function() {
 							trace_cost.x.push(row[0]);
 							trace_cost.y.push((row[3]*self.settings.settings.plugins.tplinksmartplug.cost_rate()).toFixed(3));
 						});
+						var inherited_bg_color = self.getInheritedBackgroundColor(document.getElementById('tab_plugin_tplinksmartplug'));
+                        var background_color = (inherited_bg_color == 'rgba(0, 0, 0, 0)') ? '#FFFFFF' : inherited_bg_color;
+                        var color_val = $('#tab_plugin_tplinksmartplug').css('color');
+                        var foreground_color = (!color_val || color_val === 'inherit' || color_val === 'transparent' || color_val == 'rgba(0, 0, 0, 0)') ? '#000000' : color_val;
+
 						var layout = {title:'TP-Link Smartplug Energy Data',
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									autosize: true,
 									showlegend: false,
 									xaxis: {
 										showticklabels: false,
-										anchor: 'x'
+										anchor: 'x',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									yaxis: {
 										title: 'Total (kWh)',
@@ -412,10 +448,16 @@ $(function() {
 											size: 10
 										},
 										tickformat: '.2f',
-										anchor: 'y'
+										anchor: 'y',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									xaxis2: {
-										anchor: 'y2'
+										anchor: 'y2',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									yaxis2: {
 										title: 'Current (Amp)',
@@ -425,12 +467,18 @@ $(function() {
 										tickfont: {
 											size: 10
 										},
-										tickformat: '.2f'
+										tickformat: '.2f',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									xaxis3: {
 										overlaying: 'x2',
 										anchor: 'y3',
-										showticklabels: false
+										showticklabels: false,
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									yaxis3: {
 										overlaying: 'y2',
@@ -442,12 +490,18 @@ $(function() {
 										tickfont: {
 											size: 10
 										},
-										tickformat: '.2f'
+										tickformat: '.2f',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									xaxis4: {
 										overlaying: 'x',
 										anchor: 'y4',
-										showticklabels: false
+										showticklabels: false,
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									yaxis4: {
 										overlaying: 'y',
@@ -459,8 +513,16 @@ $(function() {
 										tickfont: {
 											size: 10
 										},
-										tickformat: '.2f'
-									}};
+										tickformat: '.2f',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
+									},
+									plot_bgcolor: background_color,
+                                    paper_bgcolor: background_color,
+                                    font: {
+                                        color: foreground_color
+                                    }};
 						var options = {
 									showLink: false,
 									sendData: false,
