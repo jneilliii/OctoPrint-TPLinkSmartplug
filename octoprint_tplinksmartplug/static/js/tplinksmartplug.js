@@ -431,19 +431,20 @@ $(function() {
                         var color_val = $('#tab_plugin_tplinksmartplug').css('color');
                         var foreground_color = (!color_val || color_val === 'inherit' || color_val === 'transparent' || color_val == 'rgba(0, 0, 0, 0)') ? '#000000' : color_val;
 
-						var layout = {title:'TP-Link Smartplug Energy Data',
+						var layout = {title:{text: 'TP-Link Smartplug Energy Data'},
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									autosize: true,
 									showlegend: false,
+									hoversubplots: 'axis',
+                                    hovermode: 'x unified',
 									xaxis: {
-										showticklabels: false,
 										anchor: 'x',
 										tickcolor: foreground_color,
 							            linecolor: foreground_color,
 							            color: foreground_color
 									},
 									yaxis: {
-										title: 'Total (kWh)',
+										title: {text: 'Total (kWh)'},
 										hoverformat: '.3f kWh',
 										tickangle: 45,
 										tickfont: {
@@ -463,7 +464,7 @@ $(function() {
 							            matches: 'x'
 									},
 									yaxis2: {
-										title: 'Current (Amp)',
+										title: {text: 'Current (Amp)'},
 										hoverformat: '.3f',
 										anchor: 'x2',
 										tickangle: 45,
@@ -486,7 +487,7 @@ $(function() {
 									yaxis3: {
 										overlaying: 'y2',
 										side: 'right',
-										title: 'Power (W)',
+										title: {text: 'Power (W)'},
 										hoverformat: '.3f',
 										anchor: 'x3',
 										tickangle: -45,
@@ -510,7 +511,7 @@ $(function() {
 									yaxis4: {
 										overlaying: 'y',
 										side: 'right',
-										title: 'Cost',
+										title: {text: 'Cost'},
 										hoverformat: '.3f',
 										anchor: 'x4',
 										tickangle: -45,
