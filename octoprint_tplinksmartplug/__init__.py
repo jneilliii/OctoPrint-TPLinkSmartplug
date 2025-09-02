@@ -15,10 +15,12 @@ import flask
 import octoprint.plugin
 from flask_babel import gettext
 from kasa import Device, Discover, Credentials, Module
+from kasa import __version__ as kasa_version
 from octoprint.access.permissions import Permissions, ADMIN_GROUP
 from octoprint.events import Events
 from octoprint.util import RepeatedTimer
-from octoprint.util.version import is_octoprint_compatible
+from octoprint.util.version import is_octoprint_compatible, is_version_compatible
+
 from uptime import uptime
 
 from .worker import AsyncTaskWorker
@@ -1062,8 +1064,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 	async def connect_device(self, config_dict):
 		try:
-			# if "credentials" in config_dict:
-				# config_dict["credentials"] = Credentials(**config_dict["credentials"])
+			if "credentials" in config_dict and is_version_compatible(kasa_version, "<0.8.0"):
+				config_dict["credentials"] = Credentials(**config_dict["credentials"])
 			self._tplinksmartplug_logger.debug(config_dict)
 			device = await Device.connect(config=Device.Config.from_dict(config_dict))
 			await device.update()
