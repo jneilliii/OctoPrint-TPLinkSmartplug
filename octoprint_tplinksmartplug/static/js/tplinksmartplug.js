@@ -39,6 +39,9 @@ $(function() {
 		self.graph_end_date = ko.observable(moment().format('YYYY-MM-DDTHH:mm'));
 		self.processing_api_request = ko.observable(false);
 
+		self.discovering = ko.observable(false);
+		self.discovered_devices = ko.observableDictionary();
+
 		self.filteredSmartplugs = ko.computed(function(){
 			return ko.utils.arrayFilter(self.dictSmartplugs.items(), function(item) {
 						return "err_code" in item.value().emeter.get_realtime;
@@ -258,7 +261,8 @@ $(function() {
 								'gcodeCmdOff': ko.observable(false),
 								'gcodeRunCmdOn': ko.observable(''),
 								'gcodeRunCmdOff': ko.observable(''),
-								'connect_on_connect': ko.observable(false)
+								'connect_on_connect': ko.observable(false),
+								'receives_led_commands': ko.observable(false)
 			});
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
@@ -266,6 +270,62 @@ $(function() {
 
 		self.removePlug = function(row) {
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.remove(row);
+		}
+
+		self.add_discovered_device = function(ip, alias) {
+			self.selectedPlug({'ip':ko.observable(ip),
+								'label':ko.observable(alias),
+								'icon':ko.observable('icon-bolt'),
+								'displayWarning':ko.observable(true),
+								'warnPrinting':ko.observable(false),
+								'gcodeEnabled':ko.observable(false),
+								'gcodeOnDelay':ko.observable(0),
+								'gcodeOffDelay':ko.observable(0),
+								'autoConnect':ko.observable(true),
+								'autoConnectDelay':ko.observable(10.0),
+								'autoDisconnect':ko.observable(true),
+								'autoDisconnectDelay':ko.observable(0),
+								'sysCmdOn':ko.observable(false),
+								'sysRunCmdOn':ko.observable(''),
+								'sysCmdOnDelay':ko.observable(0),
+								'sysCmdOff':ko.observable(false),
+								'sysRunCmdOff':ko.observable(''),
+								'sysCmdOffDelay':ko.observable(0),
+								'currentState':ko.observable('unknown'),
+								'btnColor':ko.observable('#808080'),
+								'emeter':{get_realtime:{}},
+								'thermal_runaway':ko.observable(false),
+								'event_on_error':ko.observable(false),
+								'event_on_disconnect':ko.observable(false),
+								'event_on_shutdown': ko.observable(false),
+								'automaticShutdownEnabled':ko.observable(false),
+								'event_on_upload':ko.observable(false),
+								'event_on_startup':ko.observable(false),
+								'gcodeCmdOn': ko.observable(false),
+								'gcodeCmdOff': ko.observable(false),
+								'gcodeRunCmdOn': ko.observable(''),
+								'gcodeRunCmdOff': ko.observable(''),
+								'connect_on_connect': ko.observable(false),
+								'receives_led_commands': ko.observable(false)
+			});
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
+			$("#tplink_device_discovery").modal("hide");
+			$("#TPLinkPlugEditor").modal("show");
+		}
+
+		self.discover_devices = function() {
+		    self.discovering(true);
+			self.discovered_devices.removeAll();
+		    $("#tplink_device_discovery").modal("show");
+		    OctoPrint.simpleApiCommand("tplinksmartplug", "discoverDevices", {"username": self.settings.settings.plugins.tplinksmartplug.username(), "password": self.settings.settings.plugins.tplinksmartplug.password()}).done(function(data){
+		            self.discovering(false);
+		            self.discovered_devices.pushAll(ko.toJS(data.discovered_devices));
+					console.log(self.discovered_devices);
+		        }).fail(function(jqXHR, textStatus, errorThrown){
+					    self.discovering(false);
+					    console.error("Failed to discover devices:", textStatus, errorThrown, jqXHR);
+					    alert("Failed to discover devices, please consult developer tools for more details.");
+					});
 		}
 
 		self.onDataUpdaterPluginMessage = function(plugin, data) {

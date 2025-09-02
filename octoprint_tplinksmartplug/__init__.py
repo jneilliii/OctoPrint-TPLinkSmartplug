@@ -232,7 +232,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				'thermal_runaway_monitoring': False, 'thermal_runaway_max_bed': 0, 'thermal_runaway_max_extruder': 0,
 				'cost_rate': 0, 'abortTimeout': 30, 'powerOffWhenIdle': False, 'idleTimeout': 30, 'idleIgnoreCommands': 'M105',
 				'idleIgnoreHeaters': '', 'idleTimeoutWaitTemp': 50, 'progress_polling': False, 'useDropDown': False,
-				'device_configs': {}, 'connect_on_connect_request': False}
+				'device_configs': {}, 'connect_on_connect_request': False, 'username': '', 'password': ''}
 
 	def on_settings_save(self, data):
 		old_debug_logging = self._settings.get_boolean(["debug_logging"])
@@ -600,7 +600,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			enableAutomaticShutdown=[],
 			disableAutomaticShutdown=[],
 			abortAutomaticShutdown=[],
-			getListPlug=[])
+			getListPlug=[],
+			discoverDevices=["username", "password"])
 
 	def on_api_get(self, request):
 		if not Permissions.PLUGIN_TPLINKSMARTPLUG_CONTROL.can():
@@ -666,8 +667,19 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._reset_idle_timer()
 		elif command == "getListPlug":
 			return json.dumps(self._settings.get(["arrSmartplugs"]))
+		elif command == "discoverDevices":
+			username = None
+			password = None
+			if "username" in data and data["username"] != "":
+				username = data["username"]
+			if "password" in data and data["password"] != "":
+				password = data["password"]
+			found_devices_task = self.worker.run_coroutine_threadsafe(self.discover_devices(username, password))
+			found_devices = found_devices_task.result()
+			response = {'discovered_devices': found_devices}
 		else:
 			response = dict(ip="{ip}".format(**data), currentState="unknown")
+
 		if command == "enableAutomaticShutdown" or command == "disableAutomaticShutdown":
 			self._tplinksmartplug_logger.debug(f"Automatic power off setting changed: {self.powerOffWhenIdle}")
 			self._settings.set_boolean(["powerOffWhenIdle"], self.powerOffWhenIdle)
@@ -1033,11 +1045,26 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 				self._tplinksmartplug_logger.debug(f"Unable to get device_config for {plugip}: {e}")
 		return config_dict
 
+	async def update_device(self, dev):
+		try:
+			await dev.update()
+			self._tplinksmartplug_logger.debug(f"found device {dev.alias} (model: {dev.model})")
+		except Exception as e:
+			self._tplinksmartplug_logger.debug(f"Unable to get device_config for {dev.host}: {e}")
+			self._tplinksmartplug_logger.debug(f"Unable to get device_config for {dev.host}: {e}")
+
+	async def discover_devices(self, username=None, password=None):
+		devices_mac = {}
+		found_devices = await Discover.discover(on_discovered=self.update_device, username=username, password=password)
+		for dev in found_devices.values():
+			devices_mac[dev.mac] = {'alias': dev.alias, 'host':  dev.host, 'mac': dev.mac, 'model': dev.model, 'state': 'on' if dev.is_on else 'off'}
+		return devices_mac
+
 	async def connect_device(self, config_dict):
 		try:
-			if "credentials" in config_dict:
-				config_dict["credentials"] = Credentials(**config_dict["credentials"])
-
+			# if "credentials" in config_dict:
+				# config_dict["credentials"] = Credentials(**config_dict["credentials"])
+			self._tplinksmartplug_logger.debug(config_dict)
 			device = await Device.connect(config=Device.Config.from_dict(config_dict))
 			await device.update()
 			return device

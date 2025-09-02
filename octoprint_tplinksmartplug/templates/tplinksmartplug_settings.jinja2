@@ -4,7 +4,7 @@
 		<tr>
 			<td>{{ _('Plug') }}</td>
 			<td style="text-align:center">{{ _('Options') }}</td>
-			<td style="text-align:center"><a href="#" class="btn btn-mini" data-bind="click: addPlug"><i class="fas fa-plus" aria-hidden="true"></i></a></td>
+			<td style="text-align:center"><a href="#" class="btn btn-mini" data-bind="click: addPlug"><i class="fas fa-plus" aria-hidden="true"></i></a><a href="#" class="btn btn-mini" data-bind="click: discover_devices"><i class="fas fa-search" aria-hidden="true"></i></a></td>
 		</tr>
 	</thead>
 	<tbody data-bind="sortable: { data: settings.settings.plugins.tplinksmartplug.arrSmartplugs, options: { cancel: '.unsortable', handle: '.movePlug', axis:'y'} }">
@@ -194,6 +194,29 @@
 			<input type="checkbox" title="{{ _('Enable custom debug logging to assist with troubleshooting.') }}" data-toggle="tooltip" data-bind="checked: settings.settings.plugins.tplinksmartplug.debug_logging, tooltip: {}"> {{ _('Enable debug logging.') }}
 			</label>
 		</div>
+	</div>
+</div>
+
+<div id="tplink_device_discovery" class="modal hide fade">
+	<div class="modal-header">
+		<a href="#" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+		<h3>{{ _('TP-Link Device Discovery') }}</h3>
+	</div>
+	<div class="modal-body form-vertical">
+	    <div class="info" data-bind="visible: discovering()"><i class="fa fa-spinner fa-spin"></i> Discovering devices please wait.</div>
+        <div class="row-fluid" data-bind="foreach: discovered_devices.items">
+			<div class="control-group">
+				<label><a href="#" data-bind="click: function(){$root.add_discovered_device(value()['host'], value()['alias'])}"><span data-bind="text: value()['alias']"></span></a></label>
+				<div class="controls">
+					MODEL: <span data-bind="text: value()['model']"></span> <br>
+					MAC: <span data-bind="text: value()['mac']"></span> <br>
+					IP: <span data-bind="text: value()['host']"></span>
+				</div>
+			</div>
+        </div>
+    </div>
+	<div class="modal-footer">
+		<a href="#" class="btn" data-dismiss="modal" aria-hidden="true">{{ _('Close') }}</a>
 	</div>
 </div>
 
