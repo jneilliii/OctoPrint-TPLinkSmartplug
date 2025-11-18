@@ -233,7 +233,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		return {'debug_logging': False, 'arrSmartplugs': [], 'pollingInterval': 15, 'pollingEnabled': False,
 				'thermal_runaway_monitoring': False, 'thermal_runaway_max_bed': 0, 'thermal_runaway_max_extruder': 0,
 				'cost_rate': 0, 'abortTimeout': 30, 'powerOffWhenIdle': False, 'idleTimeout': 30, 'idleIgnoreCommands': 'M105',
-				'idleIgnoreHeaters': '', 'idleTimeoutWaitTemp': 50, 'progress_polling': False, 'useDropDown': False,
+				'idleIgnoreHeaters': '', 'idleTimeoutWaitTemp': 50, 'idleBypassDisconnected': False, 'progress_polling': False, 'useDropDown': False,
 				'device_configs': {}, 'connect_on_connect_request': False, 'username': '', 'password': ''}
 
 	def on_settings_save(self, data):
@@ -880,6 +880,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			if self._wait_for_timelapse():
 				if self._printer.is_printing() or self._printer.is_paused():
 					self._tplinksmartplug_logger.debug("Aborted power off due to print activity.")
+					return
+				if self._printer.is_closed_or_error() and self._settings.get_boolean(["idleBypassDisconnected"]):
+					self._tplinksmartplug_logger.debug("Aborted power off due to serial disconnect.")
+					self._reset_idle_timer()
 					return
 				self._timer_start()
 		else:
