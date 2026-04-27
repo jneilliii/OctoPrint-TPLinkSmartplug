@@ -3,8 +3,6 @@ on:
   workflow_dispatch:
   schedule:
   - cron: "0 0 * * *"
-# permissions:
-#  actions: write
 jobs:
   stale:
     runs-on: ubuntu-latest
@@ -21,7 +19,10 @@ jobs:
         days-before-issue-close: 7
         days-before-pr-close: -1
         exempt-issue-labels: 'bug,enhancement'
-#    - uses: actions/checkout@v4
-#    - uses: gautamkrishnar/keepalive-workflow@v2
-#      with:
-#        use_api: true
+  keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+    - uses: jneilliii/gh-workflow-keepalive@v1.2.1
