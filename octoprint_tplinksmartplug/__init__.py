@@ -451,7 +451,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	async def turn_on_device(self, plug_device) -> Optional[Device]:
 		try:
 			await plug_device.turn_on()
-			await plug_device.update()
+			# a strip socket's on/off state is refreshed by its parent's update, not its own
+			await (plug_device.parent or plug_device).update()
 			return plug_device
 		except Exception as e:
 			self._tplinksmartplug_logger.error(f"Failed to turn on {plug_device}: {e}")
@@ -460,7 +461,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	async def turn_off_device(self, plug_device) -> Optional[Device]:
 		try:
 			await plug_device.turn_off()
-			await plug_device.update()
+			# a strip socket's on/off state is refreshed by its parent's update, not its own
+			await (plug_device.parent or plug_device).update()
 			return plug_device
 		except Exception as e:
 			self._tplinksmartplug_logger.error(f"Failed to turn on {plug_device}: {e}")
