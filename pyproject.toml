@@ -1,0 +1,45 @@
+[build-system]
+requires = [
+    "setuptools>=68",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "OctoPrint-TPLinkSmartplug"
+version = "2.0.0"
+description = "Simple plugin to control TP-Link Smartplug"
+authors = [
+    { name = "jneilliii", email = "jneilliii+github@gmail.com" },
+]
+requires-python = ">=3.11,<4"
+dependencies = [
+    "uptime",
+    "python-kasa>=0.11.0",
+]
+dynamic = [
+    "license",
+]
+
+[project.entry-points."octoprint.plugin"]
+tplinksmartplug = "octoprint_tplinksmartplug"
+
+[project.urls]
+Homepage = "https://github.com/jneilliii/OctoPrint-TPLinkSmartplug"
+
+[project.optional-dependencies]
+develop = [
+    "go-task-bin",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = [
+    "octoprint_tplinksmartplug",
+    "octoprint_tplinksmartplug.*",
+]

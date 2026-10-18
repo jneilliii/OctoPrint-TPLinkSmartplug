@@ -31,11 +31,17 @@ $(function() {
 		self.selectedPlug = ko.observable();
 		self.processing = ko.observableArray([]);
 		self.plotted_graph_ip = ko.observable(false);
-		self.plotted_graph_records = ko.observable(10);
-		self.plotted_graph_records_offset = ko.observable(0);
 		self.dictSmartplugs = ko.observableDictionary();
 		self.refreshVisible = ko.observable(true);
 		self.powerOffWhenIdle = ko.observable(false);
+
+		self.graph_start_date = ko.observable(moment().subtract(1, 'days').format('YYYY-MM-DDTHH:mm'));
+		self.graph_end_date = ko.observable(moment().format('YYYY-MM-DDTHH:mm'));
+		self.processing_api_request = ko.observable(false);
+
+		self.discovering = ko.observable(false);
+		self.discovered_devices = ko.observableDictionary();
+
 		self.filteredSmartplugs = ko.computed(function(){
 			return ko.utils.arrayFilter(self.dictSmartplugs.items(), function(item) {
 						return "err_code" in item.value().emeter.get_realtime;
@@ -188,8 +194,6 @@ $(function() {
 
 		self.onAfterBinding = function() {
 			self.plotted_graph_ip.subscribe(self.plotEnergyData, self);
-			self.plotted_graph_records.subscribe(self.plotEnergyData, self);
-			self.plotted_graph_records_offset.subscribe(self.plotEnergyData, self);
 			self.checkStatuses();
 		}
 
@@ -245,9 +249,6 @@ $(function() {
 								'sysCmdOffDelay':ko.observable(0),
 								'currentState':ko.observable('unknown'),
 								'btnColor':ko.observable('#808080'),
-								'useCountdownRules':ko.observable(false),
-								'countdownOnDelay':ko.observable(1),
-								'countdownOffDelay':ko.observable(1),
 								'emeter':{get_realtime:{}},
 								'thermal_runaway':ko.observable(false),
 								'event_on_error':ko.observable(false),
@@ -259,7 +260,9 @@ $(function() {
 								'gcodeCmdOn': ko.observable(false),
 								'gcodeCmdOff': ko.observable(false),
 								'gcodeRunCmdOn': ko.observable(''),
-								'gcodeRunCmdOff': ko.observable('')
+								'gcodeRunCmdOff': ko.observable(''),
+								'connect_on_connect': ko.observable(false),
+								'receives_led_commands': ko.observable(false)
 			});
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
 			$("#TPLinkPlugEditor").modal("show");
@@ -267,6 +270,62 @@ $(function() {
 
 		self.removePlug = function(row) {
 			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.remove(row);
+		}
+
+		self.add_discovered_device = function(ip, alias) {
+			self.selectedPlug({'ip':ko.observable(ip),
+								'label':ko.observable(alias),
+								'icon':ko.observable('icon-bolt'),
+								'displayWarning':ko.observable(true),
+								'warnPrinting':ko.observable(false),
+								'gcodeEnabled':ko.observable(false),
+								'gcodeOnDelay':ko.observable(0),
+								'gcodeOffDelay':ko.observable(0),
+								'autoConnect':ko.observable(true),
+								'autoConnectDelay':ko.observable(10.0),
+								'autoDisconnect':ko.observable(true),
+								'autoDisconnectDelay':ko.observable(0),
+								'sysCmdOn':ko.observable(false),
+								'sysRunCmdOn':ko.observable(''),
+								'sysCmdOnDelay':ko.observable(0),
+								'sysCmdOff':ko.observable(false),
+								'sysRunCmdOff':ko.observable(''),
+								'sysCmdOffDelay':ko.observable(0),
+								'currentState':ko.observable('unknown'),
+								'btnColor':ko.observable('#808080'),
+								'emeter':{get_realtime:{}},
+								'thermal_runaway':ko.observable(false),
+								'event_on_error':ko.observable(false),
+								'event_on_disconnect':ko.observable(false),
+								'event_on_shutdown': ko.observable(false),
+								'automaticShutdownEnabled':ko.observable(false),
+								'event_on_upload':ko.observable(false),
+								'event_on_startup':ko.observable(false),
+								'gcodeCmdOn': ko.observable(false),
+								'gcodeCmdOff': ko.observable(false),
+								'gcodeRunCmdOn': ko.observable(''),
+								'gcodeRunCmdOff': ko.observable(''),
+								'connect_on_connect': ko.observable(false),
+								'receives_led_commands': ko.observable(false)
+			});
+			self.settings.settings.plugins.tplinksmartplug.arrSmartplugs.push(self.selectedPlug());
+			$("#tplink_device_discovery").modal("hide");
+			$("#TPLinkPlugEditor").modal("show");
+		}
+
+		self.discover_devices = function() {
+		    self.discovering(true);
+			self.discovered_devices.removeAll();
+		    $("#tplink_device_discovery").modal("show");
+		    OctoPrint.simpleApiCommand("tplinksmartplug", "discoverDevices", {"username": self.settings.settings.plugins.tplinksmartplug.username(), "password": self.settings.settings.plugins.tplinksmartplug.password()}).done(function(data){
+		            self.discovering(false);
+		            self.discovered_devices.pushAll(ko.toJS(data.discovered_devices));
+					console.log(self.discovered_devices);
+		        }).fail(function(jqXHR, textStatus, errorThrown){
+					    self.discovering(false);
+					    console.error("Failed to discover devices:", textStatus, errorThrown, jqXHR);
+					    alert("Failed to discover devices, please consult developer tools for more details.");
+					});
 		}
 
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
@@ -368,8 +427,37 @@ $(function() {
 				});
 		}
 
+		self.getDefaultBackground = function() {
+          // have to add to the document in order to use getComputedStyle
+          var div = document.createElement("div");
+          document.head.appendChild(div);
+          var bg = window.getComputedStyle(div).backgroundColor;
+          document.head.removeChild(div);
+          return bg;
+        };
+
+		self.getInheritedBackgroundColor = function(el) {
+          // get default style for current browser
+          if (!self.defaultStyle) {
+              self.defaultStyle = self.getDefaultBackground(); // typically "rgba(0, 0, 0, 0)"
+          }
+
+          // get computed color for el
+          var backgroundColor = window.getComputedStyle(el).backgroundColor;
+
+          // if we got a real value, return it
+          if (backgroundColor !== self.defaultStyle) return backgroundColor;
+
+          // if we've reached the top parent el without getting an explicit color, return default
+          if (!el.parentElement) return self.defaultStyle;
+
+          // otherwise, recurse and try again on parent element
+          return self.getInheritedBackgroundColor(el.parentElement);
+        };
+
 		self.plotEnergyData = function(data) {
 			if(self.plotted_graph_ip()) {
+			    self.processing_api_request(true);
 				$.ajax({
 				url: API_BASEURL + "plugin/tplinksmartplug",
 				type: "POST",
@@ -377,16 +465,16 @@ $(function() {
 				data: JSON.stringify({
 					command: "getEnergyData",
 					ip: self.plotted_graph_ip(),
-					record_limit: self.plotted_graph_records(),
-					record_offset: self.plotted_graph_records_offset()
+					start_date: self.graph_start_date().replace('T', ' '),
+					end_date: self.graph_end_date().replace('T', ' ')
 				}),
 				cost_rate: self.settings.settings.plugins.tplinksmartplug.cost_rate(),
 				contentType: "application/json; charset=UTF-8"
 				}).done(function(data){
-						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis: 'x2',yaxis: 'y2'};
-						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis: 'x3',yaxis: 'y3'};
-						var trace_total = {x:[],y:[],mode:'lines+markers',name:'Total (kWh)'};
-						var trace_cost = {x:[],y:[],mode:'lines+markers',name:'Cost'}
+						var trace_current = {x:[],y:[],mode:'lines+markers',name:'Current (Amp)',xaxis:'x2',yaxis:'y2'};
+						var trace_power = {x:[],y:[],mode:'lines+markers',name:'Power (W)',xaxis:'x3',yaxis:'y3'};
+						var trace_total = {x:[],y:[],mode:'lines+markers',name:'Total (kWh)',xaxis:'x',yaxis:'y'};
+						var trace_cost = {x:[],y:[],mode:'lines+markers',name:'Cost',xaxis:'x4',yaxis:'y4'}
 
 						ko.utils.arrayForEach(data.energy_data, function(row){
 							trace_current.x.push(row[0]);
@@ -398,71 +486,108 @@ $(function() {
 							trace_cost.x.push(row[0]);
 							trace_cost.y.push((row[3]*self.settings.settings.plugins.tplinksmartplug.cost_rate()).toFixed(3));
 						});
-						var layout = {title:'TP-Link Smartplug Energy Data',
+						var inherited_bg_color = self.getInheritedBackgroundColor(document.getElementById('tab_plugin_tplinksmartplug'));
+                        var background_color = (inherited_bg_color == 'rgba(0, 0, 0, 0)') ? '#FFFFFF' : inherited_bg_color;
+                        var color_val = $('#tab_plugin_tplinksmartplug').css('color');
+                        var foreground_color = (!color_val || color_val === 'inherit' || color_val === 'transparent' || color_val == 'rgba(0, 0, 0, 0)') ? '#000000' : color_val;
+
+						var layout = {title:{text: 'TP-Link Smartplug Energy Data'},
 									grid: {rows: 2, columns: 1, pattern: 'independent'},
 									autosize: true,
 									showlegend: false,
+									hoversubplots: 'axis',
+                                    hovermode: 'x unified',
 									xaxis: {
-										showticklabels: false,
-										anchor: 'x'
+										anchor: 'x',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									yaxis: {
-										title: 'Total (kWh)',
+										title: {text: 'Total (kWh)'},
 										hoverformat: '.3f kWh',
 										tickangle: 45,
 										tickfont: {
 											size: 10
 										},
 										tickformat: '.2f',
-										anchor: 'y'
+										anchor: 'y',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									xaxis2: {
-										anchor: 'y2'
+										anchor: 'y2',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color,
+							            matches: 'x'
 									},
 									yaxis2: {
-										title: 'Current (Amp)',
+										title: {text: 'Current (Amp)'},
 										hoverformat: '.3f',
 										anchor: 'x2',
 										tickangle: 45,
 										tickfont: {
 											size: 10
 										},
-										tickformat: '.2f'
+										tickformat: '.2f',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									xaxis3: {
 										overlaying: 'x2',
 										anchor: 'y3',
-										showticklabels: false
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color,
+							            matches: 'x'
 									},
 									yaxis3: {
 										overlaying: 'y2',
 										side: 'right',
-										title: 'Power (W)',
+										title: {text: 'Power (W)'},
 										hoverformat: '.3f',
 										anchor: 'x3',
 										tickangle: -45,
 										tickfont: {
 											size: 10
 										},
-										tickformat: '.2f'
+										tickformat: '.2f',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
 									},
 									xaxis4: {
 										overlaying: 'x',
 										anchor: 'y4',
-										showticklabels: false
+										showticklabels: false,
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color,
+							            matches: 'x'
 									},
 									yaxis4: {
 										overlaying: 'y',
 										side: 'right',
-										title: 'Cost',
+										title: {text: 'Cost'},
 										hoverformat: '.3f',
 										anchor: 'x4',
 										tickangle: -45,
 										tickfont: {
 											size: 10
 										},
-										tickformat: '.2f'
-									}};
+										tickformat: '.2f',
+										tickcolor: foreground_color,
+							            linecolor: foreground_color,
+							            color: foreground_color
+									},
+									plot_bgcolor: background_color,
+                                    paper_bgcolor: background_color,
+                                    font: {
+                                        color: foreground_color
+                                    }};
 						var options = {
 									showLink: false,
 									sendData: false,
@@ -475,6 +600,11 @@ $(function() {
 						if(window.location.href.indexOf('tplinksmartplug') > 0){
 							Plotly.react('tplinksmartplug_energy_graph',plot_data,layout,options);
 						}
+						self.processing_api_request(false);
+					}).fail(function(jqXHR, textStatus, errorThrown){
+					    self.processing_api_request(false);
+					    console.error("Failed to fetch energy data:", textStatus, errorThrown, jqXHR);
+					    alert("Failed to fetch energy data. Please consult developer tools for more details.");
 					});
 			}
 		}
