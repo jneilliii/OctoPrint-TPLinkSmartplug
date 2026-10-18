@@ -1103,6 +1103,31 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			self._tplinksmartplug_logger.error(f"Error connecting to device: {e}")
 		return device
 
+	@staticmethod
+	def get_child_socket_number(child, index: int) -> int:
+		"""
+		Return the 1-based physical socket number of a child device.
+
+		Tapo children report it as `position`, Kasa strips as the trailing two digits of the child id. The order of
+		`device.children` is whatever the firmware lists, so it is only used when the device doesn't say.
+		"""
+		try:
+			position = child.sys_info.get("position")
+			if position is not None:
+				return int(position)
+			child_id = getattr(child, "child_id", None)
+			if child_id:
+				return int(child_id[-2:]) + 1
+		except (AttributeError, TypeError, ValueError):
+			pass
+		return index + 1
+
+	def get_child_by_socket(self, device: Device, socket: int) -> Device:
+		for index, child in enumerate(device.children):
+			if self.get_child_socket_number(child, index) == socket:
+				return child
+		raise IndexError(f"Socket {socket} not found in {len(device.children)} children")
+
 	def get_device(self, plugip: str) -> Optional[Device]:
 		try:
 			config_dict = self.get_device_config(plugip)
@@ -1110,7 +1135,7 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			device = future.result()
 			plug_ip = plugip.split("/")
 			if len(plug_ip) == 2 and len(device.children) > 0:
-				device = device.children[int(plug_ip[1]) - 1]
+				device = self.get_child_by_socket(device, int(plug_ip[1]))
 			return device
 		except Exception as e:
 			self._tplinksmartplug_logger.error(f"Error connecting to device: {e}")
