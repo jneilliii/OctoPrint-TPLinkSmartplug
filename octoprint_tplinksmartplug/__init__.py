@@ -1380,3 +1380,11 @@ def __plugin_load__():
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
 		"octoprint.printer.handle_connect": __plugin_implementation__.on_connect
 	}
+
+
+	global __plugin_helpers__
+	__plugin_helpers__ = {
+		'turn_on': __plugin_implementation__.turn_on,
+		'turn_off': __plugin_implementation__.turn_off,
+		'check_status': __plugin_implementation__.check_status,
+	}
