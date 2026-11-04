@@ -1059,8 +1059,6 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 			if username and password:
 				config_dict["credentials"] = {"username": username, "password": password}
 				config_dict.pop("credentials_hash", None)
-			elif config_dict.get("connection_type", {}).get("encryption_type") in ("AES", "KLAP"):
-				raise ValueError("Save your TP-Link account username and password in the plugin settings before connecting.")
 		return config_dict
 
 	async def update_device(self, dev):

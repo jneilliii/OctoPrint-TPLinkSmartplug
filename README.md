@@ -4,7 +4,7 @@
 
 ***Warning***: Recent firmware updates for the HS103 breaks the use of this plugin with those devices. TP-Link may push the same firmware to other devices, but be warned that updating your devices firmware may break the use of this plugin. It appears this can be resolved by never connecting the plug to the cloud by following the steps outlined [here](https://github.com/jneilliii/OctoPrint-TPLinkSmartplug/tree/master/extras/How_to_make_Kasa_smart_devices_controlled_local_only.pdf).
 
-Work inspired by [OctoPrint-PSUControl](https://github.com/kantlivelong/OctoPrint-PSUControl) and [TP-Link WiFi SmartPlug Client](https://github.com/softScheck/tplink-smartplug), this plugin controls a TP-Link Smartplug via OctoPrint's nav bar. Currently known compatible models are the HS100, HS103, HS105, HS107, HS110, HS300, KP105, KP303, KP115. Other Kasa app based devices may work. Tapo series devices will not work with this plugin, and probably never will because of their closed communication.
+Work inspired by [OctoPrint-PSUControl](https://github.com/kantlivelong/OctoPrint-PSUControl) and [TP-Link WiFi SmartPlug Client](https://github.com/softScheck/tplink-smartplug), this plugin controls a TP-Link Smartplug via OctoPrint's nav bar. Currently known compatible models are the HS100, HS103, HS105, HS107, HS110, HS300, KP105, KP303, KP115, and Tapo P100. Other devices supported by [python-kasa](https://github.com/python-kasa/python-kasa/blob/master/SUPPORTED.md) may also work.
 
 ##  Screenshots
 ![screenshot](screenshot.png)
@@ -26,6 +26,8 @@ or manually using this URL:
 ## Configuration
 
 Once installed go into settings and enter the ip address for your TP-Link Smartplug device. Adjust additional settings as needed.
+
+For Tapo and newer Kasa devices that require authentication, enter your TP-Link account email and password in the plugin settings and click **Save** before connecting. Preserve the capitalization of your account email. Saved credential changes also apply to plugs that have already been configured.
 
 ## Settings Explained
 - **IP**
