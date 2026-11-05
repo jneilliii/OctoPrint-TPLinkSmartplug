@@ -1034,8 +1034,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	def get_device_config(self, plugip: str):
 		device_configs = self._settings.get(["device_configs"])
 		config_dict = device_configs.get(plugip, None)
-		username = self._settings.get(["username"])
-		password = self._settings.get(["password"])
+		username = (self._settings.get(["username"]) or "").strip()
+		password = self._settings.get(["password"]) or ""
 
 		if not config_dict:  # config is not saved, add it to settings
 			try:
@@ -1052,6 +1052,13 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 					self._settings.save()
 			except Exception as e:
 				self._tplinksmartplug_logger.debug(f"Unable to get device_config for {plugip}: {e}")
+		if config_dict:
+			# Connection settings may have been cached before credentials were saved.
+			# Use the current account settings without mutating the persisted cache.
+			config_dict = dict(config_dict)
+			if username and password:
+				config_dict["credentials"] = {"username": username, "password": password}
+				config_dict.pop("credentials_hash", None)
 		return config_dict
 
 	async def update_device(self, dev):
@@ -1073,7 +1080,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		try:
 			if "credentials" in config_dict and is_version_compatible(kasa_version, "<0.8.0"):
 				config_dict["credentials"] = Credentials(**config_dict["credentials"])
-			self._tplinksmartplug_logger.debug(config_dict)
+			self._tplinksmartplug_logger.debug(
+				"Connecting to %s using %s; credentials configured: %s",
+				config_dict.get("host"), config_dict.get("connection_type"),
+				bool(config_dict.get("credentials") or config_dict.get("credentials_hash")))
 			device = await Device.connect(config=Device.Config.from_dict(config_dict))
 			await device.update()
 			return device
