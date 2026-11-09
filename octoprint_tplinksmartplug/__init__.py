@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import
 
+import asyncio
 import json
 import logging
 import os
@@ -119,6 +120,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 
 		# create a thread pool for asyncio tasks
 		self.worker = AsyncTaskWorker()
+		# one connected Device per host, reused on the worker loop: python-kasa keeps a device's connection open
+		# between queries, and a new connection per call leaves the old ones open, which some plugs answer with a reset
+		self._devices = {}
+		self._devices_lock = None
 
 	# ~~ StartupPlugin mixin
 
@@ -209,6 +214,10 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 	# ~~ ShutdownPlugin mixin
 
 	def on_shutdown(self):
+		try:
+			self.worker.run_coroutine_threadsafe(self.close_devices()).result(timeout=5)
+		except Exception as e:
+			self._tplinksmartplug_logger.debug(f"Error closing device connections: {e}")
 		self.worker.shutdown()
 
 	def on_connect(self, *args, **kwargs):  # Power up on connect
@@ -243,6 +252,8 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		old_power_off_when_idle = self._settings.get_boolean(["powerOffWhenIdle"])
 
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
+		# saved settings may change a plug's ip, connection or credentials, so connect afresh on the next use
+		self.worker.run_coroutine_threadsafe(self.close_devices())
 
 		self.abortTimeout = self._settings.get_int(["abortTimeout"])
 		self.powerOffWhenIdle = any(map(lambda plug_check: plug_check["automaticShutdownEnabled"] is True, self._settings.get(["arrSmartplugs"])))
@@ -1080,16 +1091,47 @@ class tplinksmartplugPlugin(octoprint.plugin.SettingsPlugin,
 		try:
 			if "credentials" in config_dict and is_version_compatible(kasa_version, "<0.8.0"):
 				config_dict["credentials"] = Credentials(**config_dict["credentials"])
-			self._tplinksmartplug_logger.debug(
-				"Connecting to %s using %s; credentials configured: %s",
-				config_dict.get("host"), config_dict.get("connection_type"),
-				bool(config_dict.get("credentials") or config_dict.get("credentials_hash")))
-			device = await Device.connect(config=Device.Config.from_dict(config_dict))
-			await device.update()
-			return device
+			host = config_dict.get("host")
+			async with self._get_devices_lock():
+				device = self._devices.get(host)
+				if device is not None:
+					try:
+						await device.update()
+						return device
+					except Exception as e:
+						self._tplinksmartplug_logger.debug(f"Reconnecting to {host} after: {e}")
+						await self._close_device(host)
+				self._tplinksmartplug_logger.debug(
+					"Connecting to %s using %s; credentials configured: %s",
+					host, config_dict.get("connection_type"),
+					bool(config_dict.get("credentials") or config_dict.get("credentials_hash")))
+				device = await Device.connect(config=Device.Config.from_dict(config_dict))
+				await device.update()
+				self._devices[host] = device
+				return device
 		except Exception as e:
 			self._tplinksmartplug_logger.error(f"Error connecting to device: {e}")
 		return None
+
+	def _get_devices_lock(self):
+		# made here, on the worker loop: two calls connecting at once would each open a connection
+		if self._devices_lock is None:
+			self._devices_lock = asyncio.Lock()
+		return self._devices_lock
+
+	async def _close_device(self, host):
+		# the caller holds the devices lock
+		device = self._devices.pop(host, None)
+		if device is not None:
+			try:
+				await device.disconnect()
+			except Exception as e:
+				self._tplinksmartplug_logger.debug(f"Error disconnecting from {host}: {e}")
+
+	async def close_devices(self):
+		async with self._get_devices_lock():
+			for host in list(self._devices):
+				await self._close_device(host)
 
 	async def set_device_led(self, device, led_values, set_color=False) -> Optional[Device]:
 		try:
